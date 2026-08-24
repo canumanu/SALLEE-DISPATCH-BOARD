@@ -206,6 +206,13 @@
     color:#7a5c2e;font-size:10px;margin-top:2px;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
+  .job-card .lb-ref{
+    display:inline-block;margin-top:3px;
+    font-size:9.5px;font-weight:700;color:var(--green-dark);
+    background:var(--gold-light);border-radius:4px;padding:2px 6px;
+    text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
+  .job-card .lb-ref:hover{background:var(--gold);}
 
   .driver-slot{
     margin-top:5px;
@@ -275,6 +282,22 @@
   .btn-secondary:hover{background:#ddd6c0;}
   .btn-delete{background:transparent;color:var(--danger);border:1px solid var(--danger);padding:9px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;}
   .btn-delete:hover{background:var(--danger);color:#fff;}
+
+  /* ---------- Toast banner (replaces browser alert()) ---------- */
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);
+    background:var(--danger);color:#fff;
+    padding:12px 20px;border-radius:8px;
+    font-size:13.5px;font-weight:600;line-height:1.4;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+    z-index:300;max-width:520px;text-align:center;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toast .toast-close{
+    cursor:pointer;font-weight:900;font-size:16px;line-height:1;
+    color:rgba(255,255,255,.8);flex-shrink:0;
+  }
+  .toast .toast-close:hover{color:#fff;}
 </style>
 </head>
 <body>
@@ -312,6 +335,8 @@
       <option value="vacation">Vacation / off</option>
       <option value="note">Note only</option>
     </select>
+    <label>Assign Driver (optional)</label>
+    <select id="jobAssignDriver"></select>
     <div class="modal-row">
       <div>
         <label>Origin</label>
@@ -348,6 +373,22 @@
         </select>
       </div>
     </div>
+    <div id="repeatThroughRow" class="modal-row">
+      <div>
+        <label>Start Date</label>
+        <input type="date" id="jobStartDate">
+      </div>
+      <div>
+        <label>End Date (optional &mdash; for a vacation stretch, etc.)</label>
+        <input type="date" id="jobEndDate">
+      </div>
+    </div>
+    <label>Load Board Link / Order # (optional)</label>
+    <div style="display:flex;gap:6px;">
+      <input id="jobLoadBoardRef" placeholder="Paste a link/order #, or browse ->" style="flex:1;">
+      <button type="button" class="btn-secondary" id="lbBrowseBtn" style="white-space:nowrap;">Browse</button>
+    </div>
+    <div id="lbBrowsePanel" style="display:none;border:1px solid #cfc9b8;border-radius:6px;margin-top:6px;max-height:160px;overflow-y:auto;"></div>
     <label>Notes</label>
     <textarea id="jobNotes" placeholder="Special instructions..."></textarea>
     <div class="modal-actions">
@@ -393,6 +434,21 @@
       <div class="left">
         <button class="btn-secondary" id="drvCancelBtn">Cancel</button>
         <button class="btn-primary" id="drvSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal (replaces window.confirm()) -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal">
+    <h2>Please confirm</h2>
+    <p id="confirmMessage" style="font-size:13px;color:#3a362c;line-height:1.5;margin:0 0 4px;"></p>
+    <div class="modal-actions">
+      <div class="left"></div>
+      <div class="left">
+        <button class="btn-secondary" id="confirmCancelBtn">Cancel</button>
+        <button class="btn-delete" id="confirmOkBtn">Remove</button>
       </div>
     </div>
   </div>
@@ -476,12 +532,103 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+function dateFromStr(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function populateDriverSelect(selectedId){
+  const sel = document.getElementById('jobAssignDriver');
+  sel.innerHTML = '<option value="">— Unassigned —</option>' +
+    drivers.map(d=>`<option value="${d.id}">${escapeHtml(driverLabel(d))}</option>`).join('');
+  sel.value = selectedId || '';
+}
+
 function driverLabel(drv){
   if(!drv) return '';
   const names = [drv.name1, drv.name2].filter(Boolean).join(' / ');
   const truckPart = [drv.truck, drv.trailer].filter(Boolean).join('/');
   return names + (truckPart ? ' · '+truckPart : '');
 }
+
+/* ============ LOAD BOARD LOOKUP (live fetch, best-effort) ============ */
+// NOTE: field names below are best guesses based on the Load Board's known columns.
+// If your real orders.json uses different key casing/names, tweak the candidate
+// lists in pickField() calls inside describeOrder() below.
+const LOAD_BOARD_ORDERS_URL = 'https://canumanu.github.io/SALLEE-LOAD-BOARD/data/orders.json';
+let loadBoardOrdersCache = null;
+
+async function fetchLoadBoardOrders(){
+  if(loadBoardOrdersCache) return loadBoardOrdersCache;
+  const res = await fetch(LOAD_BOARD_ORDERS_URL, {cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const data = await res.json();
+  loadBoardOrdersCache = Array.isArray(data) ? data : (data.orders || data.Orders || []);
+  return loadBoardOrdersCache;
+}
+
+function pickField(obj, candidates){
+  for(const key of candidates){
+    if(obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+  }
+  return '';
+}
+
+function describeOrder(order){
+  const origin = pickField(order, ['origin','Origin','ORIGIN']);
+  const destination = pickField(order, ['destination','Destination','DESTINATION']);
+  const date = pickField(order, ['date','Date','tripDate','TripDate','pickupDate','PickupDate']);
+  const id = pickField(order, ['id','Id','ID','orderId','OrderID','orderNumber']);
+  let horses = pickField(order, ['horses','Horses']);
+  let horseLabel = '';
+  if(Array.isArray(horses)){
+    horseLabel = horses.map(h=>(h && (h.name||h.Name))||'').filter(Boolean).join(', ');
+  } else if(typeof horses === 'string'){
+    horseLabel = horses;
+  }
+  if(!horseLabel) horseLabel = pickField(order, ['HORSE NAME(S)','horseNames','HorseNames']);
+  const label = `${origin||'?'} \u2192 ${destination||'?'}${date? ' · '+date:''}${horseLabel? ' · '+horseLabel:''}`;
+  return {id, date, origin, destination, horseLabel, label};
+}
+
+function findTimeConflict(driverId, date, time, excludeIds){
+  if(!driverId || !time) return null; // can't confirm a conflict without a known time on both sides
+  return jobs.find(j => j.assignedDriverId===driverId && j.date===date && j.time===time && !excludeIds.includes(j.id)) || null;
+}
+
+function showToast(message){
+  const existing = document.getElementById('appToast');
+  if(existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'appToast';
+  el.className = 'toast';
+  el.innerHTML = `<span>${escapeHtml(message)}</span><span class="toast-close">&times;</span>`;
+  el.querySelector('.toast-close').addEventListener('click', ()=>el.remove());
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(document.getElementById('appToast')===el) el.remove(); }, 6000);
+}
+
+let confirmCallback = null;
+function showConfirm(message, onConfirm){
+  document.getElementById('confirmMessage').textContent = message;
+  confirmCallback = onConfirm;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+});
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  if(confirmCallback) confirmCallback();
+  confirmCallback = null;
+});
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='confirmOverlay'){
+    document.getElementById('confirmOverlay').classList.remove('open');
+    confirmCallback = null;
+  }
+});
 
 /* ============ RENDER ============ */
 function render(){
@@ -607,7 +754,17 @@ function buildJobCard(job){
   const horseHtml = job.loadType ? `<div class="horse">${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>` : '';
   const notesHtml = job.notes ? `<div class="notes" title="${escapeHtml(job.notes)}">${escapeHtml(job.notes)}</div>` : '';
 
-  let body = routeHtml + metaHtml + horseHtml + notesHtml;
+  let lbRefHtml = '';
+  if(job.loadBoardRef){
+    const isUrl = /^https?:\/\//i.test(job.loadBoardRef.trim());
+    if(isUrl){
+      lbRefHtml = `<a class="lb-ref" href="${escapeHtml(job.loadBoardRef.trim())}" target="_blank" rel="noopener" title="Open in Load Board">&#128279; Load Board</a>`;
+    } else {
+      lbRefHtml = `<span class="lb-ref" title="Load Board reference">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
+    }
+  }
+
+  let body = routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
   if(!body){ body = `<div class="meta">(click to edit)</div>`; }
 
   card.innerHTML = body;
@@ -651,6 +808,14 @@ function buildJobCard(job){
     e.preventDefault();
     e.stopPropagation();
     const sourceJobId = e.dataTransfer.getData('application/x-driver-source-job');
+    const excludeIds = [job.id];
+    if(sourceJobId) excludeIds.push(sourceJobId);
+    const conflict = findTimeConflict(driverId, job.date, job.time, excludeIds);
+    if(conflict){
+      const drv = drivers.find(d=>d.id===driverId);
+      showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${job.time} on this date (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+      return;
+    }
     if(sourceJobId && sourceJobId !== job.id){
       const sourceJob = jobs.find(j=>j.id===sourceJobId);
       if(sourceJob) sourceJob.assignedDriverId = null;
@@ -663,6 +828,7 @@ function buildJobCard(job){
 
   card.addEventListener('click', (e)=>{
     if(e.target.closest('.driver-slot')) return;
+    if(e.target.closest('.lb-ref')) return;
     openJobModal(job.id);
   });
   card.addEventListener('dragstart', (e)=>{
@@ -689,37 +855,96 @@ function openJobModal(jobId, date){
     const job = jobs.find(j=>j.id===jobId);
     title.textContent = 'Edit Job';
     document.getElementById('jobType').value = job.type||'normal';
+    populateDriverSelect(job.assignedDriverId);
     document.getElementById('jobOrigin').value = job.origin||'';
     document.getElementById('jobOriginFarm').value = job.originFarm||'';
     document.getElementById('jobDestination').value = job.destination||'';
     document.getElementById('jobDestinationFarm').value = job.destinationFarm||'';
     document.getElementById('jobTime').value = job.time||'';
     document.getElementById('jobLoadType').value = job.loadType||'';
+    document.getElementById('jobLoadBoardRef').value = job.loadBoardRef||'';
     document.getElementById('jobNotes').value = job.notes||'';
     delBtn.style.display='inline-block';
     pendingDate = job.date;
+    document.getElementById('repeatThroughRow').style.display = 'none';
   } else {
     title.textContent = 'Add Job';
     document.getElementById('jobType').value='normal';
+    populateDriverSelect(null);
     document.getElementById('jobOrigin').value='';
     document.getElementById('jobOriginFarm').value='';
     document.getElementById('jobDestination').value='';
     document.getElementById('jobDestinationFarm').value='';
     document.getElementById('jobTime').value='';
     document.getElementById('jobLoadType').value='';
+    document.getElementById('jobLoadBoardRef').value='';
     document.getElementById('jobNotes').value='';
     delBtn.style.display='none';
     pendingDate = date;
+    document.getElementById('repeatThroughRow').style.display = '';
+    document.getElementById('jobStartDate').value = date;
+    document.getElementById('jobEndDate').value = '';
+    document.getElementById('jobEndDate').min = date;
   }
   overlay.classList.add('open');
 }
 
 function closeJobModal(){
   document.getElementById('jobModalOverlay').classList.remove('open');
+  document.getElementById('lbBrowsePanel').style.display = 'none';
+  document.getElementById('lbBrowsePanel').innerHTML = '';
   editingJobId = null;
 }
 
+document.getElementById('lbBrowseBtn').addEventListener('click', async ()=>{
+  const panel = document.getElementById('lbBrowsePanel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<div style="padding:8px;font-size:12px;color:#8a8368;">Loading from Load Board…</div>';
+  try{
+    const orders = await fetchLoadBoardOrders();
+    const jobDateVal = editingJobId
+      ? ((jobs.find(j=>j.id===editingJobId)||{}).date)
+      : (document.getElementById('jobStartDate').value || pendingDate);
+    const described = orders.map(describeOrder);
+    const filtered = jobDateVal ? described.filter(o=>o.date===jobDateVal) : described;
+    const toShow = filtered.length ? filtered : described;
+    if(!toShow.length){
+      panel.innerHTML = '<div style="padding:8px;font-size:12px;color:#8a8368;">No orders found in the Load Board data.</div>';
+      return;
+    }
+    panel.innerHTML = '';
+    if(!filtered.length){
+      const note = document.createElement('div');
+      note.style.cssText='padding:6px 10px;font-size:11px;color:#a49c80;';
+      note.textContent = `No exact match for ${jobDateVal||'this date'} — showing everything:`;
+      panel.appendChild(note);
+    }
+    toShow.slice(0,50).forEach(o=>{
+      const row = document.createElement('div');
+      row.style.cssText='padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #eee6d0;';
+      row.textContent = o.label;
+      row.addEventListener('mouseenter', ()=>row.style.background='#f7f1de');
+      row.addEventListener('mouseleave', ()=>row.style.background='');
+      row.addEventListener('click', ()=>{
+        document.getElementById('jobLoadBoardRef').value = o.id ? `Order ${o.id}: ${o.label}` : o.label;
+        panel.style.display='none';
+        panel.innerHTML='';
+      });
+      panel.appendChild(row);
+    });
+  }catch(err){
+    panel.innerHTML = `<div style="padding:8px;font-size:12px;color:var(--danger);">Could not reach the Load Board data (${err.message}). You can still paste a link or order # manually above.</div>`;
+  }
+});
+
 document.getElementById('jobCancelBtn').addEventListener('click', closeJobModal);
+document.getElementById('jobStartDate').addEventListener('change', ()=>{
+  const startVal = document.getElementById('jobStartDate').value;
+  document.getElementById('jobEndDate').min = startVal;
+  if(document.getElementById('jobEndDate').value && document.getElementById('jobEndDate').value < startVal){
+    document.getElementById('jobEndDate').value = '';
+  }
+});
 document.getElementById('jobModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id==='jobModalOverlay') closeJobModal();
 });
@@ -733,14 +958,55 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
     destinationFarm: document.getElementById('jobDestinationFarm').value.trim(),
     time: document.getElementById('jobTime').value,
     loadType: document.getElementById('jobLoadType').value,
+    loadBoardRef: document.getElementById('jobLoadBoardRef').value.trim(),
     notes: document.getElementById('jobNotes').value.trim(),
   };
+  const selectedDriverId = document.getElementById('jobAssignDriver').value || null;
+
   if(editingJobId){
     const job = jobs.find(j=>j.id===editingJobId);
+    if(selectedDriverId){
+      const conflict = findTimeConflict(selectedDriverId, job.date, data.time, [job.id]);
+      if(conflict){
+        const drv = drivers.find(d=>d.id===selectedDriverId);
+        showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${job.date} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+        return;
+      }
+    }
     Object.assign(job, data);
+    job.assignedDriverId = selectedDriverId;
   } else {
-    const maxOrder = jobs.filter(j=>j.date===pendingDate).reduce((m,j)=>Math.max(m,j.order||0),0);
-    jobs.push({id:'j'+(jobIdCounter++), date:pendingDate, assignedDriverId:null, order:maxOrder+1, ...data});
+    const startDate = document.getElementById('jobStartDate').value || pendingDate;
+    const endDate = document.getElementById('jobEndDate').value;
+    const datesToCreate = [];
+    if(endDate && endDate > startDate){
+      let cursor = dateFromStr(startDate);
+      const endD = dateFromStr(endDate);
+      let guard = 0;
+      while(cursor <= endD && guard < 60){
+        datesToCreate.push(fmtDate(cursor));
+        cursor.setDate(cursor.getDate()+1);
+        guard++;
+      }
+    } else {
+      datesToCreate.push(startDate);
+    }
+
+    if(selectedDriverId){
+      for(const dStr of datesToCreate){
+        const conflict = findTimeConflict(selectedDriverId, dStr, data.time, []);
+        if(conflict){
+          const drv = drivers.find(d=>d.id===selectedDriverId);
+          showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${dStr} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Nothing was created \u2014 pick a different time or driver.`);
+          return;
+        }
+      }
+    }
+
+    datesToCreate.forEach(dStr=>{
+      const maxOrder = jobs.filter(j=>j.date===dStr).reduce((m,j)=>Math.max(m,j.order||0),0);
+      jobs.push({id:'j'+(jobIdCounter++), date:dStr, assignedDriverId:selectedDriverId, order:maxOrder+1, ...data});
+    });
   }
   saveAll();
   closeJobModal();
@@ -811,12 +1077,13 @@ document.getElementById('drvSaveBtn').addEventListener('click', ()=>{
 });
 
 document.getElementById('drvDeleteBtn').addEventListener('click', ()=>{
-  if(!confirm('Remove this driver/team? Any jobs currently assigned to them will become unassigned.')) return;
-  jobs.forEach(j=>{ if(j.assignedDriverId===editingDriverId) j.assignedDriverId=null; });
-  drivers = drivers.filter(d=>d.id!==editingDriverId);
-  saveAll();
-  closeDriverModal();
-  render();
+  showConfirm('Remove this driver/team? Any jobs currently assigned to them will become unassigned.', ()=>{
+    jobs.forEach(j=>{ if(j.assignedDriverId===editingDriverId) j.assignedDriverId=null; });
+    drivers = drivers.filter(d=>d.id!==editingDriverId);
+    saveAll();
+    closeDriverModal();
+    render();
+  });
 });
 
 /* ============ WEEK NAV ============ */
@@ -848,7 +1115,7 @@ document.getElementById('importFile').addEventListener('change', (e)=>{
       if(data.weekStart) weekStart = mondayOf(new Date(data.weekStart));
       saveAll();
       render();
-    }catch(err){ alert('Could not read that file: ' + err.message); }
+    }catch(err){ showToast('Could not read that file: ' + err.message); }
   };
   reader.readAsText(file);
   e.target.value='';
