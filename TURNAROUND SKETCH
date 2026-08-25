@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sallee Dispatch Board</title>
+<style>
+  :root{
+    --green-dark:#0e3b2e;
+    --green:#14523f;
+    --green-light:#1e6b52;
+    --gold:#c8a24a;
+    --gold-light:#e8d9a8;
+    --cream:#f7f4ec;
+    --ink:#1c2420;
+    --line:#d8d2c0;
+    --weekend:#f0e8d0;
+    --card-normal:#ffffff;
+    --card-spare:#eef3f0;
+    --card-vacation:#f5e0d8;
+    --card-note:#fff8e0;
+    --danger:#a23b2e;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--green-dark);
+    color:var(--gold-light);
+    padding:10px 18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .topbar h1{
+    font-size:18px;
+    letter-spacing:1.5px;
+    margin:0;
+    color:#fff;
+    font-weight:700;
+    text-transform:uppercase;
+  }
+  .topbar h1 span{color:var(--gold);}
+  .nav-group{display:flex;align-items:center;gap:6px;margin-left:8px;}
+  .range-label{font-size:13px;font-weight:600;color:var(--gold-light);min-width:190px;text-align:center;}
+  .btn{
+    background:var(--green-light);
+    border:1px solid rgba(255,255,255,.15);
+    color:#fff;
+    padding:7px 12px;
+    border-radius:6px;
+    font-size:12.5px;
+    cursor:pointer;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--gold);color:var(--green-dark);}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.3);}
+  .btn.ghost:hover{background:rgba(255,255,255,.1);color:#fff;}
+  .spacer{flex:1;}
+  .status-note{font-size:11px;color:rgba(255,255,255,.55);}
+
+  /* ---------- Driver strip (X axis palette) ---------- */
+  .driver-strip-wrap{
+    background:var(--green);
+    border-bottom:2px solid var(--gold);
+    padding:8px 14px;
+    position:sticky;
+    top:0;
+    z-index:40;
+  }
+  .driver-strip-label{
+    font-size:10px;
+    letter-spacing:1px;
+    color:var(--gold-light);
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .driver-strip{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .driver-chip{
+    position:relative;
+    flex:0 0 auto;
+    background:var(--green-dark);
+    border:1px solid rgba(255,255,255,.15);
+    border-top:3px solid var(--gold);
+    border-radius:6px;
+    padding:6px 10px;
+    min-width:96px;
+    max-width:120px;
+    cursor:grab;
+    user-select:none;
+    text-align:center;
+  }
+  .driver-chip:active{cursor:grabbing;}
+  .driver-chip.dragging{opacity:.35;}
+  .driver-chip.chip-unused{border-top-color:#3fa66b;box-shadow:inset 0 0 0 1px rgba(63,166,107,.35);}
+  .driver-chip.chip-used{border-top-color:#e5473a;box-shadow:inset 0 0 0 1px rgba(229,71,58,.35);}
+  .driver-chip .status-dot{
+    position:absolute;top:-4px;right:-4px;
+    width:9px;height:9px;border-radius:50%;
+    border:1.5px solid var(--green);
+  }
+  .driver-chip.chip-unused .status-dot{background:#3fa66b;}
+  .driver-chip.chip-used .status-dot{background:#e5473a;}
+  .driver-chip .cname{color:#fff;font-size:11.5px;font-weight:700;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .driver-chip .cname2{color:var(--gold-light);font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .driver-chip .ctruck{color:rgba(255,255,255,.55);font-size:9.5px;font-family:ui-monospace,Consolas,monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .add-driver-chip{
+    flex:0 0 auto;
+    background:transparent;
+    border:1.5px dashed var(--gold);
+    color:var(--gold);
+    border-radius:6px;
+    min-width:40px;
+    font-size:18px;
+    cursor:pointer;
+  }
+  .add-driver-chip:hover{background:var(--gold);color:var(--green-dark);}
+
+  /* ---------- Board ---------- */
+  .board-wrap{
+    padding:10px 14px 60px;
+  }
+  .date-row{
+    display:flex;
+    border-bottom:1px solid var(--line);
+    min-height:64px;
+    cursor:pointer;
+  }
+  .date-row.weekend{background:var(--weekend);}
+  .date-row.focused{outline:2px solid var(--green-light);outline-offset:-2px;background:#eef6f1;}
+  .date-row.focused.weekend{background:#eef1e6;}
+  .date-cell{
+    flex:0 0 84px;
+    padding:8px 6px;
+    border-right:2px solid var(--gold);
+  }
+  .date-cell .dow{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--green);}
+  .date-row.weekend .date-cell .dow{color:var(--danger);}
+  .date-cell .dnum{font-size:16px;font-weight:800;color:var(--ink);}
+
+  .jobs-row{
+    flex:1;
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:6px;
+    padding:6px;
+    min-height:64px;
+    transition:background .1s;
+  }
+  .jobs-row.dragover{background:var(--gold-light);outline:2px dashed var(--gold);outline-offset:-2px;}
+
+  .add-job-chip{
+    flex:0 0 auto;
+    align-self:flex-start;
+    border:1.5px dashed #c3bda4;
+    background:transparent;
+    color:#948d70;
+    border-radius:6px;
+    font-size:16px;
+    width:34px;
+    height:34px;
+    cursor:pointer;
+  }
+  .add-job-chip:hover{border-color:var(--green);color:var(--green);background:#fff;}
+
+  .job-card{
+    background:var(--card-normal);
+    border:1px solid #d9d3bf;
+    border-left:4px solid var(--green);
+    border-radius:6px;
+    padding:6px 8px;
+    font-size:11.5px;
+    cursor:grab;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);
+    width:216px;
+    flex:0 0 auto;
+  }
+  .job-card:active{cursor:grabbing;}
+  .job-card.dragging{opacity:.35;}
+  .job-card.type-spare{border-left-color:#7a8f86;background:var(--card-spare);}
+  .job-card.type-vacation{border-left-color:var(--danger);background:var(--card-vacation);}
+  .job-card.type-note{border-left-color:var(--gold);background:var(--card-note);}
+
+  .job-card .route{
+    font-weight:700;color:var(--green-dark);font-size:12px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .job-card .route .arrow{color:var(--gold);margin:0 3px;}
+  .job-card .meta{
+    color:#5c574a;font-size:10px;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .job-card .horse{
+    font-style:italic;color:#3a3630;font-size:10.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .job-card .notes{
+    color:#7a5c2e;font-size:10px;margin-top:2px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .job-card .lb-ref{
+    display:inline-block;margin-top:3px;
+    font-size:9.5px;font-weight:700;color:var(--green-dark);
+    background:var(--gold-light);border-radius:4px;padding:2px 6px;
+    text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
+  .job-card .lb-ref:hover{background:var(--gold);}
+  .turnaround-warning{
+    margin-top:4px;font-size:9.5px;font-weight:700;color:#8a4b00;
+    background:#fdead0;border:1px solid #f0c688;border-radius:4px;
+    padding:3px 6px;cursor:help;
+  }
+  .turnaround-warning.unverifiable{
+    color:#6b6555;background:#efece0;border-color:#d8d2c0;
+  }
+
+  .driver-slot{
+    margin-top:5px;
+    border-radius:5px;
+    min-height:24px;
+    display:flex;
+    align-items:center;
+    transition:background .1s;
+  }
+  .driver-slot.empty{
+    border:1.5px dashed #c9c2ac;
+    justify-content:center;
+    color:#a49c80;
+    font-size:9.5px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    font-weight:700;
+    padding:3px 4px;
+  }
+  .driver-slot.dragover{border-color:var(--green);background:var(--gold-light);color:var(--green-dark);}
+  .driver-badge{
+    background:var(--green-dark);
+    color:#fff;
+    border-radius:5px;
+    padding:3px 6px;
+    font-size:10.5px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    gap:4px;
+  }
+  .driver-badge .bname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .driver-badge .bunassign{
+    cursor:pointer;color:var(--gold-light);font-weight:900;font-size:12px;line-height:1;
+    padding:0 2px;
+  }
+  .driver-badge .bunassign:hover{color:#fff;}
+  .driver-badge{cursor:grab;}
+  .driver-badge:active{cursor:grabbing;}
+  .driver-badge.dragging{opacity:.35;}
+
+  /* ---------- Modal (shared) ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(14,20,17,.55);
+    display:none;align-items:center;justify-content:center;z-index:100;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff;border-radius:10px;width:380px;max-width:92vw;
+    padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.35);
+  }
+  .modal h2{margin:0 0 14px;font-size:16px;color:var(--green-dark);}
+  .modal label{display:block;font-size:11px;font-weight:700;color:#6b6555;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 3px;}
+  .modal input, .modal select, .modal textarea{
+    width:100%;padding:7px 8px;border:1px solid #cfc9b8;border-radius:5px;font-size:13px;font-family:inherit;
+  }
+  .modal textarea{resize:vertical;min-height:44px;}
+  .modal-row{display:flex;gap:8px;}
+  .modal-row > div{flex:1;}
+  .modal-actions{display:flex;justify-content:space-between;margin-top:18px;gap:8px;}
+  .modal-actions .left{display:flex;gap:8px;}
+  .btn-primary{background:var(--green-dark);color:#fff;border:none;padding:9px 16px;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;}
+  .btn-primary:hover{background:var(--green);}
+  .btn-secondary{background:#ece7d8;color:var(--ink);border:none;padding:9px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;}
+  .btn-secondary:hover{background:#ddd6c0;}
+  .btn-delete{background:transparent;color:var(--danger);border:1px solid var(--danger);padding:9px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;}
+  .btn-delete:hover{background:var(--danger);color:#fff;}
+
+  /* ---------- Toast banner (replaces browser alert()) ---------- */
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);
+    background:var(--danger);color:#fff;
+    padding:12px 20px;border-radius:8px;
+    font-size:13.5px;font-weight:600;line-height:1.4;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+    z-index:300;max-width:520px;text-align:center;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toast .toast-close{
+    cursor:pointer;font-weight:900;font-size:16px;line-height:1;
+    color:rgba(255,255,255,.8);flex-shrink:0;
+  }
+  .toast .toast-close:hover{color:#fff;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>SALLEE <span>DISPATCH</span> BOARD</h1>
+  <div class="nav-group">
+    <button class="btn ghost" id="prevBtn">&larr; Prev 2 Wks</button>
+    <div class="range-label" id="rangeLabel"></div>
+    <button class="btn ghost" id="nextBtn">Next 2 Wks &rarr;</button>
+    <button class="btn ghost" id="todayBtn">This Week</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="exportBtn">Export JSON</button>
+  <button class="btn" id="importBtn">Import JSON</button>
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+  <span class="status-note" id="statusNote">Saved locally in this browser</span>
+</div>
+
+<div style="background:#fdead0;color:#5c3a00;font-size:11.5px;font-weight:600;text-align:center;padding:5px 10px;border-bottom:1px solid #f0c688;">
+  &#129514; SKETCH: turnaround warnings below use sample placeholder drive times (KEE/BEL/CD/FG only) &mdash; not real Google Maps data yet.
+</div>
+
+<div class="driver-strip-wrap">
+  <div class="driver-strip-label" id="stripLabel"></div>
+  <div class="driver-strip" id="driverStrip"></div>
+</div>
+
+<div class="board-wrap" id="boardWrap"></div>
+
+<!-- Job modal -->
+<div class="modal-overlay" id="jobModalOverlay">
+  <div class="modal">
+    <h2 id="jobModalTitle">Add Job</h2>
+    <label>Type</label>
+    <select id="jobType">
+      <option value="normal">Normal job</option>
+      <option value="spare">Spare / standby</option>
+      <option value="vacation">Vacation / off</option>
+      <option value="note">Note only</option>
+    </select>
+    <label>Assign Driver (optional)</label>
+    <select id="jobAssignDriver"></select>
+    <div class="modal-row">
+      <div>
+        <label>Origin</label>
+        <input id="jobOrigin" placeholder="e.g. KY or track name">
+      </div>
+      <div>
+        <label>Origin Trainer/Farm</label>
+        <input id="jobOriginFarm" placeholder="e.g. Rusty Arnold">
+      </div>
+    </div>
+    <div class="modal-row">
+      <div>
+        <label>Destination</label>
+        <input id="jobDestination" placeholder="e.g. BEL or track name">
+      </div>
+      <div>
+        <label>Destination Trainer/Farm</label>
+        <input id="jobDestinationFarm" placeholder="e.g. High Point Farm">
+      </div>
+    </div>
+    <div class="modal-row">
+      <div>
+        <label>Time</label>
+        <input id="jobTime" type="time">
+      </div>
+      <div>
+        <label>Load Type</label>
+        <select id="jobLoadType">
+          <option value="">—</option>
+          <option value="stable_move">Stable Move</option>
+          <option value="special">Special</option>
+          <option value="mix_load">Mix Load</option>
+          <option value="shuttle">Shuttle</option>
+          <option value="race_and_return">Race and Return</option>
+        </select>
+      </div>
+    </div>
+    <div id="repeatThroughRow" class="modal-row">
+      <div>
+        <label>Start Date</label>
+        <input type="date" id="jobStartDate">
+      </div>
+      <div>
+        <label>End Date (optional &mdash; for a vacation stretch, etc.)</label>
+        <input type="date" id="jobEndDate">
+      </div>
+    </div>
+    <label>Load Board Link / Order # (optional)</label>
+    <div style="display:flex;gap:6px;">
+      <input id="jobLoadBoardRef" placeholder="Paste a link/order #, or browse ->" style="flex:1;">
+      <button type="button" class="btn-secondary" id="lbBrowseBtn" style="white-space:nowrap;">Browse</button>
+    </div>
+    <div id="lbBrowsePanel" style="display:none;border:1px solid #cfc9b8;border-radius:6px;margin-top:6px;max-height:160px;overflow-y:auto;"></div>
+    <label>Notes</label>
+    <textarea id="jobNotes" placeholder="Special instructions..."></textarea>
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn-delete" id="jobDeleteBtn" style="display:none;">Delete</button>
+      </div>
+      <div class="left">
+        <button class="btn-secondary" id="jobCancelBtn">Cancel</button>
+        <button class="btn-primary" id="jobSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Driver modal -->
+<div class="modal-overlay" id="driverModalOverlay">
+  <div class="modal">
+    <h2 id="driverModalTitle">Add Driver / Team</h2>
+    <div class="modal-row">
+      <div>
+        <label>Driver 1</label>
+        <input id="drvName1" placeholder="e.g. PAUL Z.">
+      </div>
+      <div>
+        <label>Driver 2 (optional)</label>
+        <input id="drvName2" placeholder="e.g. JASEN">
+      </div>
+    </div>
+    <div class="modal-row">
+      <div>
+        <label>Truck #</label>
+        <input id="drvTruck" placeholder="e.g. 657">
+      </div>
+      <div>
+        <label>Trailer #</label>
+        <input id="drvTrailer" placeholder="e.g. 185A+">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn-delete" id="drvDeleteBtn" style="display:none;">Remove</button>
+      </div>
+      <div class="left">
+        <button class="btn-secondary" id="drvCancelBtn">Cancel</button>
+        <button class="btn-primary" id="drvSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal (replaces window.confirm()) -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal">
+    <h2>Please confirm</h2>
+    <p id="confirmMessage" style="font-size:13px;color:#3a362c;line-height:1.5;margin:0 0 4px;"></p>
+    <div class="modal-actions">
+      <div class="left"></div>
+      <div class="left">
+        <button class="btn-secondary" id="confirmCancelBtn">Cancel</button>
+        <button class="btn-delete" id="confirmOkBtn">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ STARTER DATA ============ */
+const DEFAULT_DRIVERS = [
+  {id:'d1', name1:'PAUL Z.', name2:'JASEN', truck:'657', trailer:'185A+'},
+  {id:'d2', name1:'DREW', name2:'BRADLEY S.', truck:'645', trailer:'207A+'},
+  {id:'d3', name1:'ALLEN', name2:'MATHEW C.', truck:'654', trailer:'209A++'},
+  {id:'d4', name1:'CHUY', name2:'', truck:'648', trailer:'198A+'},
+  {id:'d5', name1:'BRADLEY H.', name2:'', truck:'643', trailer:'203A+'},
+  {id:'d6', name1:'MATHEW F.', name2:'', truck:'638', trailer:'169A+'},
+  {id:'d7', name1:'ZIPPO', name2:'WILLIAM', truck:'656', trailer:'201A++'},
+  {id:'d8', name1:'CLIFFORD', name2:'', truck:'649', trailer:'208A+'},
+  {id:'d9', name1:'DERRICK', name2:'LANCE', truck:'651', trailer:'182A+'},
+  {id:'d10', name1:'JERALD', name2:'LEVY', truck:'658', trailer:'211A+'},
+  {id:'d11', name1:'WALTER', name2:'JOHNNY D.', truck:'660', trailer:'205A++'},
+  {id:'d12', name1:'BILL', name2:'DAVE', truck:'661', trailer:'210A+'},
+  {id:'d13', name1:'CHARLES', name2:'NOBERTO', truck:'659', trailer:'184A+'},
+  {id:'d14', name1:'CHRIS D.', name2:'ZACH', truck:'647', trailer:'206A+'},
+  {id:'d15', name1:'DAVID H.', name2:'MIKE B.', truck:'646', trailer:'200A+'},
+  {id:'d16', name1:"DAI'SHAWN", name2:'JERROD', truck:'644', trailer:'183A+'},
+  {id:'d17', name1:'MIGUEL', name2:'', truck:'653', trailer:'212A+'},
+  {id:'d18', name1:'SEBASTIAN M.', name2:'', truck:'632', trailer:'1042A+'},
+  {id:'d19', name1:'JUAN C.', name2:'', truck:'639', trailer:'1018A+'},
+  {id:'d20', name1:'KEITH D.', name2:'', truck:'635', trailer:'1098A+'},
+  {id:'d21', name1:'JOE MURPHY', name2:'', truck:'636', trailer:'190A+'},
+  {id:'d22', name1:'DONNIE M', name2:'', truck:'640', trailer:'191A++'},
+  {id:'d23', name1:'STEVE MC.', name2:'', truck:'634', trailer:'199A+'},
+  {id:'d24', name1:'NEMO', name2:'', truck:'633', trailer:'168A+'},
+  {id:'d25', name1:'THEMILDA', name2:'', truck:'511', trailer:''},
+  {id:'d26', name1:'BERNIE', name2:'', truck:'641', trailer:'196A+'}
+];
+
+const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const LOAD_TYPE_LABELS={stable_move:'Stable Move', special:'Special', mix_load:'Mix Load', shuttle:'Shuttle', race_and_return:'Race and Return'};
+const LS_DRIVERS='sallee_dispatch_drivers_v2';
+const LS_JOBS='sallee_dispatch_jobs_v2';
+const LS_WEEKSTART='sallee_dispatch_weekstart_v2';
+
+let drivers = JSON.parse(localStorage.getItem(LS_DRIVERS) || 'null') || DEFAULT_DRIVERS;
+let jobs = JSON.parse(localStorage.getItem(LS_JOBS) || 'null') || [];
+let jobIdCounter = jobs.reduce((m,j)=>Math.max(m, parseInt((j.id||'j0').replace('j',''))||0), 0) + 1;
+
+function mondayOf(d){
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = (day===0?-6:1)-day;
+  dt.setDate(dt.getDate()+diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+let weekStart = new Date(localStorage.getItem(LS_WEEKSTART) || mondayOf(new Date()).toISOString());
+weekStart = mondayOf(weekStart);
+let focusedDate = fmtDate(new Date());
+
+function saveAll(){
+  localStorage.setItem(LS_DRIVERS, JSON.stringify(drivers));
+  localStorage.setItem(LS_JOBS, JSON.stringify(jobs));
+  localStorage.setItem(LS_WEEKSTART, weekStart.toISOString());
+  document.getElementById('statusNote').textContent = 'Saved ' + new Date().toLocaleTimeString();
+}
+
+function fmtDate(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function getDateRange(){
+  const arr=[];
+  for(let i=0;i<14;i++){
+    const d = new Date(weekStart);
+    d.setDate(d.getDate()+i);
+    arr.push(d);
+  }
+  return arr;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function dateFromStr(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function populateDriverSelect(selectedId){
+  const sel = document.getElementById('jobAssignDriver');
+  sel.innerHTML = '<option value="">— Unassigned —</option>' +
+    drivers.map(d=>`<option value="${d.id}">${escapeHtml(driverLabel(d))}</option>`).join('');
+  sel.value = selectedId || '';
+}
+
+function driverLabel(drv){
+  if(!drv) return '';
+  const names = [drv.name1, drv.name2].filter(Boolean).join(' / ');
+  const truckPart = [drv.truck, drv.trailer].filter(Boolean).join('/');
+  return names + (truckPart ? ' · '+truckPart : '');
+}
+
+function formatTimeDisplay(t){
+  if(!t) return '';
+  const parts = t.split(':');
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] || '00';
+  if(isNaN(h)) return t;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if(h === 0) h = 12;
+  return `${h}:${m} ${ampm}`;
+}
+
+/* ============ LOAD BOARD LOOKUP (live fetch, best-effort) ============ */
+// NOTE: field names below are best guesses based on the Load Board's known columns.
+// If your real orders.json uses different key casing/names, tweak the candidate
+// lists in pickField() calls inside describeOrder() below.
+const LOAD_BOARD_ORDERS_URL = 'https://canumanu.github.io/SALLEE-LOAD-BOARD/data/orders.json';
+let loadBoardOrdersCache = null;
+
+async function fetchLoadBoardOrders(){
+  if(loadBoardOrdersCache) return loadBoardOrdersCache;
+  const res = await fetch(LOAD_BOARD_ORDERS_URL, {cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const data = await res.json();
+  loadBoardOrdersCache = Array.isArray(data) ? data : (data.orders || data.Orders || []);
+  return loadBoardOrdersCache;
+}
+
+function pickField(obj, candidates){
+  for(const key of candidates){
+    if(obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+  }
+  return '';
+}
+
+function describeOrder(order){
+  const origin = pickField(order, ['origin','Origin','ORIGIN']);
+  const destination = pickField(order, ['destination','Destination','DESTINATION']);
+  const date = pickField(order, ['date','Date','tripDate','TripDate','pickupDate','PickupDate']);
+  const id = pickField(order, ['id','Id','ID','orderId','OrderID','orderNumber']);
+  let horses = pickField(order, ['horses','Horses']);
+  let horseLabel = '';
+  if(Array.isArray(horses)){
+    horseLabel = horses.map(h=>(h && (h.name||h.Name))||'').filter(Boolean).join(', ');
+  } else if(typeof horses === 'string'){
+    horseLabel = horses;
+  }
+  if(!horseLabel) horseLabel = pickField(order, ['HORSE NAME(S)','horseNames','HorseNames']);
+  const label = `${origin||'?'} \u2192 ${destination||'?'}${date? ' · '+date:''}${horseLabel? ' · '+horseLabel:''}`;
+  return {id, date, origin, destination, horseLabel, label};
+}
+
+function findTimeConflict(driverId, date, time, excludeIds){
+  if(!driverId || !time) return null; // can't confirm a conflict without a known time on both sides
+  return jobs.find(j => j.assignedDriverId===driverId && j.date===date && j.time===time && !excludeIds.includes(j.id)) || null;
+}
+
+/* ============ TURNAROUND-TIME SKETCH ============
+   SAMPLE DATA ONLY — placeholder numbers, not real drive times.
+   Once compute_drive_times.py produces a real drive_times.json, this whole
+   block gets replaced by a fetch of that file instead of SAMPLE_DRIVE_TIMES. */
+const TURNAROUND_BUFFER_MINUTES = 120; // 2hr rest/turnaround at destination
+const SAMPLE_DRIVE_TIMES = {
+  'kee|bel':740,'bel|kee':738,
+  'kee|cd':15,'cd|kee':15,
+  'cd|bel':750,'bel|cd':748,
+  'kee|fg':505,'fg|kee':505,
+  'cd|fg':500,'fg|cd':500,
+  'bel|fg':1180,'fg|bel':1180,
+};
+
+function normLoc(s){ return (s||'').trim().toLowerCase(); }
+function lookupDriveMinutes(a, b){
+  if(!a || !b) return null;
+  const key = normLoc(a)+'|'+normLoc(b);
+  return SAMPLE_DRIVE_TIMES[key] !== undefined ? SAMPLE_DRIVE_TIMES[key] : null;
+}
+function timeToMinutes(t){
+  if(!t) return null;
+  const parts = t.split(':').map(Number);
+  if(isNaN(parts[0])) return null;
+  return parts[0]*60 + (parts[1]||0);
+}
+function minutesToTimeDisplay(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  let h = Math.floor(mins/60), m = mins%60;
+  const ampm = h>=12 ? 'PM':'AM';
+  h = h%12; if(h===0) h=12;
+  return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+// Returns null if fine (or can't be verified with known locations), or a
+// warning object describing a tight/impossible turnaround for this job.
+function dateTimeToAbsMinutes(dateStr, timeStr){
+  const tMin = timeToMinutes(timeStr);
+  if(tMin===null) return null;
+  const d = dateFromStr(dateStr);
+  return Math.round(d.getTime()/60000) + tMin;
+}
+function absMinutesToDateTimeDisplay(absMin){
+  const d = new Date(absMin*60000);
+  const dateLabel = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const timeLabel = formatTimeDisplay(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
+  return `${dateLabel}, ${timeLabel}`;
+}
+
+// Returns null if fine (or can't be verified with known locations), or a
+// warning object describing a tight/impossible turnaround for this job.
+// Compares actual date+time so it correctly catches gaps that cross midnight
+// into the next calendar day, not just same-day back-to-back trips.
+function getTurnaroundWarning(job){
+  if(!job.assignedDriverId || !job.time) return null;
+  const jobDT = dateTimeToAbsMinutes(job.date, job.time);
+  if(jobDT===null) return null;
+
+  const driverJobs = jobs.filter(j=>j.assignedDriverId===job.assignedDriverId && j.time && j.id!==job.id);
+  let prevJob = null, prevDT = null;
+  driverJobs.forEach(j=>{
+    const jDT = dateTimeToAbsMinutes(j.date, j.time);
+    if(jDT!==null && jDT < jobDT && (prevDT===null || jDT > prevDT)){
+      prevJob = j; prevDT = jDT;
+    }
+  });
+  if(!prevJob) return null;
+
+  const legMinutes = lookupDriveMinutes(prevJob.origin, prevJob.destination);
+  const nextLegMinutes = lookupDriveMinutes(prevJob.destination, job.origin);
+  if(legMinutes===null || nextLegMinutes===null){
+    return { unverifiable:true, prevJob,
+      reason: legMinutes===null
+        ? `"${prevJob.origin||'?'}" \u2192 "${prevJob.destination||'?'}" isn't in the sample table (try KEE/BEL/CD/FG)`
+        : `"${prevJob.destination||'?'}" \u2192 "${job.origin||'?'}" isn't in the sample table (try KEE/BEL/CD/FG)` };
+  }
+  const earliestReadyDT = prevDT + legMinutes + TURNAROUND_BUFFER_MINUTES + nextLegMinutes;
+  if(jobDT < earliestReadyDT){
+    return { shortByMinutes: earliestReadyDT - jobDT, earliestReadyAbs: earliestReadyDT, prevJob };
+  }
+  return null;
+}
+
+function showToast(message){
+  const existing = document.getElementById('appToast');
+  if(existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'appToast';
+  el.className = 'toast';
+  el.innerHTML = `<span>${escapeHtml(message)}</span><span class="toast-close">&times;</span>`;
+  el.querySelector('.toast-close').addEventListener('click', ()=>el.remove());
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(document.getElementById('appToast')===el) el.remove(); }, 6000);
+}
+
+let confirmCallback = null;
+function showConfirm(message, onConfirm){
+  document.getElementById('confirmMessage').textContent = message;
+  confirmCallback = onConfirm;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+});
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  if(confirmCallback) confirmCallback();
+  confirmCallback = null;
+});
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='confirmOverlay'){
+    document.getElementById('confirmOverlay').classList.remove('open');
+    confirmCallback = null;
+  }
+});
+
+/* ============ RENDER ============ */
+function render(){
+  renderDriverStrip();
+  renderBoard();
+  renderRangeLabel();
+}
+
+function renderRangeLabel(){
+  const dates = getDateRange();
+  const opts = {month:'short', day:'numeric'};
+  document.getElementById('rangeLabel').textContent =
+    `${dates[0].toLocaleDateString('en-US',opts)} – ${dates[13].toLocaleDateString('en-US',opts)}, ${dates[13].getFullYear()}`;
+}
+
+function renderDriverStrip(){
+  const strip = document.getElementById('driverStrip');
+  strip.innerHTML = '';
+
+  const labelEl = document.getElementById('stripLabel');
+  const focusedD = dateFromStr(focusedDate);
+  const focusedLabel = focusedD.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+  labelEl.innerHTML = `Showing availability for <b style="color:#fff;">${focusedLabel}</b> &middot; click any date below to change it &middot; <span style="color:#3fa66b;">green</span> = free &middot; <span style="color:#e5473a;">red</span> = booked`;
+
+  drivers.forEach(drv=>{
+    const used = jobs.some(j=>j.assignedDriverId===drv.id && j.date===focusedDate);
+    const chip = document.createElement('div');
+    chip.className = 'driver-chip ' + (used ? 'chip-used' : 'chip-unused');
+    chip.draggable = true;
+    chip.dataset.driverId = drv.id;
+    chip.innerHTML = `
+      <div class="status-dot"></div>
+      <div class="cname">${escapeHtml(drv.name1||'—')}</div>
+      ${drv.name2 ? `<div class="cname2">${escapeHtml(drv.name2)}</div>` : ''}
+      <div class="ctruck">${escapeHtml([drv.truck,drv.trailer].filter(Boolean).join('/'))}</div>
+    `;
+    chip.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('application/x-driver', drv.id);
+      e.dataTransfer.effectAllowed='copy';
+      setTimeout(()=>chip.classList.add('dragging'),0);
+    });
+    chip.addEventListener('dragend', ()=>chip.classList.remove('dragging'));
+    chip.addEventListener('click', ()=>openDriverModal(drv.id));
+    strip.appendChild(chip);
+  });
+  const addChip = document.createElement('button');
+  addChip.className='add-driver-chip';
+  addChip.textContent='+';
+  addChip.title='Add driver / team';
+  addChip.addEventListener('click', ()=>openDriverModal(null));
+  strip.appendChild(addChip);
+}
+
+function renderBoard(){
+  const wrap = document.getElementById('boardWrap');
+  wrap.innerHTML = '';
+  const dates = getDateRange();
+
+  dates.forEach(d=>{
+    const dateStr = fmtDate(d);
+    const dow = d.getDay();
+    const isWeekend = dow===0 || dow===6;
+
+    const row = document.createElement('div');
+    row.className = 'date-row' + (isWeekend?' weekend':'') + (dateStr===focusedDate?' focused':'');
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.job-card') || e.target.closest('.add-job-chip')) return;
+      focusedDate = dateStr;
+      render();
+    });
+
+    const dateCell = document.createElement('div');
+    dateCell.className='date-cell';
+    dateCell.innerHTML = `<div class="dow">${DAY_NAMES[dow]}</div><div class="dnum">${d.getMonth()+1}/${d.getDate()}</div>`;
+    row.appendChild(dateCell);
+
+    const jobsRow = document.createElement('div');
+    jobsRow.className='jobs-row';
+    jobsRow.dataset.date = dateStr;
+
+    const dayJobs = jobs.filter(j=>j.date===dateStr).sort((a,b)=>(a.order||0)-(b.order||0));
+    dayJobs.forEach(job=>jobsRow.appendChild(buildJobCard(job)));
+
+    const addBtn = document.createElement('button');
+    addBtn.className='add-job-chip';
+    addBtn.textContent='+';
+    addBtn.title='Add job for this date';
+    addBtn.addEventListener('click', ()=>openJobModal(null, dateStr));
+    jobsRow.appendChild(addBtn);
+
+    // jobs-row accepts JOB drags (moving a job to this date)
+    jobsRow.addEventListener('dragover', (e)=>{
+      if(e.dataTransfer.types.includes('application/x-job')){
+        e.preventDefault();
+        jobsRow.classList.add('dragover');
+      }
+    });
+    jobsRow.addEventListener('dragleave', ()=>jobsRow.classList.remove('dragover'));
+    jobsRow.addEventListener('drop', (e)=>{
+      jobsRow.classList.remove('dragover');
+      const jobId = e.dataTransfer.getData('application/x-job');
+      if(!jobId) return;
+      e.preventDefault();
+      const job = jobs.find(j=>j.id===jobId);
+      if(!job) return;
+      job.date = dateStr;
+      const maxOrder = jobs.filter(j=>j.date===dateStr && j.id!==job.id).reduce((m,j)=>Math.max(m,j.order||0),0);
+      job.order = maxOrder+1;
+      saveAll();
+      render();
+    });
+
+    row.appendChild(jobsRow);
+    wrap.appendChild(row);
+  });
+}
+
+function buildJobCard(job){
+  const card = document.createElement('div');
+  card.className = 'job-card type-' + (job.type||'normal');
+  card.draggable = true;
+  card.dataset.jobId = job.id;
+
+  let routeHtml = '';
+  if(job.origin || job.destination){
+    routeHtml = `<div class="route" title="${escapeHtml(job.origin||'')} to ${escapeHtml(job.destination||'')}">${escapeHtml(job.origin||'?')}<span class="arrow">&rarr;</span>${escapeHtml(job.destination||'?')}</div>`;
+  }
+  let metaBits = [];
+  if(job.time) metaBits.push(formatTimeDisplay(job.time));
+  const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
+  if(farmBits) metaBits.push(farmBits);
+  const metaHtml = metaBits.length ? `<div class="meta" title="${escapeHtml(metaBits.join(' · '))}">${escapeHtml(metaBits.join(' · '))}</div>` : '';
+  const horseHtml = job.loadType ? `<div class="horse">${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>` : '';
+  const notesHtml = job.notes ? `<div class="notes" title="${escapeHtml(job.notes)}">${escapeHtml(job.notes)}</div>` : '';
+
+  let lbRefHtml = '';
+  if(job.loadBoardRef){
+    const isUrl = /^https?:\/\//i.test(job.loadBoardRef.trim());
+    if(isUrl){
+      lbRefHtml = `<a class="lb-ref" href="${escapeHtml(job.loadBoardRef.trim())}" target="_blank" rel="noopener" title="Open in Load Board">&#128279; Load Board</a>`;
+    } else {
+      lbRefHtml = `<span class="lb-ref" title="Load Board reference">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
+    }
+  }
+
+  let body = routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
+  if(!body){ body = `<div class="meta">(click to edit)</div>`; }
+
+  card.innerHTML = body;
+
+  // driver slot
+  const slot = document.createElement('div');
+  const drv = drivers.find(d=>d.id===job.assignedDriverId);
+  if(drv){
+    slot.className='driver-slot';
+    slot.innerHTML = `<div class="driver-badge" draggable="true" title="Drag to reassign"><span class="bname" title="${escapeHtml(driverLabel(drv))}">${escapeHtml(drv.name1)}${drv.name2? ' / '+escapeHtml(drv.name2):''}</span><span class="bunassign" title="Unassign">&times;</span></div>`;
+    const badgeEl = slot.querySelector('.driver-badge');
+    badgeEl.addEventListener('dragstart', (e)=>{
+      e.stopPropagation(); // don't also trigger the job card's own drag (date move)
+      e.dataTransfer.setData('application/x-driver', drv.id);
+      e.dataTransfer.setData('application/x-driver-source-job', job.id);
+      e.dataTransfer.effectAllowed='move';
+      setTimeout(()=>badgeEl.classList.add('dragging'),0);
+    });
+    badgeEl.addEventListener('dragend', ()=>badgeEl.classList.remove('dragging'));
+    slot.querySelector('.bunassign').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      job.assignedDriverId = null;
+      saveAll();
+      render();
+    });
+  } else {
+    slot.className='driver-slot empty';
+    slot.textContent='Drop driver here';
+  }
+  slot.addEventListener('dragover', (e)=>{
+    if(e.dataTransfer.types.includes('application/x-driver')){
+      e.preventDefault();
+      slot.classList.add('dragover');
+    }
+  });
+  slot.addEventListener('dragleave', ()=>slot.classList.remove('dragover'));
+  slot.addEventListener('drop', (e)=>{
+    slot.classList.remove('dragover');
+    const driverId = e.dataTransfer.getData('application/x-driver');
+    if(!driverId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const sourceJobId = e.dataTransfer.getData('application/x-driver-source-job');
+    const excludeIds = [job.id];
+    if(sourceJobId) excludeIds.push(sourceJobId);
+    const conflict = findTimeConflict(driverId, job.date, job.time, excludeIds);
+    if(conflict){
+      const drv = drivers.find(d=>d.id===driverId);
+      showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${job.time} on this date (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+      return;
+    }
+    if(sourceJobId && sourceJobId !== job.id){
+      const sourceJob = jobs.find(j=>j.id===sourceJobId);
+      if(sourceJob) sourceJob.assignedDriverId = null;
+    }
+    job.assignedDriverId = driverId;
+    saveAll();
+    render();
+  });
+  card.appendChild(slot);
+
+  const warning = getTurnaroundWarning(job);
+  if(warning && warning.unverifiable){
+    const warnEl = document.createElement('div');
+    warnEl.className = 'turnaround-warning unverifiable';
+    warnEl.textContent = `? Can't verify turnaround`;
+    warnEl.title = `SAMPLE DATA: ${warning.reason}`;
+    card.appendChild(warnEl);
+  } else if(warning){
+    const warnEl = document.createElement('div');
+    warnEl.className = 'turnaround-warning';
+    warnEl.textContent = `\u23F1 Tight turnaround \u2014 ~${warning.shortByMinutes}m short`;
+    warnEl.title = `SAMPLE DATA (not final): based on placeholder drive times, this driver isn't realistically ready until about ${absMinutesToDateTimeDisplay(warning.earliestReadyAbs)}.`;
+    card.appendChild(warnEl);
+  }
+
+  card.addEventListener('click', (e)=>{
+    if(e.target.closest('.driver-slot')) return;
+    if(e.target.closest('.lb-ref')) return;
+    openJobModal(job.id);
+  });
+  card.addEventListener('dragstart', (e)=>{
+    e.dataTransfer.setData('application/x-job', job.id);
+    e.dataTransfer.effectAllowed='move';
+    setTimeout(()=>card.classList.add('dragging'),0);
+  });
+  card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+
+  return card;
+}
+
+/* ============ JOB MODAL ============ */
+let editingJobId = null;
+let pendingDate = null;
+
+function openJobModal(jobId, date){
+  editingJobId = jobId;
+  const overlay = document.getElementById('jobModalOverlay');
+  const title = document.getElementById('jobModalTitle');
+  const delBtn = document.getElementById('jobDeleteBtn');
+
+  if(jobId){
+    const job = jobs.find(j=>j.id===jobId);
+    title.textContent = 'Edit Job';
+    document.getElementById('jobType').value = job.type||'normal';
+    populateDriverSelect(job.assignedDriverId);
+    document.getElementById('jobOrigin').value = job.origin||'';
+    document.getElementById('jobOriginFarm').value = job.originFarm||'';
+    document.getElementById('jobDestination').value = job.destination||'';
+    document.getElementById('jobDestinationFarm').value = job.destinationFarm||'';
+    document.getElementById('jobTime').value = job.time||'';
+    document.getElementById('jobLoadType').value = job.loadType||'';
+    document.getElementById('jobLoadBoardRef').value = job.loadBoardRef||'';
+    document.getElementById('jobNotes').value = job.notes||'';
+    delBtn.style.display='inline-block';
+    pendingDate = job.date;
+    document.getElementById('repeatThroughRow').style.display = 'none';
+  } else {
+    title.textContent = 'Add Job';
+    document.getElementById('jobType').value='normal';
+    populateDriverSelect(null);
+    document.getElementById('jobOrigin').value='';
+    document.getElementById('jobOriginFarm').value='';
+    document.getElementById('jobDestination').value='';
+    document.getElementById('jobDestinationFarm').value='';
+    document.getElementById('jobTime').value='';
+    document.getElementById('jobLoadType').value='';
+    document.getElementById('jobLoadBoardRef').value='';
+    document.getElementById('jobNotes').value='';
+    delBtn.style.display='none';
+    pendingDate = date;
+    document.getElementById('repeatThroughRow').style.display = '';
+    document.getElementById('jobStartDate').value = date;
+    document.getElementById('jobEndDate').value = '';
+    document.getElementById('jobEndDate').min = date;
+  }
+  overlay.classList.add('open');
+}
+
+function closeJobModal(){
+  document.getElementById('jobModalOverlay').classList.remove('open');
+  document.getElementById('lbBrowsePanel').style.display = 'none';
+  document.getElementById('lbBrowsePanel').innerHTML = '';
+  editingJobId = null;
+}
+
+document.getElementById('lbBrowseBtn').addEventListener('click', async ()=>{
+  const panel = document.getElementById('lbBrowsePanel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<div style="padding:8px;font-size:12px;color:#8a8368;">Loading from Load Board…</div>';
+  try{
+    const orders = await fetchLoadBoardOrders();
+    const jobDateVal = editingJobId
+      ? ((jobs.find(j=>j.id===editingJobId)||{}).date)
+      : (document.getElementById('jobStartDate').value || pendingDate);
+    const described = orders.map(describeOrder);
+    const filtered = jobDateVal ? described.filter(o=>o.date===jobDateVal) : described;
+    const toShow = filtered.length ? filtered : described;
+    if(!toShow.length){
+      panel.innerHTML = '<div style="padding:8px;font-size:12px;color:#8a8368;">No orders found in the Load Board data.</div>';
+      return;
+    }
+    panel.innerHTML = '';
+    if(!filtered.length){
+      const note = document.createElement('div');
+      note.style.cssText='padding:6px 10px;font-size:11px;color:#a49c80;';
+      note.textContent = `No exact match for ${jobDateVal||'this date'} — showing everything:`;
+      panel.appendChild(note);
+    }
+    toShow.slice(0,50).forEach(o=>{
+      const row = document.createElement('div');
+      row.style.cssText='padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #eee6d0;';
+      row.textContent = o.label;
+      row.addEventListener('mouseenter', ()=>row.style.background='#f7f1de');
+      row.addEventListener('mouseleave', ()=>row.style.background='');
+      row.addEventListener('click', ()=>{
+        document.getElementById('jobLoadBoardRef').value = o.id ? `Order ${o.id}: ${o.label}` : o.label;
+        panel.style.display='none';
+        panel.innerHTML='';
+      });
+      panel.appendChild(row);
+    });
+  }catch(err){
+    panel.innerHTML = `<div style="padding:8px;font-size:12px;color:var(--danger);">Could not reach the Load Board data (${err.message}). You can still paste a link or order # manually above.</div>`;
+  }
+});
+
+document.getElementById('jobCancelBtn').addEventListener('click', closeJobModal);
+document.getElementById('jobStartDate').addEventListener('change', ()=>{
+  const startVal = document.getElementById('jobStartDate').value;
+  document.getElementById('jobEndDate').min = startVal;
+  if(document.getElementById('jobEndDate').value && document.getElementById('jobEndDate').value < startVal){
+    document.getElementById('jobEndDate').value = '';
+  }
+});
+document.getElementById('jobModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='jobModalOverlay') closeJobModal();
+});
+
+document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
+  const data = {
+    type: document.getElementById('jobType').value,
+    origin: document.getElementById('jobOrigin').value.trim(),
+    originFarm: document.getElementById('jobOriginFarm').value.trim(),
+    destination: document.getElementById('jobDestination').value.trim(),
+    destinationFarm: document.getElementById('jobDestinationFarm').value.trim(),
+    time: document.getElementById('jobTime').value,
+    loadType: document.getElementById('jobLoadType').value,
+    loadBoardRef: document.getElementById('jobLoadBoardRef').value.trim(),
+    notes: document.getElementById('jobNotes').value.trim(),
+  };
+  const selectedDriverId = document.getElementById('jobAssignDriver').value || null;
+
+  if(editingJobId){
+    const job = jobs.find(j=>j.id===editingJobId);
+    if(selectedDriverId){
+      const conflict = findTimeConflict(selectedDriverId, job.date, data.time, [job.id]);
+      if(conflict){
+        const drv = drivers.find(d=>d.id===selectedDriverId);
+        showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${job.date} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+        return;
+      }
+    }
+    Object.assign(job, data);
+    job.assignedDriverId = selectedDriverId;
+  } else {
+    const startDate = document.getElementById('jobStartDate').value || pendingDate;
+    const endDate = document.getElementById('jobEndDate').value;
+    const datesToCreate = [];
+    if(endDate && endDate > startDate){
+      let cursor = dateFromStr(startDate);
+      const endD = dateFromStr(endDate);
+      let guard = 0;
+      while(cursor <= endD && guard < 60){
+        datesToCreate.push(fmtDate(cursor));
+        cursor.setDate(cursor.getDate()+1);
+        guard++;
+      }
+    } else {
+      datesToCreate.push(startDate);
+    }
+
+    if(selectedDriverId){
+      for(const dStr of datesToCreate){
+        const conflict = findTimeConflict(selectedDriverId, dStr, data.time, []);
+        if(conflict){
+          const drv = drivers.find(d=>d.id===selectedDriverId);
+          showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${dStr} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Nothing was created \u2014 pick a different time or driver.`);
+          return;
+        }
+      }
+    }
+
+    datesToCreate.forEach(dStr=>{
+      const maxOrder = jobs.filter(j=>j.date===dStr).reduce((m,j)=>Math.max(m,j.order||0),0);
+      jobs.push({id:'j'+(jobIdCounter++), date:dStr, assignedDriverId:selectedDriverId, order:maxOrder+1, ...data});
+    });
+  }
+  saveAll();
+  closeJobModal();
+  render();
+});
+
+document.getElementById('jobDeleteBtn').addEventListener('click', ()=>{
+  jobs = jobs.filter(j=>j.id!==editingJobId);
+  saveAll();
+  closeJobModal();
+  render();
+});
+
+/* ============ DRIVER MODAL ============ */
+let editingDriverId = null;
+
+function openDriverModal(driverId){
+  editingDriverId = driverId;
+  const overlay = document.getElementById('driverModalOverlay');
+  const title = document.getElementById('driverModalTitle');
+  const delBtn = document.getElementById('drvDeleteBtn');
+
+  if(driverId){
+    const drv = drivers.find(d=>d.id===driverId);
+    title.textContent = 'Edit Driver / Team';
+    document.getElementById('drvName1').value = drv.name1||'';
+    document.getElementById('drvName2').value = drv.name2||'';
+    document.getElementById('drvTruck').value = drv.truck||'';
+    document.getElementById('drvTrailer').value = drv.trailer||'';
+    delBtn.style.display='inline-block';
+  } else {
+    title.textContent = 'Add Driver / Team';
+    document.getElementById('drvName1').value='';
+    document.getElementById('drvName2').value='';
+    document.getElementById('drvTruck').value='';
+    document.getElementById('drvTrailer').value='';
+    delBtn.style.display='none';
+  }
+  overlay.classList.add('open');
+}
+
+function closeDriverModal(){
+  document.getElementById('driverModalOverlay').classList.remove('open');
+  editingDriverId = null;
+}
+
+document.getElementById('drvCancelBtn').addEventListener('click', closeDriverModal);
+document.getElementById('driverModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='driverModalOverlay') closeDriverModal();
+});
+
+document.getElementById('drvSaveBtn').addEventListener('click', ()=>{
+  const data = {
+    name1: document.getElementById('drvName1').value.trim(),
+    name2: document.getElementById('drvName2').value.trim(),
+    truck: document.getElementById('drvTruck').value.trim(),
+    trailer: document.getElementById('drvTrailer').value.trim(),
+  };
+  if(editingDriverId){
+    const drv = drivers.find(d=>d.id===editingDriverId);
+    Object.assign(drv, data);
+  } else {
+    drivers.push({id:'d'+Date.now(), ...data});
+  }
+  saveAll();
+  closeDriverModal();
+  render();
+});
+
+document.getElementById('drvDeleteBtn').addEventListener('click', ()=>{
+  showConfirm('Remove this driver/team? Any jobs currently assigned to them will become unassigned.', ()=>{
+    jobs.forEach(j=>{ if(j.assignedDriverId===editingDriverId) j.assignedDriverId=null; });
+    drivers = drivers.filter(d=>d.id!==editingDriverId);
+    saveAll();
+    closeDriverModal();
+    render();
+  });
+});
+
+/* ============ WEEK NAV ============ */
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  weekStart.setDate(weekStart.getDate()-14);
+  focusedDate = fmtDate(weekStart);
+  saveAll(); render();
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  weekStart.setDate(weekStart.getDate()+14);
+  focusedDate = fmtDate(weekStart);
+  saveAll(); render();
+});
+document.getElementById('todayBtn').addEventListener('click', ()=>{
+  weekStart = mondayOf(new Date());
+  focusedDate = fmtDate(new Date());
+  saveAll(); render();
+});
+
+/* ============ EXPORT / IMPORT ============ */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const data = {drivers, jobs, weekStart: weekStart.toISOString()};
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sallee-dispatch-board-' + fmtDate(new Date()) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const data = JSON.parse(evt.target.result);
+      if(data.drivers) drivers = data.drivers;
+      if(data.jobs) jobs = data.jobs;
+      if(data.weekStart) weekStart = mondayOf(new Date(data.weekStart));
+      saveAll();
+      render();
+    }catch(err){ showToast('Could not read that file: ' + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+});
+
+/* ============ INIT ============ */
+render();
+</script>
+</body>
+</html>
