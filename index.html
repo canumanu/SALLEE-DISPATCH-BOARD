@@ -216,14 +216,6 @@
     text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
   }
   .job-card .lb-ref:hover{background:var(--gold);}
-  .turnaround-warning{
-    margin-top:4px;font-size:9.5px;font-weight:700;color:#8a4b00;
-    background:#fdead0;border:1px solid #f0c688;border-radius:4px;
-    padding:3px 6px;cursor:help;
-  }
-  .turnaround-warning.unverifiable{
-    color:#6b6555;background:#efece0;border-color:#d8d2c0;
-  }
 
   .driver-slot{
     margin-top:5px;
@@ -326,10 +318,6 @@
   <button class="btn" id="importBtn">Import JSON</button>
   <input type="file" id="importFile" accept=".json" style="display:none;">
   <span class="status-note" id="statusNote">Saved locally in this browser</span>
-</div>
-
-<div style="background:#fdead0;color:#5c3a00;font-size:11.5px;font-weight:600;text-align:center;padding:5px 10px;border-bottom:1px solid #f0c688;">
-  &#129514; SKETCH: turnaround warnings below use sample placeholder drive times (KEE/BEL/CD/FG only) &mdash; not real Google Maps data yet.
 </div>
 
 <div class="driver-strip-wrap">
@@ -625,89 +613,6 @@ function findTimeConflict(driverId, date, time, excludeIds){
   return jobs.find(j => j.assignedDriverId===driverId && j.date===date && j.time===time && !excludeIds.includes(j.id)) || null;
 }
 
-/* ============ TURNAROUND-TIME SKETCH ============
-   SAMPLE DATA ONLY — placeholder numbers, not real drive times.
-   Once compute_drive_times.py produces a real drive_times.json, this whole
-   block gets replaced by a fetch of that file instead of SAMPLE_DRIVE_TIMES. */
-const TURNAROUND_BUFFER_MINUTES = 120; // 2hr rest/turnaround at destination
-const SAMPLE_DRIVE_TIMES = {
-  'kee|bel':740,'bel|kee':738,
-  'kee|cd':15,'cd|kee':15,
-  'cd|bel':750,'bel|cd':748,
-  'kee|fg':505,'fg|kee':505,
-  'cd|fg':500,'fg|cd':500,
-  'bel|fg':1180,'fg|bel':1180,
-};
-
-function normLoc(s){ return (s||'').trim().toLowerCase(); }
-function lookupDriveMinutes(a, b){
-  if(!a || !b) return null;
-  const key = normLoc(a)+'|'+normLoc(b);
-  return SAMPLE_DRIVE_TIMES[key] !== undefined ? SAMPLE_DRIVE_TIMES[key] : null;
-}
-function timeToMinutes(t){
-  if(!t) return null;
-  const parts = t.split(':').map(Number);
-  if(isNaN(parts[0])) return null;
-  return parts[0]*60 + (parts[1]||0);
-}
-function minutesToTimeDisplay(mins){
-  mins = ((mins % 1440) + 1440) % 1440;
-  let h = Math.floor(mins/60), m = mins%60;
-  const ampm = h>=12 ? 'PM':'AM';
-  h = h%12; if(h===0) h=12;
-  return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
-}
-
-// Returns null if fine (or can't be verified with known locations), or a
-// warning object describing a tight/impossible turnaround for this job.
-function dateTimeToAbsMinutes(dateStr, timeStr){
-  const tMin = timeToMinutes(timeStr);
-  if(tMin===null) return null;
-  const d = dateFromStr(dateStr);
-  return Math.round(d.getTime()/60000) + tMin;
-}
-function absMinutesToDateTimeDisplay(absMin){
-  const d = new Date(absMin*60000);
-  const dateLabel = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const timeLabel = formatTimeDisplay(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
-  return `${dateLabel}, ${timeLabel}`;
-}
-
-// Returns null if fine (or can't be verified with known locations), or a
-// warning object describing a tight/impossible turnaround for this job.
-// Compares actual date+time so it correctly catches gaps that cross midnight
-// into the next calendar day, not just same-day back-to-back trips.
-function getTurnaroundWarning(job){
-  if(!job.assignedDriverId || !job.time) return null;
-  const jobDT = dateTimeToAbsMinutes(job.date, job.time);
-  if(jobDT===null) return null;
-
-  const driverJobs = jobs.filter(j=>j.assignedDriverId===job.assignedDriverId && j.time && j.id!==job.id);
-  let prevJob = null, prevDT = null;
-  driverJobs.forEach(j=>{
-    const jDT = dateTimeToAbsMinutes(j.date, j.time);
-    if(jDT!==null && jDT < jobDT && (prevDT===null || jDT > prevDT)){
-      prevJob = j; prevDT = jDT;
-    }
-  });
-  if(!prevJob) return null;
-
-  const legMinutes = lookupDriveMinutes(prevJob.origin, prevJob.destination);
-  const nextLegMinutes = lookupDriveMinutes(prevJob.destination, job.origin);
-  if(legMinutes===null || nextLegMinutes===null){
-    return { unverifiable:true, prevJob,
-      reason: legMinutes===null
-        ? `"${prevJob.origin||'?'}" \u2192 "${prevJob.destination||'?'}" isn't in the sample table (try KEE/BEL/CD/FG)`
-        : `"${prevJob.destination||'?'}" \u2192 "${job.origin||'?'}" isn't in the sample table (try KEE/BEL/CD/FG)` };
-  }
-  const earliestReadyDT = prevDT + legMinutes + TURNAROUND_BUFFER_MINUTES + nextLegMinutes;
-  if(jobDT < earliestReadyDT){
-    return { shortByMinutes: earliestReadyDT - jobDT, earliestReadyAbs: earliestReadyDT, prevJob };
-  }
-  return null;
-}
-
 function showToast(message){
   const existing = document.getElementById('appToast');
   if(existing) existing.remove();
@@ -947,21 +852,6 @@ function buildJobCard(job){
     render();
   });
   card.appendChild(slot);
-
-  const warning = getTurnaroundWarning(job);
-  if(warning && warning.unverifiable){
-    const warnEl = document.createElement('div');
-    warnEl.className = 'turnaround-warning unverifiable';
-    warnEl.textContent = `? Can't verify turnaround`;
-    warnEl.title = `SAMPLE DATA: ${warning.reason}`;
-    card.appendChild(warnEl);
-  } else if(warning){
-    const warnEl = document.createElement('div');
-    warnEl.className = 'turnaround-warning';
-    warnEl.textContent = `\u23F1 Tight turnaround \u2014 ~${warning.shortByMinutes}m short`;
-    warnEl.title = `SAMPLE DATA (not final): based on placeholder drive times, this driver isn't realistically ready until about ${absMinutesToDateTimeDisplay(warning.earliestReadyAbs)}.`;
-    card.appendChild(warnEl);
-  }
 
   card.addEventListener('click', (e)=>{
     if(e.target.closest('.driver-slot')) return;
