@@ -1,81 +1,59 @@
-[README (1).md](https://github.com/user-attachments/files/31438109/README.1.md)
-# Drive-time matrix (Google Routes API)
+[README (2).md](https://github.com/user-attachments/files/31438387/README.2.md)
+# Sallee Dispatch Board
 
-Computes a static drive-time lookup between known locations (tracks, and
-farms once addressed), so the dispatch board never needs a live API call.
+An interactive, drag-and-drop dispatch board for Sallee Horse Vans. Replaces the manual 2-week Excel dispatch chart with a visual planning tool: jobs sit on a date, and drivers/teams (with truck & trailer numbers) are dragged from a top strip onto a job to assign it.
 
-## Files
+Live board: single self-contained `index.html`, no build step — same pattern as `barn-boards`, hosted on GitHub Pages.
 
-- `compute_drive_times.py` — the script. Reads `locations.json`, calls
-  Google's Routes API once, writes `drive_times.json`.
-- `locations.json` — **all 26 real tracks/training centers are in here now**,
-  pulled straight from the Load Board's `TRACK_ADDRESSES`. Farms/trainers
-  still need to be added over time as addresses become available for them
-  (see "Known gap" below).
-- `drive_times.json` — generated output. This is what the dispatch board
-  will eventually fetch.
+## Current features
 
-## One-time Google Cloud setup (you'll need to do this part yourself)
+- **Rows = dates** (rolling 2-week window, Prev/Next 2 Wks and This Week nav)
+- **Driver/team strip** at top — draggable blocks showing name(s) + truck/trailer number
+- **Focus-a-day availability**: click any date row to make the strip recolor green/free or red/booked for that specific day (not a misleading whole-window view)
+- **Drag driver block onto a job** to assign it; drag the assigned badge out of one job straight into another to reassign; click the `×` to unassign
+- **Duplicate-time protection**: assigning a driver who's already booked at the exact same time on the same day is blocked with an on-page banner naming the driver, time, and conflicting trip (browser `alert()`/`confirm()` are intentionally not used — they get silently blocked in some embedded/preview contexts)
+- **Multi-day entries**: the Add Job modal has Start Date / End Date fields, so a vacation or multi-day stretch creates one entry per day in one step, all pre-assigned to the chosen driver
+- **Job cards**: Origin / Destination, Origin & Destination Trainer/Farm, Time (shown as normal 12-hour AM/PM), Load Type (Stable Move / Special / Mix Load / Shuttle / Race and Return), Notes, and a type tag (normal / spare / vacation / note) with its own color accent
+- **Load Board link**: optional field to paste a link or order # once a dispatch job gets formalized into a real Load Board order, plus a "Browse" button that live-fetches the Load Board's `orders.json` (same-origin, since both sites live under `canumanu.github.io`) and lets you pick from a filtered list instead of typing
+- **Add/edit/remove driver columns** and jobs entirely from the UI
+- **Autosaves to browser localStorage** — Export/Import JSON buttons for backup and moving between machines
 
-1. Go to console.cloud.google.com, create or select a project.
-2. Enable billing on that project — Routes API requires a billing account
-   attached even for free-tier usage, though typical usage here should stay
-   well within the free monthly allotment given the small, fixed location
-   count.
-3. In "APIs & Services" > Library, enable the **Routes API**.
-4. In "APIs & Services" > Credentials, create an API key. Restrict it to
-   the Routes API only (Application restrictions > None needed for a
-   server-side script; API restrictions > Routes API).
-5. Don't commit this key anywhere. Store it as a GitHub Actions secret
-   (e.g. `GOOGLE_ROUTES_API_KEY`) on whichever repo runs this script.
+## Data model (in-browser only, for now)
 
-## Running it
-
-```
-export GOOGLE_ROUTES_API_KEY="your-key-here"
-pip install requests
-python compute_drive_times.py
+```js
+driver = { id, name1, name2, truck, trailer }
+job    = { id, date, assignedDriverId, type, origin, originFarm, destination,
+           destinationFarm, time, loadType, notes, loadBoardRef, order }
 ```
 
-## Output shape
+## Status: single-user visual tool, intentionally
 
-```json
-{
-  "generatedAt": "2026-08-25T12:00:00Z",
-  "locations": [
-    {"code": "KEE", "name": "Keeneland"},
-    {"code": "BEL", "name": "Belmont Park"}
-  ],
-  "matrix": {
-    "KEE": {
-      "BEL": {"minutes": 743, "miles": 811.4}
-    },
-    "BEL": {
-      "KEE": {"minutes": 738, "miles": 811.4}
-    }
-  }
-}
-```
+Not wired to any backend yet — deliberate choice, so the interaction model and rules (conflict checks, turnaround logic, etc.) get proven out with real day-to-day use before anyone commits to multi-user auth or a shared data store. No live data pipeline yet (unlike `barn-boards` / `SALLEE-LOAD-BOARD`, which sync from SharePoint via Power Automate / Graph API).
 
-## Known gap: farms/trainers
+## Turnaround-time (in progress, not live yet)
 
-Origin/Destination Trainer-Farm fields on the dispatch board are free text,
-not a fixed list, so they're not covered by this matrix yet. Plan is to
-grow `locations.json` over time — whenever a farm shows up regularly in
-dispatch, add its real address here once, and the next scheduled run picks
-it up. Until a given farm has an address in this file, any leg touching it
-just won't have a computed drive time, and the dispatch board should treat
-that as "unknown" rather than guessing.
+See `turnaround-sketch.html` — a working proof-of-concept of the actual comparison logic: for a driver's back-to-back jobs, compute (previous trip's drive time) + (2hr buffer) + (drive time to the next job's origin), and flag it if the next job's start time doesn't leave enough room. It correctly handles gaps that cross midnight into the next day.
 
-## Not yet wired up
+**This sketch uses a hardcoded sample drive-time table (4 tracks only: KEE/BEL/CD/FG) — not real data.** It is *not* the same file as `index.html` and should not be treated as production-ready. The real version needs `drive_times.json`, generated by the script in `scripts/drive-times/`.
 
-This script runs standalone. Two things still need to happen before the
-dispatch board actually uses this data:
+Anything the sketch can't verify against its sample table shows a gray "can't verify turnaround" badge rather than guessing — same honesty principle the real version will follow once wired to real Google Maps data.
 
-1. Publish `drive_times.json` somewhere the board can fetch it (same
-   pattern as `orders.json` on the Load Board — likely this script running
-   in a GitHub Actions workflow on a schedule, committing the output).
-2. Add the actual turnaround-time logic to the dispatch board: for a given
-   driver's jobs on a day, look up (previous destination -> next origin)
-   in this matrix, add the 2-hour buffer, and compare against the next
-   job's start time.
+## scripts/drive-times/
+
+A standalone Python script that calls Google's Routes API once against a fixed location list (currently your real 26 tracks, pulled from the Load Board's `TRACK_ADDRESSES`) and writes a static `drive_times.json` lookup — no live API calls needed at dispatch time. See that folder's own README for full setup steps (Google Cloud project, billing, API key, GitHub secret).
+
+**Known gap:** Origin/Destination Trainer-Farm fields on the dispatch board are free text, not a fixed list, so farms aren't covered by this matrix yet. Plan is to grow `locations.json` over time as farm addresses become available.
+
+## Roadmap
+
+- **Get a real Google Cloud API key and run `compute_drive_times.py` for real**, replacing the sketch's sample data with actual drive times between all 26 tracks.
+- **Publish `drive_times.json`** somewhere the live board can fetch it (same pattern as `orders.json` on the Load Board — likely this script running on a schedule via GitHub Actions).
+- **Wire the real turnaround logic into `index.html`**, replacing the sketch's `SAMPLE_DRIVE_TIMES` with a fetch of the real file.
+- **Grow the farm/trainer address list** as they come up in regular dispatch use.
+- **Multi-user + auth**: sign-in via existing Microsoft 365 accounts (MSAL.js), two permission tiers (view-only vs. create/edit) — deliberately deferred until the board is "bomb proof" as a single-user tool first.
+- **Print / simple view**: a no-login "print a load" view, in the same spirit as the Load Board's planned standalone print view.
+
+## Notes
+
+- NAV (Microsoft) remains the system of record for billing/BOL — this board is an operational/coordination layer only.
+- Starter driver roster was seeded from the header rows of the original `DISPATCH_CHART_2026.xlsx` "Chart" tab; that source workbook is a freeform whiteboard layout (not a clean table) and was not parsed automatically for job data — jobs are entered fresh through the UI.
