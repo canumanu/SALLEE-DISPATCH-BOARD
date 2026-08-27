@@ -20,12 +20,14 @@
     --card-vacation:#f5e0d8;
     --card-note:#fff8e0;
     --danger:#a23b2e;
+    --ky:#0e3b2e;
+    --fl:#8a5a00;
+    --ny:#1b3a6b;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--cream);color:var(--ink);}
 
-  /* ---------- Top bar ---------- */
   .topbar{
     background:var(--green-dark);
     color:var(--gold-light);
@@ -34,6 +36,10 @@
     align-items:center;
     gap:14px;
     flex-wrap:wrap;
+    position:sticky;
+    top:0;
+    z-index:60;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
   }
   .topbar h1{
     font-size:18px;
@@ -63,211 +69,190 @@
   .spacer{flex:1;}
   .status-note{font-size:11px;color:rgba(255,255,255,.55);}
 
-  /* ---------- Driver strip (X axis palette) ---------- */
-  .driver-strip-wrap{
-    background:var(--green);
-    border-bottom:2px solid var(--gold);
-    padding:8px 14px;
-    position:sticky;
-    top:0;
-    z-index:40;
-  }
-  .driver-strip-label{
-    font-size:10px;
-    letter-spacing:1px;
-    color:var(--gold-light);
-    text-transform:uppercase;
-    font-weight:700;
-    margin-bottom:6px;
-  }
-  .driver-strip{
-    display:flex;
-    gap:8px;
+  #topScrollSync{
     overflow-x:auto;
-    padding-bottom:4px;
-  }
-  .driver-chip{
-    position:relative;
-    flex:0 0 auto;
+    overflow-y:hidden;
+    height:16px;
     background:var(--green-dark);
-    border:1px solid rgba(255,255,255,.15);
-    border-top:3px solid var(--gold);
-    border-radius:6px;
-    padding:6px 10px;
-    min-width:96px;
-    max-width:120px;
-    cursor:grab;
-    user-select:none;
-    text-align:center;
+    border-bottom:2px solid var(--gold);
+    position:sticky;
+    top:54px;
+    z-index:59;
   }
-  .driver-chip:active{cursor:grabbing;}
-  .driver-chip.dragging{opacity:.35;}
-  .driver-chip.chip-unused{border-top-color:#3fa66b;box-shadow:inset 0 0 0 1px rgba(63,166,107,.35);}
-  .driver-chip.chip-used{border-top-color:#e5473a;box-shadow:inset 0 0 0 1px rgba(229,71,58,.35);}
-  .driver-chip .status-dot{
-    position:absolute;top:-4px;right:-4px;
-    width:9px;height:9px;border-radius:50%;
-    border:1.5px solid var(--green);
-  }
-  .driver-chip.chip-unused .status-dot{background:#3fa66b;}
-  .driver-chip.chip-used .status-dot{background:#e5473a;}
-  .driver-chip .cname{color:#fff;font-size:11.5px;font-weight:700;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .driver-chip .cname2{color:var(--gold-light);font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .driver-chip .ctruck{color:rgba(255,255,255,.55);font-size:9.5px;font-family:ui-monospace,Consolas,monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .add-driver-chip{
-    flex:0 0 auto;
-    background:transparent;
-    border:1.5px dashed var(--gold);
-    color:var(--gold);
-    border-radius:6px;
-    min-width:40px;
-    font-size:18px;
-    cursor:pointer;
-  }
-  .add-driver-chip:hover{background:var(--gold);color:var(--green-dark);}
+  #topScrollSync::-webkit-scrollbar{height:14px;}
+  #topScrollSync::-webkit-scrollbar-track{background:var(--green-dark);}
+  #topScrollSync::-webkit-scrollbar-thumb{background:var(--gold);border-radius:7px;border:3px solid var(--green-dark);}
+  #topScrollSyncInner{height:1px;}
 
-  /* ---------- Board ---------- */
   .board-wrap{
-    padding:10px 14px 60px;
+    overflow:auto;
+    height:calc(100vh - 54px);
+    position:relative;
   }
-  .date-row{
-    display:flex;
-    border-bottom:1px solid var(--line);
-    min-height:64px;
-    cursor:pointer;
+  table.board{
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout:fixed;
   }
-  .date-row.weekend{background:var(--weekend);}
-  .date-row.focused{outline:2px solid var(--green-light);outline-offset:-2px;background:#eef6f1;}
-  .date-row.focused.weekend{background:#eef1e6;}
-  .date-cell{
-    flex:0 0 84px;
-    padding:8px 6px;
+
+  .region-spacer{
+    position:sticky;top:0;left:0;z-index:35;
+    background:var(--green-dark);
+    width:84px;min-width:84px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  th.region-label{
+    position:sticky;top:0;z-index:25;
+    color:#fff;
+    font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+    text-align:center;
+    padding:5px 0;
+    border-bottom:1px solid rgba(255,255,255,.12);
     border-right:2px solid var(--gold);
   }
-  .date-cell .dow{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--green);}
-  .date-row.weekend .date-cell .dow{color:var(--danger);}
-  .date-cell .dnum{font-size:16px;font-weight:800;color:var(--ink);}
+  th.region-label.region-KY{background:var(--ky);}
+  th.region-label.region-FL{background:var(--fl);}
+  th.region-label.region-NY{background:var(--ny);}
+  th.region-label.region-unassigned{background:#5c5648;}
+  .region-end-spacer{
+    position:sticky;top:0;z-index:25;
+    background:var(--green-dark);
+    width:46px;min-width:46px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
 
-  .jobs-row{
-    flex:1;
-    display:flex;
-    flex-wrap:wrap;
-    align-content:flex-start;
-    gap:6px;
-    padding:6px;
-    min-height:64px;
+  td.corner-cell{
+    position:sticky;top:29px;left:0;z-index:35;
+    background:var(--green-dark);
+    width:84px;min-width:84px;
+    border-bottom:2px solid var(--gold);
+    border-right:2px solid var(--gold);
+    height:0;
+    padding:0;
+  }
+  th.driver-head{
+    position:sticky;top:29px;z-index:20;
+    background:var(--green-dark);
+    color:#fff;
+    width:150px;min-width:150px;
+    padding:7px 6px;
+    border-bottom:2px solid var(--gold);
+    border-right:1px solid rgba(255,255,255,.12);
+    text-align:center;
+    vertical-align:top;
+    cursor:pointer;
+    user-select:none;
+  }
+  th.driver-head:hover{background:var(--green);}
+  th.driver-head .dname{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  th.driver-head .dname2{font-size:10.5px;color:var(--gold-light);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  th.driver-head .dtruck{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;font-family:ui-monospace,Consolas,monospace;}
+  .add-driver-cell{
+    position:sticky;top:29px;z-index:20;
+    background:var(--green-dark);
+    width:46px;min-width:46px;
+    border-bottom:2px solid var(--gold);
+    text-align:center;
+    vertical-align:middle;
+  }
+  .add-driver-cell button{
+    background:transparent;border:1.5px dashed var(--gold);color:var(--gold);
+    border-radius:6px;width:30px;height:30px;font-size:17px;cursor:pointer;
+  }
+  .add-driver-cell button:hover{background:var(--gold);color:var(--green-dark);}
+
+  td.date-cell{
+    position:sticky;left:0;z-index:15;
+    background:var(--cream);
+    border-right:2px solid var(--gold);
+    border-bottom:1px solid var(--line);
+    padding:6px 6px;
+    vertical-align:top;
+    width:84px;min-width:84px;
+  }
+  td.date-cell .dow{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--green);}
+  td.date-cell .dnum{font-size:15px;font-weight:800;color:var(--ink);}
+  td.date-cell.weekend{background:var(--weekend);}
+  td.date-cell.weekend .dow{color:var(--danger);}
+
+  td.job-cell{
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+    padding:5px;
+    min-width:150px;
+    max-width:150px;
     transition:background .1s;
   }
-  .jobs-row.dragover{background:var(--gold-light);outline:2px dashed var(--gold);outline-offset:-2px;}
+  tr:nth-child(even) td.job-cell{background:rgba(0,0,0,.012);}
+  td.job-cell.dragover{background:var(--gold-light)!important;outline:2px dashed var(--gold);outline-offset:-2px;}
+  tr.row-weekend td.job-cell{background:var(--weekend)!important;}
 
-  .add-job-chip{
-    flex:0 0 auto;
-    align-self:flex-start;
+  .add-job-btn{
+    width:100%;
     border:1.5px dashed #c3bda4;
     background:transparent;
     color:#948d70;
-    border-radius:6px;
-    font-size:16px;
-    width:34px;
-    height:34px;
+    border-radius:5px;
+    font-size:15px;
+    line-height:1;
+    padding:4px 0;
     cursor:pointer;
+    margin-top:2px;
   }
-  .add-job-chip:hover{border-color:var(--green);color:var(--green);background:#fff;}
+  .add-job-btn:hover{border-color:var(--green);color:var(--green);background:#fff;}
 
   .job-card{
     background:var(--card-normal);
     border:1px solid #d9d3bf;
     border-left:4px solid var(--green);
-    border-radius:6px;
-    padding:6px 8px;
-    font-size:11.5px;
+    border-radius:5px;
+    padding:6px 7px;
+    margin-bottom:4px;
+    font-size:10px;
+    line-height:1.35;
     cursor:grab;
     box-shadow:0 1px 2px rgba(0,0,0,.06);
-    width:216px;
-    flex:0 0 auto;
   }
   .job-card:active{cursor:grabbing;}
   .job-card.dragging{opacity:.35;}
   .job-card.type-spare{border-left-color:#7a8f86;background:var(--card-spare);}
   .job-card.type-vacation{border-left-color:var(--danger);background:var(--card-vacation);}
   .job-card.type-note{border-left-color:var(--gold);background:var(--card-note);}
-
-  .job-card .route{
-    font-weight:700;color:var(--green-dark);font-size:12px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .job-card .route .arrow{color:var(--gold);margin:0 3px;}
-  .job-card .meta{
-    color:#5c574a;font-size:10px;margin-top:1px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .job-card .horse{
-    font-style:italic;color:#3a3630;font-size:10.5px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .job-card .notes{
-    color:#7a5c2e;font-size:10px;margin-top:2px;
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  }
+  .job-card .route{font-weight:700;color:var(--green-dark);font-size:10.5px;white-space:normal;word-break:break-word;}
+  .job-card .route .arrow{color:var(--gold);margin:0 2px;}
+  .job-card .meta{color:#5c574a;font-size:9px;margin-top:2px;white-space:normal;word-break:break-word;}
+  .job-card .horse{font-style:italic;color:#3a3630;font-size:9px;margin-top:1px;white-space:normal;}
+  .job-card .notes{color:#7a5c2e;font-size:9px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .job-card .lb-ref{
     display:inline-block;margin-top:3px;
-    font-size:9.5px;font-weight:700;color:var(--green-dark);
-    background:var(--gold-light);border-radius:4px;padding:2px 6px;
+    font-size:9px;font-weight:700;color:var(--green-dark);
+    background:var(--gold-light);border-radius:4px;padding:2px 5px;
     text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
   }
   .job-card .lb-ref:hover{background:var(--gold);}
 
-  .driver-slot{
-    margin-top:5px;
-    border-radius:5px;
-    min-height:24px;
-    display:flex;
-    align-items:center;
-    transition:background .1s;
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);
+    background:var(--danger);color:#fff;
+    padding:12px 20px;border-radius:8px;
+    font-size:13.5px;font-weight:600;line-height:1.4;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+    z-index:300;max-width:520px;text-align:center;
+    display:flex;align-items:center;gap:10px;
   }
-  .driver-slot.empty{
-    border:1.5px dashed #c9c2ac;
-    justify-content:center;
-    color:#a49c80;
-    font-size:9.5px;
-    text-transform:uppercase;
-    letter-spacing:.4px;
-    font-weight:700;
-    padding:3px 4px;
-  }
-  .driver-slot.dragover{border-color:var(--green);background:var(--gold-light);color:var(--green-dark);}
-  .driver-badge{
-    background:var(--green-dark);
-    color:#fff;
-    border-radius:5px;
-    padding:3px 6px;
-    font-size:10.5px;
-    font-weight:700;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    width:100%;
-    gap:4px;
-  }
-  .driver-badge .bname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .driver-badge .bunassign{
-    cursor:pointer;color:var(--gold-light);font-weight:900;font-size:12px;line-height:1;
-    padding:0 2px;
-  }
-  .driver-badge .bunassign:hover{color:#fff;}
-  .driver-badge{cursor:grab;}
-  .driver-badge:active{cursor:grabbing;}
-  .driver-badge.dragging{opacity:.35;}
+  .toast .toast-close{cursor:pointer;font-weight:900;font-size:16px;line-height:1;color:rgba(255,255,255,.8);flex-shrink:0;}
+  .toast .toast-close:hover{color:#fff;}
 
-  /* ---------- Modal (shared) ---------- */
   .modal-overlay{
     position:fixed;inset:0;background:rgba(14,20,17,.55);
-    display:none;align-items:center;justify-content:center;z-index:100;
+    display:none;align-items:center;justify-content:center;z-index:200;
   }
   .modal-overlay.open{display:flex;}
   .modal{
     background:#fff;border-radius:10px;width:380px;max-width:92vw;
     padding:20px 22px;box-shadow:0 12px 40px rgba(0,0,0,.35);
+    max-height:90vh;overflow-y:auto;
   }
   .modal h2{margin:0 0 14px;font-size:16px;color:var(--green-dark);}
   .modal label{display:block;font-size:11px;font-weight:700;color:#6b6555;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 3px;}
@@ -285,22 +270,6 @@
   .btn-secondary:hover{background:#ddd6c0;}
   .btn-delete{background:transparent;color:var(--danger);border:1px solid var(--danger);padding:9px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;}
   .btn-delete:hover{background:var(--danger);color:#fff;}
-
-  /* ---------- Toast banner (replaces browser alert()) ---------- */
-  .toast{
-    position:fixed;top:18px;left:50%;transform:translateX(-50%);
-    background:var(--danger);color:#fff;
-    padding:12px 20px;border-radius:8px;
-    font-size:13.5px;font-weight:600;line-height:1.4;
-    box-shadow:0 8px 24px rgba(0,0,0,.3);
-    z-index:300;max-width:520px;text-align:center;
-    display:flex;align-items:center;gap:10px;
-  }
-  .toast .toast-close{
-    cursor:pointer;font-weight:900;font-size:16px;line-height:1;
-    color:rgba(255,255,255,.8);flex-shrink:0;
-  }
-  .toast .toast-close:hover{color:#fff;}
 </style>
 </head>
 <body>
@@ -320,14 +289,18 @@
   <span class="status-note" id="statusNote">Saved locally in this browser</span>
 </div>
 
-<div class="driver-strip-wrap">
-  <div class="driver-strip-label" id="stripLabel"></div>
-  <div class="driver-strip" id="driverStrip"></div>
+<div id="topScrollSync"><div id="topScrollSyncInner"></div></div>
+
+<div class="board-wrap">
+  <table class="board" id="boardTable">
+    <thead>
+      <tr id="regionRow"></tr>
+      <tr id="headRow"></tr>
+    </thead>
+    <tbody id="boardBody"></tbody>
+  </table>
 </div>
 
-<div class="board-wrap" id="boardWrap"></div>
-
-<!-- Job modal -->
 <div class="modal-overlay" id="jobModalOverlay">
   <div class="modal">
     <h2 id="jobModalTitle">Add Job</h2>
@@ -338,7 +311,7 @@
       <option value="vacation">Vacation / off</option>
       <option value="note">Note only</option>
     </select>
-    <label>Assign Driver (optional)</label>
+    <label>Assign Driver</label>
     <select id="jobAssignDriver"></select>
     <div class="modal-row">
       <div>
@@ -407,7 +380,6 @@
   </div>
 </div>
 
-<!-- Driver modal -->
 <div class="modal-overlay" id="driverModalOverlay">
   <div class="modal">
     <h2 id="driverModalTitle">Add Driver / Team</h2>
@@ -431,6 +403,13 @@
         <input id="drvTrailer" placeholder="e.g. 185A+">
       </div>
     </div>
+    <label>Location</label>
+    <select id="drvLocation">
+      <option value="">— Unassigned —</option>
+      <option value="KY">KY</option>
+      <option value="FL">FL</option>
+      <option value="NY">NY</option>
+    </select>
     <div class="modal-actions">
       <div class="left">
         <button class="btn-delete" id="drvDeleteBtn" style="display:none;">Remove</button>
@@ -443,7 +422,6 @@
   </div>
 </div>
 
-<!-- Confirm modal (replaces window.confirm()) -->
 <div class="modal-overlay" id="confirmOverlay">
   <div class="modal">
     <h2>Please confirm</h2>
@@ -459,38 +437,40 @@
 </div>
 
 <script>
-/* ============ STARTER DATA ============ */
 const DEFAULT_DRIVERS = [
-  {id:'d1', name1:'PAUL Z.', name2:'JASEN', truck:'657', trailer:'185A+'},
-  {id:'d2', name1:'DREW', name2:'BRADLEY S.', truck:'645', trailer:'207A+'},
-  {id:'d3', name1:'ALLEN', name2:'MATHEW C.', truck:'654', trailer:'209A++'},
-  {id:'d4', name1:'CHUY', name2:'', truck:'648', trailer:'198A+'},
-  {id:'d5', name1:'BRADLEY H.', name2:'', truck:'643', trailer:'203A+'},
-  {id:'d6', name1:'MATHEW F.', name2:'', truck:'638', trailer:'169A+'},
-  {id:'d7', name1:'ZIPPO', name2:'WILLIAM', truck:'656', trailer:'201A++'},
-  {id:'d8', name1:'CLIFFORD', name2:'', truck:'649', trailer:'208A+'},
-  {id:'d9', name1:'DERRICK', name2:'LANCE', truck:'651', trailer:'182A+'},
-  {id:'d10', name1:'JERALD', name2:'LEVY', truck:'658', trailer:'211A+'},
-  {id:'d11', name1:'WALTER', name2:'JOHNNY D.', truck:'660', trailer:'205A++'},
-  {id:'d12', name1:'BILL', name2:'DAVE', truck:'661', trailer:'210A+'},
-  {id:'d13', name1:'CHARLES', name2:'NOBERTO', truck:'659', trailer:'184A+'},
-  {id:'d14', name1:'CHRIS D.', name2:'ZACH', truck:'647', trailer:'206A+'},
-  {id:'d15', name1:'DAVID H.', name2:'MIKE B.', truck:'646', trailer:'200A+'},
-  {id:'d16', name1:"DAI'SHAWN", name2:'JERROD', truck:'644', trailer:'183A+'},
-  {id:'d17', name1:'MIGUEL', name2:'', truck:'653', trailer:'212A+'},
-  {id:'d18', name1:'SEBASTIAN M.', name2:'', truck:'632', trailer:'1042A+'},
-  {id:'d19', name1:'JUAN C.', name2:'', truck:'639', trailer:'1018A+'},
-  {id:'d20', name1:'KEITH D.', name2:'', truck:'635', trailer:'1098A+'},
-  {id:'d21', name1:'JOE MURPHY', name2:'', truck:'636', trailer:'190A+'},
-  {id:'d22', name1:'DONNIE M', name2:'', truck:'640', trailer:'191A++'},
-  {id:'d23', name1:'STEVE MC.', name2:'', truck:'634', trailer:'199A+'},
-  {id:'d24', name1:'NEMO', name2:'', truck:'633', trailer:'168A+'},
-  {id:'d25', name1:'THEMILDA', name2:'', truck:'511', trailer:''},
-  {id:'d26', name1:'BERNIE', name2:'', truck:'641', trailer:'196A+'}
+  {id:'d1', name1:'PAUL Z.', name2:'JASEN', truck:'657', trailer:'185A+', location:'KY'},
+  {id:'d2', name1:'DREW', name2:'BRADLEY S.', truck:'645', trailer:'207A+', location:'KY'},
+  {id:'d3', name1:'ALLEN', name2:'MATHEW C.', truck:'654', trailer:'209A++', location:'KY'},
+  {id:'d4', name1:'CHUY', name2:'', truck:'648', trailer:'198A+', location:'KY'},
+  {id:'d5', name1:'BRADLEY H.', name2:'', truck:'643', trailer:'203A+', location:'KY'},
+  {id:'d6', name1:'MATHEW F.', name2:'', truck:'638', trailer:'169A+', location:'KY'},
+  {id:'d7', name1:'ZIPPO', name2:'WILLIAM', truck:'656', trailer:'201A++', location:'KY'},
+  {id:'d8', name1:'CLIFFORD', name2:'', truck:'649', trailer:'208A+', location:'KY'},
+  {id:'d9', name1:'DERRICK', name2:'LANCE', truck:'651', trailer:'182A+', location:'KY'},
+  {id:'d10', name1:'JERALD', name2:'LEVY', truck:'658', trailer:'211A+', location:'KY'},
+  {id:'d11', name1:'WALTER', name2:'JOHNNY D.', truck:'660', trailer:'205A++', location:'KY'},
+  {id:'d12', name1:'BILL', name2:'DAVE', truck:'661', trailer:'210A+', location:'KY'},
+  {id:'d13', name1:'CHARLES', name2:'NOBERTO', truck:'659', trailer:'184A+', location:'KY'},
+  {id:'d14', name1:'CHRIS D.', name2:'ZACH', truck:'647', trailer:'206A+', location:'KY'},
+  {id:'d15', name1:'DAVID H.', name2:'MIKE B.', truck:'646', trailer:'200A+', location:'KY'},
+  {id:'d16', name1:"DAI'SHAWN", name2:'JERROD', truck:'644', trailer:'183A+', location:'KY'},
+  {id:'d17', name1:'MIGUEL', name2:'', truck:'653', trailer:'212A+', location:'FL'},
+  {id:'d18', name1:'SEBASTIAN M.', name2:'', truck:'632', trailer:'1042A+', location:'FL'},
+  {id:'d19', name1:'JUAN C.', name2:'', truck:'639', trailer:'1018A+', location:'FL'},
+  {id:'d20', name1:'KEITH D.', name2:'', truck:'635', trailer:'1098A+', location:'FL'},
+  {id:'d21', name1:'JOE MURPHY', name2:'', truck:'636', trailer:'190A+', location:'FL'},
+  {id:'d22', name1:'DONNIE M', name2:'', truck:'640', trailer:'191A++', location:'FL'},
+  {id:'d23', name1:'STEVE MC.', name2:'', truck:'634', trailer:'199A+', location:'FL'},
+  {id:'d24', name1:'NEMO', name2:'', truck:'633', trailer:'168A+', location:'NY'},
+  {id:'d25', name1:'THEMILDA', name2:'', truck:'511', trailer:'', location:'NY'},
+  {id:'d26', name1:'BERNIE', name2:'', truck:'641', trailer:'196A+', location:'NY'}
 ];
 
 const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const LOAD_TYPE_LABELS={stable_move:'Stable Move', special:'Special', mix_load:'Mix Load', shuttle:'Shuttle', race_and_return:'Race and Return'};
+const REGION_ORDER = ['KY','FL','NY',''];
+const REGION_DISPLAY = {KY:'KY', FL:'FL', NY:'NY', '':'Unassigned'};
+
 const LS_DRIVERS='sallee_dispatch_drivers_v2';
 const LS_JOBS='sallee_dispatch_jobs_v2';
 const LS_WEEKSTART='sallee_dispatch_weekstart_v2';
@@ -509,7 +489,6 @@ function mondayOf(d){
 }
 let weekStart = new Date(localStorage.getItem(LS_WEEKSTART) || mondayOf(new Date()).toISOString());
 weekStart = mondayOf(weekStart);
-let focusedDate = fmtDate(new Date());
 
 function saveAll(){
   localStorage.setItem(LS_DRIVERS, JSON.stringify(drivers));
@@ -522,7 +501,6 @@ function fmtDate(d){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
-
 function getDateRange(){
   const arr=[];
   for(let i=0;i<14;i++){
@@ -532,30 +510,19 @@ function getDateRange(){
   }
   return arr;
 }
-
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function dateFromStr(s){
   const [y,m,d] = s.split('-').map(Number);
   return new Date(y, m-1, d);
 }
-
-function populateDriverSelect(selectedId){
-  const sel = document.getElementById('jobAssignDriver');
-  sel.innerHTML = '<option value="">— Unassigned —</option>' +
-    drivers.map(d=>`<option value="${d.id}">${escapeHtml(driverLabel(d))}</option>`).join('');
-  sel.value = selectedId || '';
-}
-
 function driverLabel(drv){
   if(!drv) return '';
   const names = [drv.name1, drv.name2].filter(Boolean).join(' / ');
   const truckPart = [drv.truck, drv.trailer].filter(Boolean).join('/');
   return names + (truckPart ? ' · '+truckPart : '');
 }
-
 function formatTimeDisplay(t){
   if(!t) return '';
   const parts = t.split(':');
@@ -567,50 +534,240 @@ function formatTimeDisplay(t){
   if(h === 0) h = 12;
   return `${h}:${m} ${ampm}`;
 }
-
-/* ============ LOAD BOARD LOOKUP (live fetch, best-effort) ============ */
-// NOTE: field names below are best guesses based on the Load Board's known columns.
-// If your real orders.json uses different key casing/names, tweak the candidate
-// lists in pickField() calls inside describeOrder() below.
-const LOAD_BOARD_ORDERS_URL = 'https://canumanu.github.io/SALLEE-LOAD-BOARD/data/orders.json';
-let loadBoardOrdersCache = null;
-
-async function fetchLoadBoardOrders(){
-  if(loadBoardOrdersCache) return loadBoardOrdersCache;
-  const res = await fetch(LOAD_BOARD_ORDERS_URL, {cache:'no-store'});
-  if(!res.ok) throw new Error('HTTP '+res.status);
-  const data = await res.json();
-  loadBoardOrdersCache = Array.isArray(data) ? data : (data.orders || data.Orders || []);
-  return loadBoardOrdersCache;
-}
-
-function pickField(obj, candidates){
-  for(const key of candidates){
-    if(obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
-  }
-  return '';
-}
-
-function describeOrder(order){
-  const origin = pickField(order, ['origin','Origin','ORIGIN']);
-  const destination = pickField(order, ['destination','Destination','DESTINATION']);
-  const date = pickField(order, ['date','Date','tripDate','TripDate','pickupDate','PickupDate']);
-  const id = pickField(order, ['id','Id','ID','orderId','OrderID','orderNumber']);
-  let horses = pickField(order, ['horses','Horses']);
-  let horseLabel = '';
-  if(Array.isArray(horses)){
-    horseLabel = horses.map(h=>(h && (h.name||h.Name))||'').filter(Boolean).join(', ');
-  } else if(typeof horses === 'string'){
-    horseLabel = horses;
-  }
-  if(!horseLabel) horseLabel = pickField(order, ['HORSE NAME(S)','horseNames','HorseNames']);
-  const label = `${origin||'?'} \u2192 ${destination||'?'}${date? ' · '+date:''}${horseLabel? ' · '+horseLabel:''}`;
-  return {id, date, origin, destination, horseLabel, label};
-}
-
 function findTimeConflict(driverId, date, time, excludeIds){
-  if(!driverId || !time) return null; // can't confirm a conflict without a known time on both sides
+  if(!driverId || !time) return null;
   return jobs.find(j => j.assignedDriverId===driverId && j.date===date && j.time===time && !excludeIds.includes(j.id)) || null;
+}
+
+function getSortedDrivers(){
+  const sorted = [];
+  REGION_ORDER.forEach(region=>{
+    drivers.forEach(d=>{
+      if((d.location||'')===region) sorted.push(d);
+    });
+  });
+  return sorted;
+}
+function getRegionGroups(sortedDrivers){
+  const groups = [];
+  sortedDrivers.forEach(d=>{
+    const region = d.location || '';
+    const last = groups[groups.length-1];
+    if(last && last.region===region){ last.count++; }
+    else{ groups.push({region, count:1}); }
+  });
+  return groups;
+}
+
+function render(){
+  const sortedDrivers = getSortedDrivers();
+  renderRegionRow(sortedDrivers);
+  renderHeadRow(sortedDrivers);
+  renderBoard(sortedDrivers);
+  renderRangeLabel();
+  syncScrollWidth();
+}
+
+function syncScrollWidth(){
+  const table = document.getElementById('boardTable');
+  document.getElementById('topScrollSyncInner').style.width = table.scrollWidth + 'px';
+}
+
+let syncingScroll = false;
+(function setupScrollSync(){
+  const boardWrap = document.querySelector('.board-wrap');
+  const topSync = document.getElementById('topScrollSync');
+  topSync.addEventListener('scroll', ()=>{
+    if(syncingScroll) return;
+    syncingScroll = true;
+    boardWrap.scrollLeft = topSync.scrollLeft;
+    syncingScroll = false;
+  });
+  boardWrap.addEventListener('scroll', ()=>{
+    if(syncingScroll) return;
+    syncingScroll = true;
+    topSync.scrollLeft = boardWrap.scrollLeft;
+    syncingScroll = false;
+  });
+})();
+
+function renderRangeLabel(){
+  const dates = getDateRange();
+  const opts = {month:'short', day:'numeric'};
+  document.getElementById('rangeLabel').textContent =
+    `${dates[0].toLocaleDateString('en-US',opts)} – ${dates[13].toLocaleDateString('en-US',opts)}, ${dates[13].getFullYear()}`;
+}
+
+function renderRegionRow(sortedDrivers){
+  const row = document.getElementById('regionRow');
+  row.innerHTML = '';
+  const spacer = document.createElement('th');
+  spacer.className = 'region-spacer';
+  row.appendChild(spacer);
+
+  const groups = getRegionGroups(sortedDrivers);
+  groups.forEach(g=>{
+    const th = document.createElement('th');
+    th.className = 'region-label region-' + (g.region || 'unassigned');
+    th.colSpan = g.count;
+    th.textContent = REGION_DISPLAY[g.region] || 'Unassigned';
+    row.appendChild(th);
+  });
+
+  const endSpacer = document.createElement('th');
+  endSpacer.className = 'region-end-spacer';
+  row.appendChild(endSpacer);
+}
+
+function renderHeadRow(sortedDrivers){
+  const row = document.getElementById('headRow');
+  row.innerHTML = '';
+  const corner = document.createElement('td');
+  corner.className = 'corner-cell';
+  row.appendChild(corner);
+
+  sortedDrivers.forEach(drv=>{
+    const th = document.createElement('th');
+    th.className = 'driver-head';
+    th.dataset.driverId = drv.id;
+    th.innerHTML = `
+      <div class="dname">${escapeHtml(drv.name1||'—')}</div>
+      ${drv.name2 ? `<div class="dname2">${escapeHtml(drv.name2)}</div>` : ''}
+      <div class="dtruck">${escapeHtml([drv.truck,drv.trailer].filter(Boolean).join('/'))}</div>
+    `;
+    th.addEventListener('click', ()=>openDriverModal(drv.id));
+    row.appendChild(th);
+  });
+
+  const addTh = document.createElement('th');
+  addTh.className = 'add-driver-cell';
+  addTh.innerHTML = `<button title="Add driver/team">+</button>`;
+  addTh.querySelector('button').addEventListener('click', ()=>openDriverModal(null));
+  row.appendChild(addTh);
+}
+
+function renderBoard(sortedDrivers){
+  const body = document.getElementById('boardBody');
+  body.innerHTML = '';
+  const dates = getDateRange();
+
+  dates.forEach(d=>{
+    const dateStr = fmtDate(d);
+    const dow = d.getDay();
+    const isWeekend = dow===0 || dow===6;
+    const tr = document.createElement('tr');
+    if(isWeekend) tr.className = 'row-weekend';
+
+    const dateTd = document.createElement('td');
+    dateTd.className = 'date-cell' + (isWeekend?' weekend':'');
+    dateTd.innerHTML = `<div class="dow">${DAY_NAMES[dow]}</div><div class="dnum">${d.getMonth()+1}/${d.getDate()}</div>`;
+    tr.appendChild(dateTd);
+
+    sortedDrivers.forEach(drv=>{
+      const td = document.createElement('td');
+      td.className = 'job-cell';
+      td.dataset.date = dateStr;
+      td.dataset.driverId = drv.id;
+
+      const cellJobs = jobs.filter(j=>j.date===dateStr && j.assignedDriverId===drv.id)
+                            .sort((a,b)=>(a.order||0)-(b.order||0));
+      cellJobs.forEach(job=>td.appendChild(buildJobCard(job)));
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-job-btn';
+      addBtn.textContent = '+';
+      addBtn.title = 'Add job for this driver/date';
+      addBtn.addEventListener('click', ()=>openJobModal(null, dateStr, drv.id));
+      td.appendChild(addBtn);
+
+      attachDropZone(td);
+      tr.appendChild(td);
+    });
+
+    body.appendChild(tr);
+  });
+}
+
+function buildJobCard(job){
+  const card = document.createElement('div');
+  card.className = 'job-card type-' + (job.type||'normal');
+  card.draggable = true;
+  card.dataset.jobId = job.id;
+
+  let routeHtml = '';
+  if(job.origin || job.destination){
+    routeHtml = `<div class="route">${escapeHtml(job.origin||'?')}<span class="arrow">&rarr;</span>${escapeHtml(job.destination||'?')}</div>`;
+  }
+  let metaBits = [];
+  if(job.time) metaBits.push(formatTimeDisplay(job.time));
+  const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
+  if(farmBits) metaBits.push(farmBits);
+  const metaHtml = metaBits.length ? `<div class="meta">${escapeHtml(metaBits.join(' · '))}</div>` : '';
+  const horseHtml = job.loadType ? `<div class="horse">${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>` : '';
+  const notesHtml = job.notes ? `<div class="notes" title="${escapeHtml(job.notes)}">${escapeHtml(job.notes)}</div>` : '';
+
+  let lbRefHtml = '';
+  if(job.loadBoardRef){
+    const isUrl = /^https?:\/\//i.test(job.loadBoardRef.trim());
+    if(isUrl){
+      lbRefHtml = `<a class="lb-ref" href="${escapeHtml(job.loadBoardRef.trim())}" target="_blank" rel="noopener" title="Open in Load Board">&#128279; Load Board</a>`;
+    } else {
+      lbRefHtml = `<span class="lb-ref" title="Load Board reference">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
+    }
+  }
+
+  let body = routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
+  if(!body){ body = `<div class="meta">(click to edit)</div>`; }
+  card.innerHTML = body;
+
+  card.addEventListener('click', (e)=>{
+    if(e.target.closest('.lb-ref')) return;
+    openJobModal(job.id);
+  });
+  card.addEventListener('dragstart', (e)=>{
+    e.dataTransfer.setData('application/x-job', job.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(()=>card.classList.add('dragging'), 0);
+  });
+  card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+
+  return card;
+}
+
+function attachDropZone(td){
+  td.addEventListener('dragover', (e)=>{
+    if(e.dataTransfer.types.includes('application/x-job')){
+      e.preventDefault();
+      td.classList.add('dragover');
+    }
+  });
+  td.addEventListener('dragleave', ()=>td.classList.remove('dragover'));
+  td.addEventListener('drop', (e)=>{
+    td.classList.remove('dragover');
+    const jobId = e.dataTransfer.getData('application/x-job');
+    if(!jobId) return;
+    e.preventDefault();
+    const job = jobs.find(j=>j.id===jobId);
+    if(!job) return;
+
+    const targetDate = td.dataset.date;
+    const targetDriverId = td.dataset.driverId;
+
+    const conflict = findTimeConflict(targetDriverId, targetDate, job.time, [job.id]);
+    if(conflict){
+      const drv = drivers.find(d=>d.id===targetDriverId);
+      showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${formatTimeDisplay(job.time)} on this date (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+      return;
+    }
+
+    job.date = targetDate;
+    job.assignedDriverId = targetDriverId;
+    const siblingMax = jobs.filter(j=>j.date===targetDate && j.assignedDriverId===targetDriverId && j.id!==job.id)
+                            .reduce((m,j)=>Math.max(m, j.order||0), 0);
+    job.order = siblingMax + 1;
+    saveAll();
+    render();
+  });
 }
 
 function showToast(message){
@@ -647,232 +804,48 @@ document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
   }
 });
 
-/* ============ RENDER ============ */
-function render(){
-  renderDriverStrip();
-  renderBoard();
-  renderRangeLabel();
+const LOAD_BOARD_ORDERS_URL = 'https://canumanu.github.io/SALLEE-LOAD-BOARD/data/orders.json';
+let loadBoardOrdersCache = null;
+async function fetchLoadBoardOrders(){
+  if(loadBoardOrdersCache) return loadBoardOrdersCache;
+  const res = await fetch(LOAD_BOARD_ORDERS_URL, {cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const data = await res.json();
+  loadBoardOrdersCache = Array.isArray(data) ? data : (data.orders || data.Orders || []);
+  return loadBoardOrdersCache;
 }
-
-function renderRangeLabel(){
-  const dates = getDateRange();
-  const opts = {month:'short', day:'numeric'};
-  document.getElementById('rangeLabel').textContent =
-    `${dates[0].toLocaleDateString('en-US',opts)} – ${dates[13].toLocaleDateString('en-US',opts)}, ${dates[13].getFullYear()}`;
-}
-
-function renderDriverStrip(){
-  const strip = document.getElementById('driverStrip');
-  strip.innerHTML = '';
-
-  const labelEl = document.getElementById('stripLabel');
-  const focusedD = dateFromStr(focusedDate);
-  const focusedLabel = focusedD.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-  labelEl.innerHTML = `Showing availability for <b style="color:#fff;">${focusedLabel}</b> &middot; click any date below to change it &middot; <span style="color:#3fa66b;">green</span> = free &middot; <span style="color:#e5473a;">red</span> = booked`;
-
-  drivers.forEach(drv=>{
-    const used = jobs.some(j=>j.assignedDriverId===drv.id && j.date===focusedDate);
-    const chip = document.createElement('div');
-    chip.className = 'driver-chip ' + (used ? 'chip-used' : 'chip-unused');
-    chip.draggable = true;
-    chip.dataset.driverId = drv.id;
-    chip.innerHTML = `
-      <div class="status-dot"></div>
-      <div class="cname">${escapeHtml(drv.name1||'—')}</div>
-      ${drv.name2 ? `<div class="cname2">${escapeHtml(drv.name2)}</div>` : ''}
-      <div class="ctruck">${escapeHtml([drv.truck,drv.trailer].filter(Boolean).join('/'))}</div>
-    `;
-    chip.addEventListener('dragstart', (e)=>{
-      e.dataTransfer.setData('application/x-driver', drv.id);
-      e.dataTransfer.effectAllowed='copy';
-      setTimeout(()=>chip.classList.add('dragging'),0);
-    });
-    chip.addEventListener('dragend', ()=>chip.classList.remove('dragging'));
-    chip.addEventListener('click', ()=>openDriverModal(drv.id));
-    strip.appendChild(chip);
-  });
-  const addChip = document.createElement('button');
-  addChip.className='add-driver-chip';
-  addChip.textContent='+';
-  addChip.title='Add driver / team';
-  addChip.addEventListener('click', ()=>openDriverModal(null));
-  strip.appendChild(addChip);
-}
-
-function renderBoard(){
-  const wrap = document.getElementById('boardWrap');
-  wrap.innerHTML = '';
-  const dates = getDateRange();
-
-  dates.forEach(d=>{
-    const dateStr = fmtDate(d);
-    const dow = d.getDay();
-    const isWeekend = dow===0 || dow===6;
-
-    const row = document.createElement('div');
-    row.className = 'date-row' + (isWeekend?' weekend':'') + (dateStr===focusedDate?' focused':'');
-    row.addEventListener('click', (e)=>{
-      if(e.target.closest('.job-card') || e.target.closest('.add-job-chip')) return;
-      focusedDate = dateStr;
-      render();
-    });
-
-    const dateCell = document.createElement('div');
-    dateCell.className='date-cell';
-    dateCell.innerHTML = `<div class="dow">${DAY_NAMES[dow]}</div><div class="dnum">${d.getMonth()+1}/${d.getDate()}</div>`;
-    row.appendChild(dateCell);
-
-    const jobsRow = document.createElement('div');
-    jobsRow.className='jobs-row';
-    jobsRow.dataset.date = dateStr;
-
-    const dayJobs = jobs.filter(j=>j.date===dateStr).sort((a,b)=>(a.order||0)-(b.order||0));
-    dayJobs.forEach(job=>jobsRow.appendChild(buildJobCard(job)));
-
-    const addBtn = document.createElement('button');
-    addBtn.className='add-job-chip';
-    addBtn.textContent='+';
-    addBtn.title='Add job for this date';
-    addBtn.addEventListener('click', ()=>openJobModal(null, dateStr));
-    jobsRow.appendChild(addBtn);
-
-    // jobs-row accepts JOB drags (moving a job to this date)
-    jobsRow.addEventListener('dragover', (e)=>{
-      if(e.dataTransfer.types.includes('application/x-job')){
-        e.preventDefault();
-        jobsRow.classList.add('dragover');
-      }
-    });
-    jobsRow.addEventListener('dragleave', ()=>jobsRow.classList.remove('dragover'));
-    jobsRow.addEventListener('drop', (e)=>{
-      jobsRow.classList.remove('dragover');
-      const jobId = e.dataTransfer.getData('application/x-job');
-      if(!jobId) return;
-      e.preventDefault();
-      const job = jobs.find(j=>j.id===jobId);
-      if(!job) return;
-      job.date = dateStr;
-      const maxOrder = jobs.filter(j=>j.date===dateStr && j.id!==job.id).reduce((m,j)=>Math.max(m,j.order||0),0);
-      job.order = maxOrder+1;
-      saveAll();
-      render();
-    });
-
-    row.appendChild(jobsRow);
-    wrap.appendChild(row);
-  });
-}
-
-function buildJobCard(job){
-  const card = document.createElement('div');
-  card.className = 'job-card type-' + (job.type||'normal');
-  card.draggable = true;
-  card.dataset.jobId = job.id;
-
-  let routeHtml = '';
-  if(job.origin || job.destination){
-    routeHtml = `<div class="route" title="${escapeHtml(job.origin||'')} to ${escapeHtml(job.destination||'')}">${escapeHtml(job.origin||'?')}<span class="arrow">&rarr;</span>${escapeHtml(job.destination||'?')}</div>`;
+function pickField(obj, candidates){
+  for(const key of candidates){
+    if(obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
   }
-  let metaBits = [];
-  if(job.time) metaBits.push(formatTimeDisplay(job.time));
-  const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
-  if(farmBits) metaBits.push(farmBits);
-  const metaHtml = metaBits.length ? `<div class="meta" title="${escapeHtml(metaBits.join(' · '))}">${escapeHtml(metaBits.join(' · '))}</div>` : '';
-  const horseHtml = job.loadType ? `<div class="horse">${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>` : '';
-  const notesHtml = job.notes ? `<div class="notes" title="${escapeHtml(job.notes)}">${escapeHtml(job.notes)}</div>` : '';
-
-  let lbRefHtml = '';
-  if(job.loadBoardRef){
-    const isUrl = /^https?:\/\//i.test(job.loadBoardRef.trim());
-    if(isUrl){
-      lbRefHtml = `<a class="lb-ref" href="${escapeHtml(job.loadBoardRef.trim())}" target="_blank" rel="noopener" title="Open in Load Board">&#128279; Load Board</a>`;
-    } else {
-      lbRefHtml = `<span class="lb-ref" title="Load Board reference">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
-    }
-  }
-
-  let body = routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
-  if(!body){ body = `<div class="meta">(click to edit)</div>`; }
-
-  card.innerHTML = body;
-
-  // driver slot
-  const slot = document.createElement('div');
-  const drv = drivers.find(d=>d.id===job.assignedDriverId);
-  if(drv){
-    slot.className='driver-slot';
-    slot.innerHTML = `<div class="driver-badge" draggable="true" title="Drag to reassign"><span class="bname" title="${escapeHtml(driverLabel(drv))}">${escapeHtml(drv.name1)}${drv.name2? ' / '+escapeHtml(drv.name2):''}</span><span class="bunassign" title="Unassign">&times;</span></div>`;
-    const badgeEl = slot.querySelector('.driver-badge');
-    badgeEl.addEventListener('dragstart', (e)=>{
-      e.stopPropagation(); // don't also trigger the job card's own drag (date move)
-      e.dataTransfer.setData('application/x-driver', drv.id);
-      e.dataTransfer.setData('application/x-driver-source-job', job.id);
-      e.dataTransfer.effectAllowed='move';
-      setTimeout(()=>badgeEl.classList.add('dragging'),0);
-    });
-    badgeEl.addEventListener('dragend', ()=>badgeEl.classList.remove('dragging'));
-    slot.querySelector('.bunassign').addEventListener('click', (e)=>{
-      e.stopPropagation();
-      job.assignedDriverId = null;
-      saveAll();
-      render();
-    });
-  } else {
-    slot.className='driver-slot empty';
-    slot.textContent='Drop driver here';
-  }
-  slot.addEventListener('dragover', (e)=>{
-    if(e.dataTransfer.types.includes('application/x-driver')){
-      e.preventDefault();
-      slot.classList.add('dragover');
-    }
-  });
-  slot.addEventListener('dragleave', ()=>slot.classList.remove('dragover'));
-  slot.addEventListener('drop', (e)=>{
-    slot.classList.remove('dragover');
-    const driverId = e.dataTransfer.getData('application/x-driver');
-    if(!driverId) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const sourceJobId = e.dataTransfer.getData('application/x-driver-source-job');
-    const excludeIds = [job.id];
-    if(sourceJobId) excludeIds.push(sourceJobId);
-    const conflict = findTimeConflict(driverId, job.date, job.time, excludeIds);
-    if(conflict){
-      const drv = drivers.find(d=>d.id===driverId);
-      showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${job.time} on this date (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
-      return;
-    }
-    if(sourceJobId && sourceJobId !== job.id){
-      const sourceJob = jobs.find(j=>j.id===sourceJobId);
-      if(sourceJob) sourceJob.assignedDriverId = null;
-    }
-    job.assignedDriverId = driverId;
-    saveAll();
-    render();
-  });
-  card.appendChild(slot);
-
-  card.addEventListener('click', (e)=>{
-    if(e.target.closest('.driver-slot')) return;
-    if(e.target.closest('.lb-ref')) return;
-    openJobModal(job.id);
-  });
-  card.addEventListener('dragstart', (e)=>{
-    e.dataTransfer.setData('application/x-job', job.id);
-    e.dataTransfer.effectAllowed='move';
-    setTimeout(()=>card.classList.add('dragging'),0);
-  });
-  card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
-
-  return card;
+  return '';
+}
+function describeOrder(order){
+  const origin = pickField(order, ['origin','Origin','ORIGIN']);
+  const destination = pickField(order, ['destination','Destination','DESTINATION']);
+  const date = pickField(order, ['date','Date','tripDate','TripDate','pickupDate','PickupDate']);
+  const id = pickField(order, ['id','Id','ID','orderId','OrderID','orderNumber']);
+  let horses = pickField(order, ['horses','Horses']);
+  let horseLabel = '';
+  if(Array.isArray(horses)) horseLabel = horses.map(h=>(h && (h.name||h.Name))||'').filter(Boolean).join(', ');
+  else if(typeof horses === 'string') horseLabel = horses;
+  if(!horseLabel) horseLabel = pickField(order, ['HORSE NAME(S)','horseNames','HorseNames']);
+  const label = `${origin||'?'} \u2192 ${destination||'?'}${date? ' · '+date:''}${horseLabel? ' · '+horseLabel:''}`;
+  return {id, date, origin, destination, horseLabel, label};
 }
 
-/* ============ JOB MODAL ============ */
 let editingJobId = null;
 let pendingDate = null;
+let pendingDriverId = null;
 
-function openJobModal(jobId, date){
+function populateDriverSelect(selectedId){
+  const sel = document.getElementById('jobAssignDriver');
+  sel.innerHTML = '<option value="">— Unassigned —</option>' +
+    getSortedDrivers().map(d=>`<option value="${d.id}">${escapeHtml(driverLabel(d))}${d.location? ' ['+d.location+']':''}</option>`).join('');
+  sel.value = selectedId || '';
+}
+
+function openJobModal(jobId, date, driverId){
   editingJobId = jobId;
   const overlay = document.getElementById('jobModalOverlay');
   const title = document.getElementById('jobModalTitle');
@@ -893,11 +866,12 @@ function openJobModal(jobId, date){
     document.getElementById('jobNotes').value = job.notes||'';
     delBtn.style.display='inline-block';
     pendingDate = job.date;
+    pendingDriverId = job.assignedDriverId;
     document.getElementById('repeatThroughRow').style.display = 'none';
   } else {
     title.textContent = 'Add Job';
     document.getElementById('jobType').value='normal';
-    populateDriverSelect(null);
+    populateDriverSelect(driverId);
     document.getElementById('jobOrigin').value='';
     document.getElementById('jobOriginFarm').value='';
     document.getElementById('jobDestination').value='';
@@ -908,11 +882,14 @@ function openJobModal(jobId, date){
     document.getElementById('jobNotes').value='';
     delBtn.style.display='none';
     pendingDate = date;
+    pendingDriverId = driverId;
     document.getElementById('repeatThroughRow').style.display = '';
     document.getElementById('jobStartDate').value = date;
     document.getElementById('jobEndDate').value = '';
     document.getElementById('jobEndDate').min = date;
   }
+  document.getElementById('lbBrowsePanel').style.display='none';
+  document.getElementById('lbBrowsePanel').innerHTML='';
   overlay.classList.add('open');
 }
 
@@ -996,7 +973,7 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
       const conflict = findTimeConflict(selectedDriverId, job.date, data.time, [job.id]);
       if(conflict){
         const drv = drivers.find(d=>d.id===selectedDriverId);
-        showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${job.date} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
+        showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${formatTimeDisplay(data.time)} on ${job.date} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Pick a different time or driver.`);
         return;
       }
     }
@@ -1024,14 +1001,14 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
         const conflict = findTimeConflict(selectedDriverId, dStr, data.time, []);
         if(conflict){
           const drv = drivers.find(d=>d.id===selectedDriverId);
-          showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${data.time} on ${dStr} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Nothing was created \u2014 pick a different time or driver.`);
+          showToast(`${drv ? driverLabel(drv) : 'This driver/team'} is already assigned to a trip at ${formatTimeDisplay(data.time)} on ${dStr} (${conflict.origin||'?'} \u2192 ${conflict.destination||'?'}). Nothing was created \u2014 pick a different time or driver.`);
           return;
         }
       }
     }
 
     datesToCreate.forEach(dStr=>{
-      const maxOrder = jobs.filter(j=>j.date===dStr).reduce((m,j)=>Math.max(m,j.order||0),0);
+      const maxOrder = jobs.filter(j=>j.date===dStr && j.assignedDriverId===selectedDriverId).reduce((m,j)=>Math.max(m,j.order||0),0);
       jobs.push({id:'j'+(jobIdCounter++), date:dStr, assignedDriverId:selectedDriverId, order:maxOrder+1, ...data});
     });
   }
@@ -1047,7 +1024,6 @@ document.getElementById('jobDeleteBtn').addEventListener('click', ()=>{
   render();
 });
 
-/* ============ DRIVER MODAL ============ */
 let editingDriverId = null;
 
 function openDriverModal(driverId){
@@ -1063,6 +1039,7 @@ function openDriverModal(driverId){
     document.getElementById('drvName2').value = drv.name2||'';
     document.getElementById('drvTruck').value = drv.truck||'';
     document.getElementById('drvTrailer').value = drv.trailer||'';
+    document.getElementById('drvLocation').value = drv.location||'';
     delBtn.style.display='inline-block';
   } else {
     title.textContent = 'Add Driver / Team';
@@ -1070,6 +1047,7 @@ function openDriverModal(driverId){
     document.getElementById('drvName2').value='';
     document.getElementById('drvTruck').value='';
     document.getElementById('drvTrailer').value='';
+    document.getElementById('drvLocation').value='';
     delBtn.style.display='none';
   }
   overlay.classList.add('open');
@@ -1091,6 +1069,7 @@ document.getElementById('drvSaveBtn').addEventListener('click', ()=>{
     name2: document.getElementById('drvName2').value.trim(),
     truck: document.getElementById('drvTruck').value.trim(),
     trailer: document.getElementById('drvTrailer').value.trim(),
+    location: document.getElementById('drvLocation').value,
   };
   if(editingDriverId){
     const drv = drivers.find(d=>d.id===editingDriverId);
@@ -1113,24 +1092,10 @@ document.getElementById('drvDeleteBtn').addEventListener('click', ()=>{
   });
 });
 
-/* ============ WEEK NAV ============ */
-document.getElementById('prevBtn').addEventListener('click', ()=>{
-  weekStart.setDate(weekStart.getDate()-14);
-  focusedDate = fmtDate(weekStart);
-  saveAll(); render();
-});
-document.getElementById('nextBtn').addEventListener('click', ()=>{
-  weekStart.setDate(weekStart.getDate()+14);
-  focusedDate = fmtDate(weekStart);
-  saveAll(); render();
-});
-document.getElementById('todayBtn').addEventListener('click', ()=>{
-  weekStart = mondayOf(new Date());
-  focusedDate = fmtDate(new Date());
-  saveAll(); render();
-});
+document.getElementById('prevBtn').addEventListener('click', ()=>{ weekStart.setDate(weekStart.getDate()-14); saveAll(); render(); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ weekStart.setDate(weekStart.getDate()+14); saveAll(); render(); });
+document.getElementById('todayBtn').addEventListener('click', ()=>{ weekStart = mondayOf(new Date()); saveAll(); render(); });
 
-/* ============ EXPORT / IMPORT ============ */
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   const data = {drivers, jobs, weekStart: weekStart.toISOString()};
   const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -1160,7 +1125,6 @@ document.getElementById('importFile').addEventListener('change', (e)=>{
   e.target.value='';
 });
 
-/* ============ INIT ============ */
 render();
 </script>
 </body>
