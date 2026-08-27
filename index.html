@@ -723,11 +723,8 @@ function buildJobCard(job){
     routeHtml = `<div class="route">${escapeHtml(job.origin||'?')}<span class="arrow">&rarr;</span>${escapeHtml(job.destination||'?')}</div>`;
   }
   let metaBits = [];
-  const isMaintenance = (job.type === 'pm' || job.type === 'safety_inspection');
-  if(!isMaintenance){
-    if(job.leaveYardTime) metaBits.push('Leave ' + formatTimeDisplay(job.leaveYardTime));
-    if(job.time) metaBits.push('Load ' + formatTimeDisplay(job.time));
-  }
+  if(job.leaveYardTime) metaBits.push('Leave ' + formatTimeDisplay(job.leaveYardTime));
+  if(job.time) metaBits.push('Load ' + formatTimeDisplay(job.time));
   const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
   if(farmBits) metaBits.push(farmBits);
   const metaHtml = metaBits.length ? `<div class="meta">${escapeHtml(metaBits.join(' · '))}</div>` : '';
