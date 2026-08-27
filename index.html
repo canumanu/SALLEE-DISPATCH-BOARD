@@ -219,6 +219,15 @@
   .job-card.type-spare{border-left-color:#7a8f86;background:var(--card-spare);}
   .job-card.type-vacation{border-left-color:var(--danger);background:var(--card-vacation);}
   .job-card.type-note{border-left-color:var(--gold);background:var(--card-note);}
+  .job-card.type-pm{border-left-color:#2a6f97;background:#e9f2f8;}
+  .job-card.type-safety_inspection{border-left-color:#b5541a;background:#fbede0;}
+  .job-card .maint-banner{
+    font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;
+    margin-bottom:3px;
+  }
+  .job-card.type-pm .maint-banner{color:#2a6f97;}
+  .job-card.type-safety_inspection .maint-banner{color:#b5541a;}
+  .job-card .maint-detail{font-size:9.5px;color:#5c574a;margin-bottom:2px;}
   .job-card .route{font-weight:700;color:var(--green-dark);font-size:10.5px;white-space:normal;word-break:break-word;}
   .job-card .route .arrow{color:var(--gold);margin:0 2px;}
   .job-card .meta{color:#5c574a;font-size:9px;margin-top:2px;white-space:normal;word-break:break-word;}
@@ -310,7 +319,19 @@
       <option value="spare">Spare / standby</option>
       <option value="vacation">Vacation / off</option>
       <option value="note">Note only</option>
+      <option value="pm">PM</option>
+      <option value="safety_inspection">Safety Inspection</option>
     </select>
+    <div id="technicianRow" class="modal-row" style="display:none;">
+      <div>
+        <label>Maintenance Time</label>
+        <input id="jobMaintTime" type="time">
+      </div>
+      <div>
+        <label>Assigned Technician</label>
+        <input id="jobTechnician" placeholder="e.g. John Reyes">
+      </div>
+    </div>
     <label>Assign Driver</label>
     <select id="jobAssignDriver"></select>
     <div class="modal-row">
@@ -335,21 +356,23 @@
     </div>
     <div class="modal-row">
       <div>
-        <label>Time</label>
-        <input id="jobTime" type="time">
+        <label>Leave Yard Time</label>
+        <input id="jobLeaveYardTime" type="time">
       </div>
       <div>
-        <label>Load Type</label>
-        <select id="jobLoadType">
-          <option value="">—</option>
-          <option value="stable_move">Stable Move</option>
-          <option value="special">Special</option>
-          <option value="mix_load">Mix Load</option>
-          <option value="shuttle">Shuttle</option>
-          <option value="race_and_return">Race and Return</option>
-        </select>
+        <label>Load Time</label>
+        <input id="jobTime" type="time">
       </div>
     </div>
+    <label>Load Type</label>
+    <select id="jobLoadType">
+      <option value="">—</option>
+      <option value="stable_move">Stable Move</option>
+      <option value="special">Special</option>
+      <option value="mix_load">Mix Load</option>
+      <option value="shuttle">Shuttle</option>
+      <option value="race_and_return">Race and Return</option>
+    </select>
     <div id="repeatThroughRow" class="modal-row">
       <div>
         <label>Start Date</label>
@@ -468,6 +491,7 @@ const DEFAULT_DRIVERS = [
 
 const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const LOAD_TYPE_LABELS={stable_move:'Stable Move', special:'Special', mix_load:'Mix Load', shuttle:'Shuttle', race_and_return:'Race and Return'};
+const MAINTENANCE_LABELS={pm:'PM', safety_inspection:'Safety Inspection'};
 const REGION_ORDER = ['KY','FL','NY',''];
 const REGION_DISPLAY = {KY:'KY', FL:'FL', NY:'NY', '':'Unassigned'};
 
@@ -699,7 +723,11 @@ function buildJobCard(job){
     routeHtml = `<div class="route">${escapeHtml(job.origin||'?')}<span class="arrow">&rarr;</span>${escapeHtml(job.destination||'?')}</div>`;
   }
   let metaBits = [];
-  if(job.time) metaBits.push(formatTimeDisplay(job.time));
+  const isMaintenance = (job.type === 'pm' || job.type === 'safety_inspection');
+  if(!isMaintenance){
+    if(job.leaveYardTime) metaBits.push('Leave ' + formatTimeDisplay(job.leaveYardTime));
+    if(job.time) metaBits.push('Load ' + formatTimeDisplay(job.time));
+  }
   const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
   if(farmBits) metaBits.push(farmBits);
   const metaHtml = metaBits.length ? `<div class="meta">${escapeHtml(metaBits.join(' · '))}</div>` : '';
@@ -716,7 +744,16 @@ function buildJobCard(job){
     }
   }
 
-  let body = routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
+  let body = '';
+  if(job.type === 'pm' || job.type === 'safety_inspection'){
+    const label = MAINTENANCE_LABELS[job.type] || job.type;
+    const bits = [];
+    if(job.maintTime) bits.push(formatTimeDisplay(job.maintTime));
+    if(job.technician) bits.push('Tech: ' + job.technician);
+    body += `<div class="maint-banner">${escapeHtml(label)}</div>`;
+    if(bits.length) body += `<div class="maint-detail">${escapeHtml(bits.join(' · '))}</div>`;
+  }
+  body += routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
   if(!body){ body = `<div class="meta">(click to edit)</div>`; }
   card.innerHTML = body;
 
@@ -855,11 +892,15 @@ function openJobModal(jobId, date, driverId){
     const job = jobs.find(j=>j.id===jobId);
     title.textContent = 'Edit Job';
     document.getElementById('jobType').value = job.type||'normal';
+    document.getElementById('jobMaintTime').value = job.maintTime||'';
+    document.getElementById('jobTechnician').value = job.technician||'';
+    updateTechnicianRowVisibility();
     populateDriverSelect(job.assignedDriverId);
     document.getElementById('jobOrigin').value = job.origin||'';
     document.getElementById('jobOriginFarm').value = job.originFarm||'';
     document.getElementById('jobDestination').value = job.destination||'';
     document.getElementById('jobDestinationFarm').value = job.destinationFarm||'';
+    document.getElementById('jobLeaveYardTime').value = job.leaveYardTime||'';
     document.getElementById('jobTime').value = job.time||'';
     document.getElementById('jobLoadType').value = job.loadType||'';
     document.getElementById('jobLoadBoardRef').value = job.loadBoardRef||'';
@@ -871,11 +912,15 @@ function openJobModal(jobId, date, driverId){
   } else {
     title.textContent = 'Add Job';
     document.getElementById('jobType').value='normal';
+    document.getElementById('jobMaintTime').value='';
+    document.getElementById('jobTechnician').value='';
+    updateTechnicianRowVisibility();
     populateDriverSelect(driverId);
     document.getElementById('jobOrigin').value='';
     document.getElementById('jobOriginFarm').value='';
     document.getElementById('jobDestination').value='';
     document.getElementById('jobDestinationFarm').value='';
+    document.getElementById('jobLeaveYardTime').value='';
     document.getElementById('jobTime').value='';
     document.getElementById('jobLoadType').value='';
     document.getElementById('jobLoadBoardRef').value='';
@@ -941,6 +986,12 @@ document.getElementById('lbBrowseBtn').addEventListener('click', async ()=>{
   }
 });
 
+document.getElementById('jobType').addEventListener('change', updateTechnicianRowVisibility);
+function updateTechnicianRowVisibility(){
+  const t = document.getElementById('jobType').value;
+  document.getElementById('technicianRow').style.display = (t==='pm' || t==='safety_inspection') ? '' : 'none';
+}
+
 document.getElementById('jobCancelBtn').addEventListener('click', closeJobModal);
 document.getElementById('jobStartDate').addEventListener('change', ()=>{
   const startVal = document.getElementById('jobStartDate').value;
@@ -956,10 +1007,13 @@ document.getElementById('jobModalOverlay').addEventListener('click', (e)=>{
 document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
   const data = {
     type: document.getElementById('jobType').value,
+    maintTime: document.getElementById('jobMaintTime').value,
+    technician: document.getElementById('jobTechnician').value.trim(),
     origin: document.getElementById('jobOrigin').value.trim(),
     originFarm: document.getElementById('jobOriginFarm').value.trim(),
     destination: document.getElementById('jobDestination').value.trim(),
     destinationFarm: document.getElementById('jobDestinationFarm').value.trim(),
+    leaveYardTime: document.getElementById('jobLeaveYardTime').value,
     time: document.getElementById('jobTime').value,
     loadType: document.getElementById('jobLoadType').value,
     loadBoardRef: document.getElementById('jobLoadBoardRef').value.trim(),
