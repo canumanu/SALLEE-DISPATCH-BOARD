@@ -10,6 +10,16 @@
     "address": "4520 poplar level road,Louisville, KY 40213"
   },
   {
+    "code":"Barn",
+    "name":"Sallee Lay over",
+    "address":"2053 buck lane,Lexington, KY 40511"
+  },
+  {
+    "code":"Ocala",
+    "name":"Ocala",
+    "address":"3329 NW 27th AVE,Ocala, FL 34475"
+  },
+  {
     "code": "BEL",
     "name": "Belmont Park",
     "address": "2150 Hempstead Turnpike, Elmont, NY 11003"
