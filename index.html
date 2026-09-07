@@ -347,7 +347,8 @@
     <div class="modal-row">
       <div>
         <label>Origin</label>
-        <input id="jobOrigin" placeholder="e.g. KY or track name">
+        <select id="jobOriginSelect"><option value="">Loading tracks...</option></select>
+        <input id="jobOriginOther" placeholder="Type farm/location name" style="display:none;margin-top:5px;">
       </div>
       <div>
         <label>Origin Trainer/Farm</label>
@@ -357,7 +358,8 @@
     <div class="modal-row">
       <div>
         <label>Destination</label>
-        <input id="jobDestination" placeholder="e.g. BEL or track name">
+        <select id="jobDestinationSelect"><option value="">Loading tracks...</option></select>
+        <input id="jobDestinationOther" placeholder="Type farm/location name" style="display:none;margin-top:5px;">
       </div>
       <div>
         <label>Destination Trainer/Farm</label>
@@ -593,11 +595,70 @@ async function loadDriveTimes(){
       if(loc.code) locationNameToCode[loc.code.trim().toLowerCase()] = loc.code;
       if(loc.name) locationNameToCode[loc.name.trim().toLowerCase()] = loc.code;
     });
+    populateLocationSelects();
     render(); // refresh so any already-drawn cards pick up real data
   }catch(err){
-    console.warn('Could not load drive_times.json - turnaround checks will show as unverifiable until it loads.', err.message);
+    console.warn('Could not load drive_times.json - location dropdowns will only offer "Other" until it loads.', err.message);
   }
 }
+
+const OTHER_LOCATION_VALUE = '__other__';
+
+function populateLocationSelects(){
+  const opts = (driveTimesData ? driveTimesData.locations||[] : [])
+    .map(loc=>`<option value="${escapeHtml(loc.code)}">${escapeHtml(loc.code)} \u2014 ${escapeHtml(loc.name||'')}</option>`)
+    .join('');
+  const fullHtml = opts + `<option value="${OTHER_LOCATION_VALUE}">Other / Farm (type manually)</option>`;
+  ['jobOriginSelect','jobDestinationSelect'].forEach(id=>{
+    const sel = document.getElementById(id);
+    const prevValue = sel.value;
+    sel.innerHTML = fullHtml;
+    if(prevValue && prevValue !== '') sel.value = prevValue;
+  });
+}
+
+// Sets the select+other-input pair to reflect a stored location string (a
+// known code, or free text like a farm name).
+function setLocationField(prefix, value){
+  const sel = document.getElementById('job'+prefix+'Select');
+  const other = document.getElementById('job'+prefix+'Other');
+  const code = value ? locationNameToCode[value.trim().toLowerCase()] : null;
+  if(code){
+    sel.value = code;
+    other.style.display = 'none';
+    other.value = '';
+  } else {
+    sel.value = OTHER_LOCATION_VALUE;
+    other.style.display = '';
+    other.value = value || '';
+  }
+}
+
+// Reads the effective location string back out of a select+other-input pair.
+function getLocationField(prefix){
+  const sel = document.getElementById('job'+prefix+'Select');
+  const other = document.getElementById('job'+prefix+'Other');
+  if(sel.value === OTHER_LOCATION_VALUE || sel.value === ''){
+    return other.value.trim();
+  }
+  return sel.value;
+}
+
+function setupLocationSelectToggle(prefix){
+  const sel = document.getElementById('job'+prefix+'Select');
+  const other = document.getElementById('job'+prefix+'Other');
+  sel.addEventListener('change', ()=>{
+    if(sel.value === OTHER_LOCATION_VALUE){
+      other.style.display = '';
+      other.focus();
+    } else {
+      other.style.display = 'none';
+      other.value = '';
+    }
+  });
+}
+setupLocationSelectToggle('Origin');
+setupLocationSelectToggle('Destination');
 
 function normLoc(s){ return (s||'').trim().toLowerCase(); }
 function lookupDriveMinutes(a, b){
@@ -1029,9 +1090,9 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobTechnician').value = job.technician||'';
     updateTechnicianRowVisibility();
     populateDriverSelect(job.assignedDriverId);
-    document.getElementById('jobOrigin').value = job.origin||'';
+    setLocationField('Origin', job.origin);
     document.getElementById('jobOriginFarm').value = job.originFarm||'';
-    document.getElementById('jobDestination').value = job.destination||'';
+    setLocationField('Destination', job.destination);
     document.getElementById('jobDestinationFarm').value = job.destinationFarm||'';
     document.getElementById('jobLeaveYardTime').value = job.leaveYardTime||'';
     document.getElementById('jobTime').value = job.time||'';
@@ -1049,9 +1110,9 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobTechnician').value='';
     updateTechnicianRowVisibility();
     populateDriverSelect(driverId);
-    document.getElementById('jobOrigin').value='';
+    setLocationField('Origin', '');
     document.getElementById('jobOriginFarm').value='';
-    document.getElementById('jobDestination').value='';
+    setLocationField('Destination', '');
     document.getElementById('jobDestinationFarm').value='';
     document.getElementById('jobLeaveYardTime').value='';
     document.getElementById('jobTime').value='';
@@ -1142,9 +1203,9 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
     type: document.getElementById('jobType').value,
     maintTime: document.getElementById('jobMaintTime').value,
     technician: document.getElementById('jobTechnician').value.trim(),
-    origin: document.getElementById('jobOrigin').value.trim(),
+    origin: getLocationField('Origin'),
     originFarm: document.getElementById('jobOriginFarm').value.trim(),
-    destination: document.getElementById('jobDestination').value.trim(),
+    destination: getLocationField('Destination'),
     destinationFarm: document.getElementById('jobDestinationFarm').value.trim(),
     leaveYardTime: document.getElementById('jobLeaveYardTime').value,
     time: document.getElementById('jobTime').value,
@@ -1313,6 +1374,7 @@ document.getElementById('importFile').addEventListener('change', (e)=>{
 });
 
 render();
+populateLocationSelects(); // ensures "Other" is selectable immediately, even before real data loads
 loadDriveTimes();
 </script>
 </body>
