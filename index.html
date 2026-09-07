@@ -378,6 +378,8 @@
         <input id="jobDestinationFarm" placeholder="e.g. High Point Farm">
       </div>
     </div>
+    <label>Additional Pickups/Drops (optional &mdash; reference only, doesn't affect turnaround checks)</label>
+    <input id="jobAdditionalStops" placeholder="e.g. also picking up at MTH">
     <div class="modal-row">
       <div>
         <label>Leave Yard Time</label>
@@ -583,6 +585,7 @@ function findTimeConflict(driverId, date, time, excludeIds){
    Origin/Destination text and which jobs already sit under the same driver
    column, sorted by actual date+time. */
 const TURNAROUND_BUFFER_MINUTES = 120; // 2hr for cleaning/unloading/loading etc.
+const TURNAROUND_SAFE_GAP_MINUTES = 2880; // 48hrs - beyond this, no realistic drive time could be a problem, so skip verification entirely
 const DRIVE_TIMES_URL = 'https://canumanu.github.io/SALLEE-DISPATCH-BOARD/drive_times.json';
 let driveTimesData = null;
 let locationNameToCode = {};
@@ -750,6 +753,13 @@ function getTurnaroundWarning(job){
     }
   });
   if(!prevJob) return {status:'none'};
+
+  const rawGapMinutes = jobDT - prevDT;
+  if(rawGapMinutes >= TURNAROUND_SAFE_GAP_MINUTES){
+    // Gap is already so large that no realistic drive time could be an issue -
+    // don't even bother trying to verify locations, just call it fine.
+    return {status:'ok', prevJob, marginMinutes: rawGapMinutes};
+  }
 
   const legMinutes = lookupDriveMinutes(prevJob.origin, prevJob.destination);
   const nextLegMinutes = lookupDriveMinutes(prevJob.destination, job.origin);
@@ -937,6 +947,7 @@ function buildJobCard(job){
   const farmBits = [job.originFarm, job.destinationFarm].filter(Boolean).join(' → ');
   if(farmBits) metaBits.push(farmBits);
   const metaHtml = metaBits.length ? `<div class="meta">${escapeHtml(metaBits.join(' · '))}</div>` : '';
+  const additionalStopsHtml = job.additionalStops ? `<div class="meta" style="font-style:italic;" title="${escapeHtml(job.additionalStops)}">+ ${escapeHtml(job.additionalStops)}</div>` : '';
   const horseHtml = job.loadType ? `<div class="horse">${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>` : '';
   const notesHtml = job.notes ? `<div class="notes" title="${escapeHtml(job.notes)}">${escapeHtml(job.notes)}</div>` : '';
 
@@ -959,7 +970,7 @@ function buildJobCard(job){
     body += `<div class="maint-banner">${escapeHtml(label)}</div>`;
     if(bits.length) body += `<div class="maint-detail">${escapeHtml(bits.join(' · '))}</div>`;
   }
-  body += routeHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
+  body += routeHtml + additionalStopsHtml + metaHtml + horseHtml + notesHtml + lbRefHtml;
   if(!body){ body = `<div class="meta">(click to edit)</div>`; }
   card.innerHTML = body;
 
@@ -1137,6 +1148,7 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobOriginFarm').value = job.originFarm||'';
     setLocationField('Destination', job.destination);
     document.getElementById('jobDestinationFarm').value = job.destinationFarm||'';
+    document.getElementById('jobAdditionalStops').value = job.additionalStops||'';
     document.getElementById('jobLeaveYardTime').value = job.leaveYardTime||'';
     document.getElementById('jobTime').value = job.time||'';
     document.getElementById('jobLoadType').value = job.loadType||'';
@@ -1157,6 +1169,7 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobOriginFarm').value='';
     setLocationField('Destination', '');
     document.getElementById('jobDestinationFarm').value='';
+    document.getElementById('jobAdditionalStops').value='';
     document.getElementById('jobLeaveYardTime').value='';
     document.getElementById('jobTime').value='';
     document.getElementById('jobLoadType').value='';
@@ -1250,6 +1263,7 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
     originFarm: document.getElementById('jobOriginFarm').value.trim(),
     destination: getLocationField('Destination'),
     destinationFarm: document.getElementById('jobDestinationFarm').value.trim(),
+    additionalStops: document.getElementById('jobAdditionalStops').value.trim(),
     leaveYardTime: document.getElementById('jobLeaveYardTime').value,
     time: document.getElementById('jobTime').value,
     loadType: document.getElementById('jobLoadType').value,
