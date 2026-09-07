@@ -752,7 +752,7 @@ function getTurnaroundWarning(job){
       prevJob = j; prevDT = jDT;
     }
   });
-  if(!prevJob) return {status:'none'};
+  if(!prevJob) return {status:'ok'}; // nothing precedes it, so nothing time-wise can stop it
 
   const rawGapMinutes = jobDT - prevDT;
   if(rawGapMinutes >= TURNAROUND_SAFE_GAP_MINUTES){
