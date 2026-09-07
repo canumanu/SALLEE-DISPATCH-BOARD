@@ -344,6 +344,16 @@
     </div>
     <label>Assign Driver</label>
     <select id="jobAssignDriver"></select>
+    <div id="repeatThroughRow" class="modal-row">
+      <div>
+        <label>Start Date</label>
+        <input type="date" id="jobStartDate">
+      </div>
+      <div>
+        <label>End Date (optional &mdash; for a vacation stretch, etc.)</label>
+        <input type="date" id="jobEndDate">
+      </div>
+    </div>
     <div class="modal-row">
       <div>
         <label>Origin</label>
@@ -388,16 +398,6 @@
       <option value="race_and_return">Race and Return</option>
       <option value="plane">Plane</option>
     </select>
-    <div id="repeatThroughRow" class="modal-row">
-      <div>
-        <label>Start Date</label>
-        <input type="date" id="jobStartDate">
-      </div>
-      <div>
-        <label>End Date (optional &mdash; for a vacation stretch, etc.)</label>
-        <input type="date" id="jobEndDate">
-      </div>
-    </div>
     <label>Load Board Link / Order # (optional)</label>
     <div style="display:flex;gap:6px;">
       <input id="jobLoadBoardRef" placeholder="Paste a link/order #, or browse ->" style="flex:1;">
