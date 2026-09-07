@@ -125,6 +125,11 @@
     "address": "8199 Perry Hwy, Erie, PA 16509"
   },
   {
+    "code":"PRM",
+    "name":"Prairie Meadows",
+    "address":"1 Prairie Meadows DR,Altoona, IA 500009"
+  },
+  {
     "code": "TAM",
     "name": "Tampa Bay Downs",
     "address": "11225 Racetrack Rd, Oldsmar, FL 34677"
