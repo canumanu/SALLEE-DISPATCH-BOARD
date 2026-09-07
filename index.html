@@ -718,8 +718,8 @@ function getTurnaroundWarning(job){
   if(legMinutes===null || nextLegMinutes===null){
     return { status:'unverifiable', prevJob,
       reason: legMinutes===null
-        ? `"${prevJob.origin||'?'}" \u2192 "${prevJob.destination||'?'}" isn't in our track list yet (likely a farm/trainer - add its address to locations.json to cover it)`
-        : `"${prevJob.destination||'?'}" \u2192 "${job.origin||'?'}" isn't in our track list yet (likely a farm/trainer - add its address to locations.json to cover it)` };
+        ? `This driver's PRIOR trip (${prevJob.date}) goes "${prevJob.origin||'?'}" \u2192 "${prevJob.destination||'?'}" \u2014 that route isn't in our track list yet (likely a farm/trainer). This card's own locations are fine; it's the earlier trip that can't be checked.`
+        : `This driver's PRIOR trip (${prevJob.date}) ends at "${prevJob.destination||'?'}", which isn't in our track list yet (likely a farm/trainer) \u2014 so the drive time to get here can't be calculated. This card's own locations are fine.` };
   }
   const earliestReadyDT = prevDT + legMinutes + TURNAROUND_BUFFER_MINUTES + nextLegMinutes;
   if(jobDT < earliestReadyDT){
@@ -927,6 +927,7 @@ function buildJobCard(job){
 
   card.addEventListener('click', (e)=>{
     if(e.target.closest('.lb-ref')) return;
+    if(e.target.closest('.turnaround-warning')) return;
     openJobModal(job.id);
   });
   card.addEventListener('dragstart', (e)=>{
@@ -942,8 +943,12 @@ function buildJobCard(job){
   } else if(warning.status === 'unverifiable'){
     const warnEl = document.createElement('div');
     warnEl.className = 'turnaround-warning unverifiable';
-    warnEl.textContent = `? Can't verify turnaround`;
+    warnEl.textContent = `? Can't verify turnaround (tap for why)`;
     warnEl.title = warning.reason;
+    warnEl.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      showToast(warning.reason);
+    });
     card.appendChild(warnEl);
   } else if(warning.status === 'not_possible'){
     card.classList.add('turnaround-not-possible');
