@@ -610,7 +610,9 @@ async function loadDriveTimes(){
 const OTHER_LOCATION_VALUE = '__other__';
 
 function populateLocationSelects(){
-  const opts = (driveTimesData ? driveTimesData.locations||[] : [])
+  const sortedLocations = [...(driveTimesData ? driveTimesData.locations||[] : [])]
+    .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const opts = sortedLocations
     .map(loc=>`<option value="${escapeHtml(loc.code)}">${escapeHtml(loc.code)} \u2014 ${escapeHtml(loc.name||'')}</option>`)
     .join('');
   const fullHtml = opts + `<option value="${OTHER_LOCATION_VALUE}">Other / Farm (type manually)</option>`;
