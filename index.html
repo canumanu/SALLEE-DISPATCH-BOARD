@@ -702,10 +702,35 @@ function findPossibleLocationMatches(text){
 }
 
 function normLoc(s){ return (s||'').trim().toLowerCase(); }
+
+// Regional shorthand fallback: when a dispatcher types a farm name that just
+// mentions a region (e.g. "Gainesway Farm, KY") rather than picking an exact
+// location, fall back to a representative hub address for that region. This
+// is a deliberate approximation, not a real per-farm address - it trades a
+// bit of precision for closing the "can't verify" gap on routine regional
+// farms, on the assumption that farms within the same region are close
+// enough together not to meaningfully change the turnaround math.
+const KEYWORD_HUB_MAP = [
+  {regex: /\bsallee\s*yard\b/i, hubCode: 'Barn'}, // "Sallee Yard" is what dispatchers actually type for this location
+  {regex: /\bky\b/i, hubCode: 'Barn'},   // Sallee Lay Over - KY hub
+  {regex: /\bocala\b/i, hubCode: 'Ocala'},
+  {regex: /\bsar\b/i, hubCode: 'SAR'},   // Saratoga - reused as the regional hub
+];
+
+function resolveLocationCode(text){
+  if(!text) return null;
+  const direct = locationNameToCode[normLoc(text)];
+  if(direct) return direct;
+  for(const {regex, hubCode} of KEYWORD_HUB_MAP){
+    if(regex.test(text)) return hubCode;
+  }
+  return null;
+}
+
 function lookupDriveMinutes(a, b){
   if(!a || !b || !driveTimesData) return null;
-  const codeA = locationNameToCode[normLoc(a)];
-  const codeB = locationNameToCode[normLoc(b)];
+  const codeA = resolveLocationCode(a);
+  const codeB = resolveLocationCode(b);
   if(!codeA || !codeB) return null;
   const entry = driveTimesData.matrix[codeA] && driveTimesData.matrix[codeA][codeB];
   return entry ? entry.minutes : null;
