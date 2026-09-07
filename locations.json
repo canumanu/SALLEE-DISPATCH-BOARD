@@ -1,28 +1,202 @@
 [
-  {"code": "CD",   "name": "Churchill Downs",              "address": "700 Central Ave, Louisville, KY 40208"},
-  {"code": "BEL",  "name": "Belmont Park",                 "address": "2150 Hempstead Turnpike, Elmont, NY 11003"},
-  {"code": "SAR",  "name": "Saratoga Race Course",         "address": "267 Union Ave, Saratoga Springs, NY 12866"},
-  {"code": "KEE",  "name": "Keeneland",                    "address": "4201 Versailles Rd, Lexington, KY 40510"},
-  {"code": "TP",   "name": "Turfway Park",                 "address": "7500 Turfway Rd, Florence, KY 41042"},
-  {"code": "LRL",  "name": "Laurel Park",                  "address": "198 Laurel Race Track Rd, Laurel, MD 20725"},
-  {"code": "MTH",  "name": "Monmouth Park",                "address": "175 Oceanport Ave, Oceanport, NJ 07757"},
-  {"code": "PRX",  "name": "Parx Racing",                  "address": "2999 Street Rd, Bensalem, PA 19020"},
-  {"code": "DEL",  "name": "Delaware Park",                "address": "777 Delaware Park Blvd, Wilmington, DE 19804"},
-  {"code": "FH",   "name": "Fair Hill Training Center",    "address": "3400 Training Center Dr, Fair Hill, MD 21921"},
-  {"code": "CNL",  "name": "Colonial Downs",                "address": "10515 Colonial Downs Pkwy, New Kent, VA 23124"},
-  {"code": "GP",   "name": "Gulfstream Park",               "address": "901 S Federal Hwy, Hallandale Beach, FL 33009"},
-  {"code": "FG",   "name": "Fair Grounds",                  "address": "1751 Gentilly Blvd, New Orleans, LA 70119"},
-  {"code": "PAY",  "name": "Payson Park",                   "address": "3103 SE Fox Brown Rd, Indiantown, FL 34956"},
-  {"code": "WO",   "name": "Woodbine",                      "address": "555 Rexdale Blvd, Toronto, ON M9W 5L2, Canada"},
-  {"code": "OP",   "name": "Oaklawn Park",                  "address": "2705 Central Ave, Hot Springs, AR 71901"},
-  {"code": "CT",   "name": "Charles Town",                  "address": "750 Hollywood Dr, Charles Town, WV 25414"},
-  {"code": "ELP",  "name": "Ellis Park",                    "address": "3300 US Hwy 41 N, Henderson, KY 42420"},
-  {"code": "HOO",  "name": "Horseshoe Indianapolis",        "address": "4200 N Michigan Rd, Shelbyville, IN 46176"},
-  {"code": "FL",   "name": "Finger Lakes",                  "address": "5857 NY-96, Farmington, NY 14425"},
-  {"code": "PEN",  "name": "Penn National",                 "address": "777 Hollywood Blvd, Grantville, PA 17028"},
-  {"code": "PID",  "name": "Presque Isle Downs",            "address": "8199 Perry Hwy, Erie, PA 16509"},
-  {"code": "TAM",  "name": "Tampa Bay Downs",                "address": "11225 Racetrack Rd, Oldsmar, FL 34677"},
-  {"code": "FE",   "name": "Fort Erie",                      "address": "230 Catherine St, Fort Erie, ON L2A 2M9, Canada"},
-  {"code": "KD",   "name": "Kentucky Downs",                 "address": "5629 Nashville Rd, Franklin, KY 42134"},
-  {"code": "PMTC", "name": "Palm Meadows Training Center",   "address": "12295 Sabal Trace Pkwy, Boynton Beach, FL 33472"}
+  {
+    "code": "CD",
+    "name": "Churchill Downs",
+    "address": "700 Central Ave, Louisville, KY 40208"
+  },
+  {
+    "code": "BEL",
+    "name": "Belmont Park",
+    "address": "2150 Hempstead Turnpike, Elmont, NY 11003"
+  },
+  {
+    "code": "SAR",
+    "name": "Saratoga Race Course",
+    "address": "267 Union Ave, Saratoga Springs, NY 12866"
+  },
+  {
+    "code": "KEE",
+    "name": "Keeneland",
+    "address": "4201 Versailles Rd, Lexington, KY 40510"
+  },
+  {
+    "code": "TP",
+    "name": "Turfway Park",
+    "address": "7500 Turfway Rd, Florence, KY 41042"
+  },
+  {
+    "code": "LRL",
+    "name": "Laurel Park",
+    "address": "198 Laurel Race Track Rd, Laurel, MD 20725"
+  },
+  {
+    "code": "MTH",
+    "name": "Monmouth Park",
+    "address": "175 Oceanport Ave, Oceanport, NJ 07757"
+  },
+  {
+    "code": "PRX",
+    "name": "Parx Racing",
+    "address": "2999 Street Rd, Bensalem, PA 19020"
+  },
+  {
+    "code": "DEL",
+    "name": "Delaware Park",
+    "address": "777 Delaware Park Blvd, Wilmington, DE 19804"
+  },
+  {
+    "code": "FH",
+    "name": "Fair Hill Training Center",
+    "address": "3400 Training Center Dr, Fair Hill, MD 21921"
+  },
+  {
+    "code": "CNL",
+    "name": "Colonial Downs",
+    "address": "10515 Colonial Downs Pkwy, New Kent, VA 23124"
+  },
+  {
+    "code": "GP",
+    "name": "Gulfstream Park",
+    "address": "901 S Federal Hwy, Hallandale Beach, FL 33009"
+  },
+  {
+    "code": "FG",
+    "name": "Fair Grounds",
+    "address": "1751 Gentilly Blvd, New Orleans, LA 70119"
+  },
+  {
+    "code": "PAY",
+    "name": "Payson Park",
+    "address": "3103 SE Fox Brown Rd, Indiantown, FL 34956"
+  },
+  {
+    "code": "WO",
+    "name": "Woodbine",
+    "address": "555 Rexdale Blvd, Toronto, ON M9W 5L2, Canada"
+  },
+  {
+    "code": "OP",
+    "name": "Oaklawn Park",
+    "address": "2705 Central Ave, Hot Springs, AR 71901"
+  },
+  {
+    "code": "CT",
+    "name": "Charles Town",
+    "address": "750 Hollywood Dr, Charles Town, WV 25414"
+  },
+  {
+    "code": "ELP",
+    "name": "Ellis Park",
+    "address": "3300 US Hwy 41 N, Henderson, KY 42420"
+  },
+  {
+    "code": "HOO",
+    "name": "Horseshoe Indianapolis",
+    "address": "4200 N Michigan Rd, Shelbyville, IN 46176"
+  },
+  {
+    "code": "FL",
+    "name": "Finger Lakes",
+    "address": "5857 NY-96, Farmington, NY 14425"
+  },
+  {
+    "code": "PEN",
+    "name": "Penn National",
+    "address": "777 Hollywood Blvd, Grantville, PA 17028"
+  },
+  {
+    "code": "PID",
+    "name": "Presque Isle Downs",
+    "address": "8199 Perry Hwy, Erie, PA 16509"
+  },
+  {
+    "code": "TAM",
+    "name": "Tampa Bay Downs",
+    "address": "11225 Racetrack Rd, Oldsmar, FL 34677"
+  },
+  {
+    "code": "FE",
+    "name": "Fort Erie",
+    "address": "230 Catherine St, Fort Erie, ON L2A 2M9, Canada"
+  },
+  {
+    "code": "KD",
+    "name": "Kentucky Downs",
+    "address": "5629 Nashville Rd, Franklin, KY 42134"
+  },
+  {
+    "code": "PMTC",
+    "name": "Palm Meadows Training Center",
+    "address": "12295 Sabal Trace Pkwy, Boynton Beach, FL 33472"
+  },
+  {
+    "code": "CVG",
+    "name": "Cincinnati/N. Kentucky International Airport",
+    "address": "3087 Terminal Dr, Hebron, KY 41048"
+  },
+  {
+    "code": "IND",
+    "name": "Indianapolis International Airport",
+    "address": "7800 Col. H. Weir Cook Memorial Drive, Indianapolis, IN 46241"
+  },
+  {
+    "code": "EWR",
+    "name": "Newark Liberty International Airport",
+    "address": "3 Brewster Rd, Newark, NJ 07114"
+  },
+  {
+    "code": "MIA",
+    "name": "Miami International Airport",
+    "address": "2100 NW 42nd Ave, Miami, FL 33126"
+  },
+  {
+    "code": "FLL",
+    "name": "Fort Lauderdale-Hollywood International Airport",
+    "address": "100 Terminal Drive, Fort Lauderdale, FL 33315"
+  },
+  {
+    "code": "SDF",
+    "name": "Louisville Muhammad Ali International Airport",
+    "address": "600 Terminal Dr, Louisville, KY 40209"
+  },
+  {
+    "code": "ARK",
+    "name": "The ARK at JFK (USDA Equine Import/Export Quarantine)",
+    "address": "78A N Boundary Rd, Jamaica, NY 11430"
+  },
+  {
+    "code": "ORD",
+    "name": "Chicago O'Hare International Airport",
+    "address": "10000 W. O'Hare Ave, Chicago, IL 60666"
+  },
+  {
+    "code": "MCO",
+    "name": "Orlando International Airport",
+    "address": "1 Jeff Fuqua Blvd, Orlando, FL 32827"
+  },
+  {
+    "code": "AIC2",
+    "name": "Thebas Farm (Miami Equine Import Quarantine)",
+    "address": "12401 SW 51 St, Miami, FL 33175"
+  },
+  {
+    "code": "KIC",
+    "name": "Churchill Downs Quarantine",
+    "address": "700 Central Ave, Louisville, KY 40208"
+  },
+  {
+    "code": "CIQ",
+    "name": "Chicago Import Quarantine",
+    "address": "37W789 Binnie Rd, West Dundee, IL 60118"
+  },
+  {
+    "code": "LATHROP",
+    "name": "Lathrop Quarantine Center (Chicago)",
+    "address": "35W090 Lathrop Lane, West Dundee, IL 60118"
+  },
+  {
+    "code": "NEWBURGH",
+    "name": "Upstate NY Quarantine",
+    "address": "474 International Blvd, Rock Tavern, NY 12575"
+  }
 ]
