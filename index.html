@@ -349,6 +349,7 @@
         <label>Origin</label>
         <select id="jobOriginSelect"><option value="">Loading tracks...</option></select>
         <input id="jobOriginOther" placeholder="Type farm/location name" style="display:none;margin-top:5px;">
+        <div id="jobOriginOtherHint" style="display:none;font-size:10.5px;color:#8a5a00;margin-top:3px;"></div>
       </div>
       <div>
         <label>Origin Trainer/Farm</label>
@@ -360,6 +361,7 @@
         <label>Destination</label>
         <select id="jobDestinationSelect"><option value="">Loading tracks...</option></select>
         <input id="jobDestinationOther" placeholder="Type farm/location name" style="display:none;margin-top:5px;">
+        <div id="jobDestinationOtherHint" style="display:none;font-size:10.5px;color:#8a5a00;margin-top:3px;"></div>
       </div>
       <div>
         <label>Destination Trainer/Farm</label>
@@ -622,15 +624,24 @@ function populateLocationSelects(){
 function setLocationField(prefix, value){
   const sel = document.getElementById('job'+prefix+'Select');
   const other = document.getElementById('job'+prefix+'Other');
+  const hint = document.getElementById('job'+prefix+'OtherHint');
   const code = value ? locationNameToCode[value.trim().toLowerCase()] : null;
   if(code){
     sel.value = code;
     other.style.display = 'none';
     other.value = '';
+    hint.style.display = 'none';
   } else {
     sel.value = OTHER_LOCATION_VALUE;
     other.style.display = '';
     other.value = value || '';
+    const matches = findPossibleLocationMatches(other.value);
+    if(matches && matches.length){
+      hint.innerHTML = `\u26A0\uFE0F Looks similar to a known track: <b>${matches.map(m=>escapeHtml(m.code+' \u2014 '+m.name)).join(', ')}</b> \u2014 pick it from the dropdown above for accurate drive-time checking.`;
+      hint.style.display = '';
+    } else {
+      hint.style.display = 'none';
+    }
   }
 }
 
@@ -647,6 +658,7 @@ function getLocationField(prefix){
 function setupLocationSelectToggle(prefix){
   const sel = document.getElementById('job'+prefix+'Select');
   const other = document.getElementById('job'+prefix+'Other');
+  const hint = document.getElementById('job'+prefix+'OtherHint');
   sel.addEventListener('change', ()=>{
     if(sel.value === OTHER_LOCATION_VALUE){
       other.style.display = '';
@@ -654,11 +666,37 @@ function setupLocationSelectToggle(prefix){
     } else {
       other.style.display = 'none';
       other.value = '';
+      hint.style.display = 'none';
+    }
+  });
+  other.addEventListener('input', ()=>{
+    const matches = findPossibleLocationMatches(other.value);
+    if(matches && matches.length){
+      hint.innerHTML = `\u26A0\uFE0F Looks similar to a known track: <b>${matches.map(m=>escapeHtml(m.code+' \u2014 '+m.name)).join(', ')}</b> \u2014 pick it from the dropdown above for accurate drive-time checking.`;
+      hint.style.display = '';
+    } else {
+      hint.style.display = 'none';
     }
   });
 }
 setupLocationSelectToggle('Origin');
 setupLocationSelectToggle('Destination');
+
+const LOCATION_HINT_STOPWORDS = new Set(['the','of','at','in','on','and','farm','training','center','centre','international','airport','park','course','quarantine','import']);
+function findPossibleLocationMatches(text){
+  if(!driveTimesData || !text || !text.trim()) return null;
+  const norm = normLoc(text);
+  const typedWords = norm.split(/[^a-z0-9]+/).filter(w=>w.length>=2 && !LOCATION_HINT_STOPWORDS.has(w));
+  const matches = [];
+  (driveTimesData.locations||[]).forEach(loc=>{
+    const codeMatch = norm === loc.code.toLowerCase();
+    const nameMatch = norm === (loc.name||'').toLowerCase();
+    const nameWords = (loc.name||'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=2 && !LOCATION_HINT_STOPWORDS.has(w));
+    const overlap = typedWords.length && typedWords.some(w=>nameWords.includes(w));
+    if(codeMatch || nameMatch || overlap) matches.push(loc);
+  });
+  return matches.length ? matches : null;
+}
 
 function normLoc(s){ return (s||'').trim().toLowerCase(); }
 function lookupDriveMinutes(a, b){
