@@ -1,0 +1,2867 @@
+{
+  "generatedAt": "2026-09-07T13:37:08Z",
+  "locations": [
+    {
+      "code": "CD",
+      "name": "Churchill Downs"
+    },
+    {
+      "code": "BEL",
+      "name": "Belmont Park"
+    },
+    {
+      "code": "SAR",
+      "name": "Saratoga Race Course"
+    },
+    {
+      "code": "KEE",
+      "name": "Keeneland"
+    },
+    {
+      "code": "TP",
+      "name": "Turfway Park"
+    },
+    {
+      "code": "LRL",
+      "name": "Laurel Park"
+    },
+    {
+      "code": "MTH",
+      "name": "Monmouth Park"
+    },
+    {
+      "code": "PRX",
+      "name": "Parx Racing"
+    },
+    {
+      "code": "DEL",
+      "name": "Delaware Park"
+    },
+    {
+      "code": "FH",
+      "name": "Fair Hill Training Center"
+    },
+    {
+      "code": "CNL",
+      "name": "Colonial Downs"
+    },
+    {
+      "code": "GP",
+      "name": "Gulfstream Park"
+    },
+    {
+      "code": "FG",
+      "name": "Fair Grounds"
+    },
+    {
+      "code": "PAY",
+      "name": "Payson Park"
+    },
+    {
+      "code": "WO",
+      "name": "Woodbine"
+    },
+    {
+      "code": "OP",
+      "name": "Oaklawn Park"
+    },
+    {
+      "code": "CT",
+      "name": "Charles Town"
+    },
+    {
+      "code": "ELP",
+      "name": "Ellis Park"
+    },
+    {
+      "code": "HOO",
+      "name": "Horseshoe Indianapolis"
+    },
+    {
+      "code": "FL",
+      "name": "Finger Lakes"
+    },
+    {
+      "code": "PEN",
+      "name": "Penn National"
+    },
+    {
+      "code": "PID",
+      "name": "Presque Isle Downs"
+    },
+    {
+      "code": "TAM",
+      "name": "Tampa Bay Downs"
+    },
+    {
+      "code": "FE",
+      "name": "Fort Erie"
+    },
+    {
+      "code": "KD",
+      "name": "Kentucky Downs"
+    },
+    {
+      "code": "PMTC",
+      "name": "Palm Meadows Training Center"
+    }
+  ],
+  "matrix": {
+    "CD": {
+      "SAR": {
+        "minutes": 735,
+        "miles": 816.9
+      },
+      "ELP": {
+        "minutes": 120,
+        "miles": 128.8
+      },
+      "CD": {
+        "minutes": 0,
+        "miles": null
+      },
+      "TP": {
+        "minutes": 93,
+        "miles": 94.8
+      },
+      "KEE": {
+        "minutes": 76,
+        "miles": 72.2
+      },
+      "PEN": {
+        "minutes": 541,
+        "miles": 589.1
+      },
+      "HOO": {
+        "minutes": 114,
+        "miles": 113.5
+      },
+      "PAY": {
+        "minutes": 855,
+        "miles": 970.9
+      },
+      "OP": {
+        "minutes": 508,
+        "miles": 572.2
+      },
+      "PID": {
+        "minutes": 397,
+        "miles": 445.7
+      },
+      "DEL": {
+        "minutes": 610,
+        "miles": 676.7
+      },
+      "BEL": {
+        "minutes": 716,
+        "miles": 778.4
+      },
+      "CT": {
+        "minutes": 514,
+        "miles": 567.2
+      },
+      "FG": {
+        "minutes": 609,
+        "miles": 702.6
+      },
+      "LRL": {
+        "minutes": 550,
+        "miles": 608.6
+      },
+      "FH": {
+        "minutes": 605,
+        "miles": 665.7
+      },
+      "CNL": {
+        "minutes": 532,
+        "miles": 589.5
+      },
+      "FL": {
+        "minutes": 548,
+        "miles": 615.7
+      },
+      "MTH": {
+        "minutes": 681,
+        "miles": 746.4
+      },
+      "PRX": {
+        "minutes": 620,
+        "miles": 683.3
+      },
+      "WO": {
+        "minutes": 531,
+        "miles": 585.6
+      },
+      "TAM": {
+        "minutes": 778,
+        "miles": 877.6
+      },
+      "GP": {
+        "minutes": 930,
+        "miles": 1066.9
+      },
+      "KD": {
+        "minutes": 119,
+        "miles": 133.6
+      },
+      "FE": {
+        "minutes": 488,
+        "miles": 543.6
+      },
+      "PMTC": {
+        "minutes": 893,
+        "miles": 1027.5
+      }
+    },
+    "BEL": {
+      "MTH": {
+        "minutes": 89,
+        "miles": 71.6
+      },
+      "PRX": {
+        "minutes": 111,
+        "miles": 99.4
+      },
+      "SAR": {
+        "minutes": 190,
+        "miles": 198.1
+      },
+      "PEN": {
+        "minutes": 189,
+        "miles": 181.6
+      },
+      "WO": {
+        "minutes": 482,
+        "miles": 494.8
+      },
+      "DEL": {
+        "minutes": 152,
+        "miles": 147.0
+      },
+      "FL": {
+        "minutes": 321,
+        "miles": 338.0
+      },
+      "CNL": {
+        "minutes": 368,
+        "miles": 378.2
+      },
+      "BEL": {
+        "minutes": 0,
+        "miles": null
+      },
+      "FH": {
+        "minutes": 169,
+        "miles": 161.5
+      },
+      "PID": {
+        "minutes": 424,
+        "miles": 448.4
+      },
+      "LRL": {
+        "minutes": 228,
+        "miles": 226.9
+      },
+      "CT": {
+        "minutes": 277,
+        "miles": 281.9
+      },
+      "FG": {
+        "minutes": 1188,
+        "miles": 1327.7
+      },
+      "HOO": {
+        "minutes": 695,
+        "miles": 751.5
+      },
+      "TP": {
+        "minutes": 640,
+        "miles": 687.0
+      },
+      "CD": {
+        "minutes": 720,
+        "miles": 778.5
+      },
+      "KEE": {
+        "minutes": 690,
+        "miles": 736.3
+      },
+      "PAY": {
+        "minutes": 1067,
+        "miles": 1207.1
+      },
+      "GP": {
+        "minutes": 1145,
+        "miles": 1292.0
+      },
+      "ELP": {
+        "minutes": 821,
+        "miles": 895.5
+      },
+      "TAM": {
+        "minutes": 1059,
+        "miles": 1156.9
+      },
+      "OP": {
+        "minutes": 1182,
+        "miles": 1311.2
+      },
+      "FE": {
+        "minutes": 398,
+        "miles": 401.1
+      },
+      "KD": {
+        "minutes": 831,
+        "miles": 909.2
+      },
+      "PMTC": {
+        "minutes": 1109,
+        "miles": 1249.0
+      }
+    },
+    "SAR": {
+      "PEN": {
+        "minutes": 284,
+        "miles": 312.1
+      },
+      "BEL": {
+        "minutes": 193,
+        "miles": 196.4
+      },
+      "SAR": {
+        "minutes": 0,
+        "miles": null
+      },
+      "DEL": {
+        "minutes": 277,
+        "miles": 299.8
+      },
+      "MTH": {
+        "minutes": 211,
+        "miles": 223.9
+      },
+      "WO": {
+        "minutes": 359,
+        "miles": 378.6
+      },
+      "FL": {
+        "minutes": 197,
+        "miles": 202.3
+      },
+      "FH": {
+        "minutes": 293,
+        "miles": 314.4
+      },
+      "PRX": {
+        "minutes": 235,
+        "miles": 252.3
+      },
+      "TAM": {
+        "minutes": 1183,
+        "miles": 1309.8
+      },
+      "PAY": {
+        "minutes": 1192,
+        "miles": 1359.9
+      },
+      "LRL": {
+        "minutes": 353,
+        "miles": 379.8
+      },
+      "CT": {
+        "minutes": 398,
+        "miles": 433.0
+      },
+      "CNL": {
+        "minutes": 493,
+        "miles": 531.1
+      },
+      "TP": {
+        "minutes": 656,
+        "miles": 723.7
+      },
+      "PID": {
+        "minutes": 346,
+        "miles": 371.1
+      },
+      "KEE": {
+        "minutes": 722,
+        "miles": 798.6
+      },
+      "ELP": {
+        "minutes": 837,
+        "miles": 932.1
+      },
+      "CD": {
+        "minutes": 736,
+        "miles": 815.1
+      },
+      "HOO": {
+        "minutes": 711,
+        "miles": 774.7
+      },
+      "GP": {
+        "minutes": 1269,
+        "miles": 1444.9
+      },
+      "FG": {
+        "minutes": 1288,
+        "miles": 1459.2
+      },
+      "OP": {
+        "minutes": 1236,
+        "miles": 1384.4
+      },
+      "FE": {
+        "minutes": 280,
+        "miles": 290.7
+      },
+      "KD": {
+        "minutes": 847,
+        "miles": 945.8
+      },
+      "PMTC": {
+        "minutes": 1234,
+        "miles": 1401.8
+      }
+    },
+    "KEE": {
+      "WO": {
+        "minutes": 517,
+        "miles": 569.0
+      },
+      "CNL": {
+        "minutes": 477,
+        "miles": 522.8
+      },
+      "PID": {
+        "minutes": 383,
+        "miles": 429.2
+      },
+      "KEE": {
+        "minutes": 0,
+        "miles": null
+      },
+      "HOO": {
+        "minutes": 163,
+        "miles": 173.0
+      },
+      "CD": {
+        "minutes": 77,
+        "miles": 72.3
+      },
+      "ELP": {
+        "minutes": 180,
+        "miles": 192.0
+      },
+      "TP": {
+        "minutes": 79,
+        "miles": 78.3
+      },
+      "OP": {
+        "minutes": 537,
+        "miles": 607.2
+      },
+      "LRL": {
+        "minutes": 496,
+        "miles": 541.9
+      },
+      "FG": {
+        "minutes": 638,
+        "miles": 737.6
+      },
+      "CT": {
+        "minutes": 459,
+        "miles": 500.5
+      },
+      "FH": {
+        "minutes": 551,
+        "miles": 599.0
+      },
+      "PEN": {
+        "minutes": 509,
+        "miles": 557.9
+      },
+      "FL": {
+        "minutes": 534,
+        "miles": 599.2
+      },
+      "DEL": {
+        "minutes": 556,
+        "miles": 609.9
+      },
+      "SAR": {
+        "minutes": 722,
+        "miles": 800.4
+      },
+      "GP": {
+        "minutes": 907,
+        "miles": 1036.2
+      },
+      "PRX": {
+        "minutes": 594,
+        "miles": 647.6
+      },
+      "TAM": {
+        "minutes": 754,
+        "miles": 846.9
+      },
+      "MTH": {
+        "minutes": 654,
+        "miles": 710.6
+      },
+      "PAY": {
+        "minutes": 831,
+        "miles": 940.2
+      },
+      "BEL": {
+        "minutes": 690,
+        "miles": 737.9
+      },
+      "KD": {
+        "minutes": 148,
+        "miles": 168.6
+      },
+      "FE": {
+        "minutes": 474,
+        "miles": 527.1
+      },
+      "PMTC": {
+        "minutes": 869,
+        "miles": 996.8
+      }
+    },
+    "TP": {
+      "CD": {
+        "minutes": 91,
+        "miles": 94.0
+      },
+      "ELP": {
+        "minutes": 192,
+        "miles": 211.0
+      },
+      "FL": {
+        "minutes": 467,
+        "miles": 523.5
+      },
+      "TP": {
+        "minutes": 0,
+        "miles": null
+      },
+      "KEE": {
+        "minutes": 76,
+        "miles": 77.5
+      },
+      "PID": {
+        "minutes": 316,
+        "miles": 353.5
+      },
+      "HOO": {
+        "minutes": 94,
+        "miles": 94.9
+      },
+      "CT": {
+        "minutes": 446,
+        "miles": 474.7
+      },
+      "OP": {
+        "minutes": 591,
+        "miles": 663.3
+      },
+      "MTH": {
+        "minutes": 600,
+        "miles": 654.2
+      },
+      "FH": {
+        "minutes": 534,
+        "miles": 556.2
+      },
+      "PEN": {
+        "minutes": 460,
+        "miles": 497.0
+      },
+      "CNL": {
+        "minutes": 511,
+        "miles": 541.5
+      },
+      "WO": {
+        "minutes": 450,
+        "miles": 493.4
+      },
+      "FG": {
+        "minutes": 691,
+        "miles": 793.7
+      },
+      "LRL": {
+        "minutes": 482,
+        "miles": 516.2
+      },
+      "TAM": {
+        "minutes": 803,
+        "miles": 911.3
+      },
+      "PRX": {
+        "minutes": 539,
+        "miles": 591.2
+      },
+      "DEL": {
+        "minutes": 542,
+        "miles": 584.2
+      },
+      "BEL": {
+        "minutes": 635,
+        "miles": 686.2
+      },
+      "SAR": {
+        "minutes": 654,
+        "miles": 724.7
+      },
+      "PAY": {
+        "minutes": 881,
+        "miles": 1004.6
+      },
+      "GP": {
+        "minutes": 956,
+        "miles": 1100.6
+      },
+      "KD": {
+        "minutes": 202,
+        "miles": 224.7
+      },
+      "FE": {
+        "minutes": 407,
+        "miles": 451.5
+      },
+      "PMTC": {
+        "minutes": 919,
+        "miles": 1061.2
+      }
+    },
+    "LRL": {
+      "LRL": {
+        "minutes": 0,
+        "miles": null
+      },
+      "TP": {
+        "minutes": 486,
+        "miles": 518.4
+      },
+      "OP": {
+        "minutes": 971,
+        "miles": 1086.8
+      },
+      "HOO": {
+        "minutes": 541,
+        "miles": 582.9
+      },
+      "ELP": {
+        "minutes": 656,
+        "miles": 729.4
+      },
+      "FH": {
+        "minutes": 83,
+        "miles": 75.4
+      },
+      "CT": {
+        "minutes": 79,
+        "miles": 73.5
+      },
+      "DEL": {
+        "minutes": 88,
+        "miles": 86.3
+      },
+      "PEN": {
+        "minutes": 120,
+        "miles": 117.6
+      },
+      "CNL": {
+        "minutes": 155,
+        "miles": 156.3
+      },
+      "BEL": {
+        "minutes": 224,
+        "miles": 227.1
+      },
+      "KEE": {
+        "minutes": 496,
+        "miles": 542.6
+      },
+      "PRX": {
+        "minutes": 141,
+        "miles": 137.9
+      },
+      "PID": {
+        "minutes": 337,
+        "miles": 365.4
+      },
+      "FL": {
+        "minutes": 346,
+        "miles": 342.6
+      },
+      "MTH": {
+        "minutes": 189,
+        "miles": 195.1
+      },
+      "GP": {
+        "minutes": 931,
+        "miles": 1070.1
+      },
+      "SAR": {
+        "minutes": 352,
+        "miles": 380.7
+      },
+      "WO": {
+        "minutes": 484,
+        "miles": 487.5
+      },
+      "FG": {
+        "minutes": 976,
+        "miles": 1103.3
+      },
+      "CD": {
+        "minutes": 553,
+        "miles": 609.7
+      },
+      "TAM": {
+        "minutes": 845,
+        "miles": 935.0
+      },
+      "PAY": {
+        "minutes": 854,
+        "miles": 985.2
+      },
+      "FE": {
+        "minutes": 400,
+        "miles": 393.8
+      },
+      "KD": {
+        "minutes": 642,
+        "miles": 698.0
+      },
+      "PMTC": {
+        "minutes": 896,
+        "miles": 1027.0
+      }
+    },
+    "MTH": {
+      "FH": {
+        "minutes": 130,
+        "miles": 129.2
+      },
+      "PID": {
+        "minutes": 424,
+        "miles": 461.2
+      },
+      "MTH": {
+        "minutes": 0,
+        "miles": null
+      },
+      "TAM": {
+        "minutes": 1020,
+        "miles": 1124.6
+      },
+      "WO": {
+        "minutes": 486,
+        "miles": 503.1
+      },
+      "CNL": {
+        "minutes": 330,
+        "miles": 345.9
+      },
+      "PRX": {
+        "minutes": 72,
+        "miles": 67.1
+      },
+      "SAR": {
+        "minutes": 212,
+        "miles": 224.6
+      },
+      "BEL": {
+        "minutes": 86,
+        "miles": 72.1
+      },
+      "DEL": {
+        "minutes": 114,
+        "miles": 114.6
+      },
+      "PEN": {
+        "minutes": 161,
+        "miles": 166.9
+      },
+      "CT": {
+        "minutes": 238,
+        "miles": 249.6
+      },
+      "LRL": {
+        "minutes": 190,
+        "miles": 194.6
+      },
+      "TP": {
+        "minutes": 601,
+        "miles": 654.7
+      },
+      "KEE": {
+        "minutes": 653,
+        "miles": 710.5
+      },
+      "FL": {
+        "minutes": 324,
+        "miles": 346.3
+      },
+      "PAY": {
+        "minutes": 1029,
+        "miles": 1174.8
+      },
+      "HOO": {
+        "minutes": 656,
+        "miles": 719.2
+      },
+      "CD": {
+        "minutes": 681,
+        "miles": 746.2
+      },
+      "FG": {
+        "minutes": 1150,
+        "miles": 1295.4
+      },
+      "OP": {
+        "minutes": 1144,
+        "miles": 1278.9
+      },
+      "GP": {
+        "minutes": 1106,
+        "miles": 1259.7
+      },
+      "ELP": {
+        "minutes": 782,
+        "miles": 863.2
+      },
+      "FE": {
+        "minutes": 402,
+        "miles": 409.4
+      },
+      "PMTC": {
+        "minutes": 1071,
+        "miles": 1216.6
+      },
+      "KD": {
+        "minutes": 792,
+        "miles": 876.8
+      }
+    },
+    "PRX": {
+      "FH": {
+        "minutes": 83,
+        "miles": 71.4
+      },
+      "PEN": {
+        "minutes": 115,
+        "miles": 110.4
+      },
+      "DEL": {
+        "minutes": 67,
+        "miles": 56.8
+      },
+      "HOO": {
+        "minutes": 598,
+        "miles": 656.7
+      },
+      "LRL": {
+        "minutes": 143,
+        "miles": 136.7
+      },
+      "PID": {
+        "minutes": 380,
+        "miles": 418.2
+      },
+      "WO": {
+        "minutes": 458,
+        "miles": 478.5
+      },
+      "MTH": {
+        "minutes": 70,
+        "miles": 65.8
+      },
+      "CT": {
+        "minutes": 191,
+        "miles": 191.7
+      },
+      "BEL": {
+        "minutes": 105,
+        "miles": 97.8
+      },
+      "TP": {
+        "minutes": 543,
+        "miles": 592.2
+      },
+      "SAR": {
+        "minutes": 233,
+        "miles": 251.4
+      },
+      "TAM": {
+        "minutes": 973,
+        "miles": 1066.7
+      },
+      "CNL": {
+        "minutes": 283,
+        "miles": 288.0
+      },
+      "PAY": {
+        "minutes": 982,
+        "miles": 1116.9
+      },
+      "FL": {
+        "minutes": 296,
+        "miles": 321.8
+      },
+      "PRX": {
+        "minutes": 0,
+        "miles": null
+      },
+      "FG": {
+        "minutes": 1103,
+        "miles": 1237.5
+      },
+      "ELP": {
+        "minutes": 724,
+        "miles": 800.7
+      },
+      "KEE": {
+        "minutes": 595,
+        "miles": 648.0
+      },
+      "CD": {
+        "minutes": 623,
+        "miles": 683.7
+      },
+      "OP": {
+        "minutes": 1097,
+        "miles": 1221.0
+      },
+      "GP": {
+        "minutes": 1059,
+        "miles": 1201.9
+      },
+      "FE": {
+        "minutes": 374,
+        "miles": 384.8
+      },
+      "KD": {
+        "minutes": 734,
+        "miles": 814.3
+      },
+      "PMTC": {
+        "minutes": 1024,
+        "miles": 1158.8
+      }
+    },
+    "DEL": {
+      "TAM": {
+        "minutes": 920,
+        "miles": 1015.3
+      },
+      "DEL": {
+        "minutes": 0,
+        "miles": null
+      },
+      "HOO": {
+        "minutes": 600,
+        "miles": 649.6
+      },
+      "LRL": {
+        "minutes": 90,
+        "miles": 85.3
+      },
+      "PRX": {
+        "minutes": 67,
+        "miles": 58.2
+      },
+      "CT": {
+        "minutes": 138,
+        "miles": 140.2
+      },
+      "ELP": {
+        "minutes": 715,
+        "miles": 796.1
+      },
+      "PEN": {
+        "minutes": 125,
+        "miles": 82.5
+      },
+      "CNL": {
+        "minutes": 230,
+        "miles": 236.5
+      },
+      "FL": {
+        "minutes": 323,
+        "miles": 348.2
+      },
+      "MTH": {
+        "minutes": 115,
+        "miles": 115.4
+      },
+      "TP": {
+        "minutes": 545,
+        "miles": 585.1
+      },
+      "BEL": {
+        "minutes": 150,
+        "miles": 147.4
+      },
+      "SAR": {
+        "minutes": 278,
+        "miles": 301.0
+      },
+      "CD": {
+        "minutes": 612,
+        "miles": 676.4
+      },
+      "PID": {
+        "minutes": 392,
+        "miles": 375.9
+      },
+      "FH": {
+        "minutes": 28,
+        "miles": 13.2
+      },
+      "WO": {
+        "minutes": 485,
+        "miles": 505.0
+      },
+      "KEE": {
+        "minutes": 555,
+        "miles": 609.3
+      },
+      "FG": {
+        "minutes": 1050,
+        "miles": 1186.1
+      },
+      "PAY": {
+        "minutes": 929,
+        "miles": 1065.4
+      },
+      "GP": {
+        "minutes": 1006,
+        "miles": 1150.4
+      },
+      "OP": {
+        "minutes": 1044,
+        "miles": 1169.5
+      },
+      "KD": {
+        "minutes": 700,
+        "miles": 777.4
+      },
+      "FE": {
+        "minutes": 401,
+        "miles": 411.3
+      },
+      "PMTC": {
+        "minutes": 971,
+        "miles": 1107.3
+      }
+    },
+    "FH": {
+      "PID": {
+        "minutes": 377,
+        "miles": 370.7
+      },
+      "FH": {
+        "minutes": 0,
+        "miles": null
+      },
+      "DEL": {
+        "minutes": 30,
+        "miles": 14.1
+      },
+      "CT": {
+        "minutes": 132,
+        "miles": 129.2
+      },
+      "PEN": {
+        "minutes": 110,
+        "miles": 77.4
+      },
+      "BEL": {
+        "minutes": 165,
+        "miles": 159.2
+      },
+      "LRL": {
+        "minutes": 83,
+        "miles": 74.2
+      },
+      "CNL": {
+        "minutes": 223,
+        "miles": 225.5
+      },
+      "PRX": {
+        "minutes": 83,
+        "miles": 70.0
+      },
+      "TAM": {
+        "minutes": 914,
+        "miles": 1004.2
+      },
+      "KEE": {
+        "minutes": 549,
+        "miles": 598.2
+      },
+      "MTH": {
+        "minutes": 130,
+        "miles": 127.2
+      },
+      "CD": {
+        "minutes": 605,
+        "miles": 665.3
+      },
+      "OP": {
+        "minutes": 1037,
+        "miles": 1158.5
+      },
+      "PAY": {
+        "minutes": 922,
+        "miles": 1054.4
+      },
+      "FL": {
+        "minutes": 339,
+        "miles": 360.0
+      },
+      "GP": {
+        "minutes": 1000,
+        "miles": 1139.3
+      },
+      "TP": {
+        "minutes": 537,
+        "miles": 558.2
+      },
+      "SAR": {
+        "minutes": 293,
+        "miles": 312.8
+      },
+      "HOO": {
+        "minutes": 592,
+        "miles": 622.7
+      },
+      "WO": {
+        "minutes": 477,
+        "miles": 466.3
+      },
+      "ELP": {
+        "minutes": 709,
+        "miles": 785.0
+      },
+      "FG": {
+        "minutes": 1043,
+        "miles": 1175.0
+      },
+      "FE": {
+        "minutes": 394,
+        "miles": 372.6
+      },
+      "KD": {
+        "minutes": 693,
+        "miles": 766.3
+      },
+      "PMTC": {
+        "minutes": 964,
+        "miles": 1096.2
+      }
+    },
+    "CNL": {
+      "PEN": {
+        "minutes": 246,
+        "miles": 257.4
+      },
+      "PID": {
+        "minutes": 441,
+        "miles": 482.7
+      },
+      "TAM": {
+        "minutes": 726,
+        "miles": 815.1
+      },
+      "HOO": {
+        "minutes": 582,
+        "miles": 638.0
+      },
+      "FL": {
+        "minutes": 472,
+        "miles": 482.4
+      },
+      "CNL": {
+        "minutes": 0,
+        "miles": null
+      },
+      "LRL": {
+        "minutes": 150,
+        "miles": 150.6
+      },
+      "FH": {
+        "minutes": 220,
+        "miles": 221.3
+      },
+      "DEL": {
+        "minutes": 225,
+        "miles": 232.2
+      },
+      "FG": {
+        "minutes": 895,
+        "miles": 1019.9
+      },
+      "KEE": {
+        "minutes": 476,
+        "miles": 522.4
+      },
+      "MTH": {
+        "minutes": 325,
+        "miles": 341.1
+      },
+      "ELP": {
+        "minutes": 636,
+        "miles": 709.2
+      },
+      "PRX": {
+        "minutes": 278,
+        "miles": 283.8
+      },
+      "BEL": {
+        "minutes": 360,
+        "miles": 373.0
+      },
+      "SAR": {
+        "minutes": 488,
+        "miles": 526.6
+      },
+      "PAY": {
+        "minutes": 734,
+        "miles": 865.2
+      },
+      "CD": {
+        "minutes": 533,
+        "miles": 589.5
+      },
+      "TP": {
+        "minutes": 512,
+        "miles": 541.8
+      },
+      "GP": {
+        "minutes": 811,
+        "miles": 950.2
+      },
+      "CT": {
+        "minutes": 174,
+        "miles": 176.5
+      },
+      "OP": {
+        "minutes": 919,
+        "miles": 1040.4
+      },
+      "WO": {
+        "minutes": 602,
+        "miles": 598.1
+      },
+      "KD": {
+        "minutes": 590,
+        "miles": 651.7
+      },
+      "FE": {
+        "minutes": 519,
+        "miles": 504.4
+      },
+      "PMTC": {
+        "minutes": 776,
+        "miles": 907.1
+      }
+    },
+    "GP": {
+      "FG": {
+        "minutes": 729,
+        "miles": 850.1
+      },
+      "GP": {
+        "minutes": 0,
+        "miles": null
+      },
+      "PAY": {
+        "minutes": 100,
+        "miles": 105.1
+      },
+      "TAM": {
+        "minutes": 253,
+        "miles": 278.2
+      },
+      "TP": {
+        "minutes": 955,
+        "miles": 1101.8
+      },
+      "OP": {
+        "minutes": 1066,
+        "miles": 1229.9
+      },
+      "KEE": {
+        "minutes": 907,
+        "miles": 1040.8
+      },
+      "PID": {
+        "minutes": 1139,
+        "miles": 1282.9
+      },
+      "PRX": {
+        "minutes": 1053,
+        "miles": 1197.5
+      },
+      "CD": {
+        "minutes": 931,
+        "miles": 1069.3
+      },
+      "DEL": {
+        "minutes": 1000,
+        "miles": 1145.9
+      },
+      "SAR": {
+        "minutes": 1264,
+        "miles": 1440.3
+      },
+      "CT": {
+        "minutes": 949,
+        "miles": 1090.2
+      },
+      "LRL": {
+        "minutes": 926,
+        "miles": 1064.3
+      },
+      "BEL": {
+        "minutes": 1136,
+        "miles": 1286.7
+      },
+      "CNL": {
+        "minutes": 810,
+        "miles": 948.9
+      },
+      "MTH": {
+        "minutes": 1101,
+        "miles": 1254.7
+      },
+      "FL": {
+        "minutes": 1248,
+        "miles": 1396.1
+      },
+      "HOO": {
+        "minutes": 1034,
+        "miles": 1179.2
+      },
+      "ELP": {
+        "minutes": 909,
+        "miles": 1044.0
+      },
+      "PEN": {
+        "minutes": 1022,
+        "miles": 1171.1
+      },
+      "FH": {
+        "minutes": 995,
+        "miles": 1135.0
+      },
+      "WO": {
+        "minutes": 1314,
+        "miles": 1474.5
+      },
+      "PMTC": {
+        "minutes": 55,
+        "miles": 46.5
+      },
+      "FE": {
+        "minutes": 1230,
+        "miles": 1380.8
+      },
+      "KD": {
+        "minutes": 817,
+        "miles": 936.2
+      }
+    },
+    "FG": {
+      "FG": {
+        "minutes": 0,
+        "miles": null
+      },
+      "OP": {
+        "minutes": 449,
+        "miles": 453.4
+      },
+      "GP": {
+        "minutes": 729,
+        "miles": 848.9
+      },
+      "HOO": {
+        "minutes": 712,
+        "miles": 812.4
+      },
+      "PAY": {
+        "minutes": 654,
+        "miles": 752.9
+      },
+      "TAM": {
+        "minutes": 570,
+        "miles": 623.2
+      },
+      "CT": {
+        "minutes": 924,
+        "miles": 1043.9
+      },
+      "CD": {
+        "minutes": 609,
+        "miles": 702.5
+      },
+      "SAR": {
+        "minutes": 1290,
+        "miles": 1460.4
+      },
+      "ELP": {
+        "minutes": 587,
+        "miles": 677.2
+      },
+      "PRX": {
+        "minutes": 1100,
+        "miles": 1247.6
+      },
+      "FH": {
+        "minutes": 1046,
+        "miles": 1175.2
+      },
+      "CNL": {
+        "minutes": 887,
+        "miles": 1017.0
+      },
+      "TP": {
+        "minutes": 690,
+        "miles": 792.4
+      },
+      "PID": {
+        "minutes": 994,
+        "miles": 1143.3
+      },
+      "LRL": {
+        "minutes": 978,
+        "miles": 1103.0
+      },
+      "DEL": {
+        "minutes": 1051,
+        "miles": 1186.1
+      },
+      "WO": {
+        "minutes": 1128,
+        "miles": 1283.1
+      },
+      "KEE": {
+        "minutes": 637,
+        "miles": 737.3
+      },
+      "MTH": {
+        "minutes": 1151,
+        "miles": 1295.0
+      },
+      "PEN": {
+        "minutes": 1011,
+        "miles": 1149.4
+      },
+      "FL": {
+        "minutes": 1145,
+        "miles": 1313.3
+      },
+      "BEL": {
+        "minutes": 1186,
+        "miles": 1327.0
+      },
+      "KD": {
+        "minutes": 495,
+        "miles": 569.4
+      },
+      "PMTC": {
+        "minutes": 692,
+        "miles": 809.5
+      },
+      "FE": {
+        "minutes": 1085,
+        "miles": 1241.2
+      }
+    },
+    "PAY": {
+      "GP": {
+        "minutes": 100,
+        "miles": 104.8
+      },
+      "PAY": {
+        "minutes": 0,
+        "miles": null
+      },
+      "TAM": {
+        "minutes": 198,
+        "miles": 175.2
+      },
+      "CT": {
+        "minutes": 873,
+        "miles": 1005.7
+      },
+      "PID": {
+        "minutes": 1062,
+        "miles": 1198.4
+      },
+      "FG": {
+        "minutes": 654,
+        "miles": 753.5
+      },
+      "FL": {
+        "minutes": 1171,
+        "miles": 1311.6
+      },
+      "ELP": {
+        "minutes": 834,
+        "miles": 947.5
+      },
+      "BEL": {
+        "minutes": 1059,
+        "miles": 1202.2
+      },
+      "CNL": {
+        "minutes": 733,
+        "miles": 864.4
+      },
+      "PEN": {
+        "minutes": 945,
+        "miles": 1086.6
+      },
+      "CD": {
+        "minutes": 856,
+        "miles": 972.8
+      },
+      "FH": {
+        "minutes": 919,
+        "miles": 1050.5
+      },
+      "HOO": {
+        "minutes": 959,
+        "miles": 1082.7
+      },
+      "LRL": {
+        "minutes": 849,
+        "miles": 979.8
+      },
+      "KEE": {
+        "minutes": 833,
+        "miles": 944.3
+      },
+      "DEL": {
+        "minutes": 924,
+        "miles": 1061.4
+      },
+      "OP": {
+        "minutes": 992,
+        "miles": 1133.4
+      },
+      "SAR": {
+        "minutes": 1187,
+        "miles": 1355.8
+      },
+      "TP": {
+        "minutes": 881,
+        "miles": 1005.3
+      },
+      "MTH": {
+        "minutes": 1025,
+        "miles": 1170.2
+      },
+      "PRX": {
+        "minutes": 977,
+        "miles": 1113.0
+      },
+      "WO": {
+        "minutes": 1238,
+        "miles": 1390.0
+      },
+      "PMTC": {
+        "minutes": 66,
+        "miles": 66.7
+      },
+      "FE": {
+        "minutes": 1154,
+        "miles": 1296.3
+      },
+      "KD": {
+        "minutes": 742,
+        "miles": 839.7
+      }
+    },
+    "WO": {
+      "PID": {
+        "minutes": 186,
+        "miles": 191.5
+      },
+      "FL": {
+        "minutes": 174,
+        "miles": 177.8
+      },
+      "HOO": {
+        "minutes": 482,
+        "miles": 505.5
+      },
+      "PEN": {
+        "minutes": 397,
+        "miles": 392.1
+      },
+      "WO": {
+        "minutes": 0,
+        "miles": null
+      },
+      "DEL": {
+        "minutes": 486,
+        "miles": 521.9
+      },
+      "PRX": {
+        "minutes": 459,
+        "miles": 497.0
+      },
+      "CT": {
+        "minutes": 465,
+        "miles": 437.4
+      },
+      "SAR": {
+        "minutes": 361,
+        "miles": 379.0
+      },
+      "TP": {
+        "minutes": 453,
+        "miles": 493.8
+      },
+      "LRL": {
+        "minutes": 488,
+        "miles": 479.5
+      },
+      "GP": {
+        "minutes": 1317,
+        "miles": 1477.3
+      },
+      "MTH": {
+        "minutes": 489,
+        "miles": 522.1
+      },
+      "PAY": {
+        "minutes": 1239,
+        "miles": 1392.4
+      },
+      "BEL": {
+        "minutes": 488,
+        "miles": 509.7
+      },
+      "FH": {
+        "minutes": 482,
+        "miles": 457.2
+      },
+      "TAM": {
+        "minutes": 1231,
+        "miles": 1342.2
+      },
+      "FG": {
+        "minutes": 1133,
+        "miles": 1284.8
+      },
+      "CNL": {
+        "minutes": 610,
+        "miles": 596.7
+      },
+      "KEE": {
+        "minutes": 518,
+        "miles": 568.7
+      },
+      "ELP": {
+        "minutes": 614,
+        "miles": 679.9
+      },
+      "CD": {
+        "minutes": 533,
+        "miles": 585.2
+      },
+      "OP": {
+        "minutes": 1033,
+        "miles": 1154.4
+      },
+      "FE": {
+        "minutes": 92,
+        "miles": 93.2
+      },
+      "KD": {
+        "minutes": 644,
+        "miles": 715.9
+      },
+      "PMTC": {
+        "minutes": 1281,
+        "miles": 1434.2
+      }
+    },
+    "OP": {
+      "OP": {
+        "minutes": 0,
+        "miles": null
+      },
+      "CD": {
+        "minutes": 509,
+        "miles": 570.6
+      },
+      "CT": {
+        "minutes": 918,
+        "miles": 1026.1
+      },
+      "HOO": {
+        "minutes": 584,
+        "miles": 658.0
+      },
+      "KEE": {
+        "minutes": 536,
+        "miles": 605.4
+      },
+      "FL": {
+        "minutes": 1045,
+        "miles": 1181.5
+      },
+      "DEL": {
+        "minutes": 1046,
+        "miles": 1168.3
+      },
+      "PRX": {
+        "minutes": 1095,
+        "miles": 1229.8
+      },
+      "FG": {
+        "minutes": 448,
+        "miles": 452.3
+      },
+      "PAY": {
+        "minutes": 992,
+        "miles": 1123.4
+      },
+      "TAM": {
+        "minutes": 912,
+        "miles": 963.5
+      },
+      "LRL": {
+        "minutes": 973,
+        "miles": 1085.2
+      },
+      "TP": {
+        "minutes": 589,
+        "miles": 660.6
+      },
+      "BEL": {
+        "minutes": 1181,
+        "miles": 1309.2
+      },
+      "PEN": {
+        "minutes": 1006,
+        "miles": 1131.7
+      },
+      "WO": {
+        "minutes": 1019,
+        "miles": 1142.2
+      },
+      "SAR": {
+        "minutes": 1232,
+        "miles": 1382.7
+      },
+      "ELP": {
+        "minutes": 434,
+        "miles": 487.1
+      },
+      "MTH": {
+        "minutes": 1146,
+        "miles": 1277.2
+      },
+      "GP": {
+        "minutes": 1068,
+        "miles": 1219.4
+      },
+      "PID": {
+        "minutes": 894,
+        "miles": 1011.4
+      },
+      "FH": {
+        "minutes": 1040,
+        "miles": 1157.4
+      },
+      "CNL": {
+        "minutes": 920,
+        "miles": 1038.8
+      },
+      "KD": {
+        "minutes": 395,
+        "miles": 437.6
+      },
+      "PMTC": {
+        "minutes": 1030,
+        "miles": 1180.0
+      },
+      "FE": {
+        "minutes": 985,
+        "miles": 1109.4
+      }
+    },
+    "CT": {
+      "CT": {
+        "minutes": 0,
+        "miles": null
+      },
+      "CNL": {
+        "minutes": 177,
+        "miles": 167.5
+      },
+      "LRL": {
+        "minutes": 81,
+        "miles": 73.9
+      },
+      "DEL": {
+        "minutes": 141,
+        "miles": 141.9
+      },
+      "PEN": {
+        "minutes": 122,
+        "miles": 123.9
+      },
+      "BEL": {
+        "minutes": 276,
+        "miles": 282.8
+      },
+      "WO": {
+        "minutes": 462,
+        "miles": 439.3
+      },
+      "PID": {
+        "minutes": 300,
+        "miles": 324.0
+      },
+      "FL": {
+        "minutes": 344,
+        "miles": 349.6
+      },
+      "KEE": {
+        "minutes": 460,
+        "miles": 501.1
+      },
+      "MTH": {
+        "minutes": 242,
+        "miles": 250.8
+      },
+      "FH": {
+        "minutes": 136,
+        "miles": 131.0
+      },
+      "PRX": {
+        "minutes": 194,
+        "miles": 193.5
+      },
+      "HOO": {
+        "minutes": 505,
+        "miles": 541.4
+      },
+      "FG": {
+        "minutes": 926,
+        "miles": 1045.8
+      },
+      "GP": {
+        "minutes": 954,
+        "miles": 1081.3
+      },
+      "TP": {
+        "minutes": 450,
+        "miles": 477.0
+      },
+      "SAR": {
+        "minutes": 400,
+        "miles": 434.8
+      },
+      "TAM": {
+        "minutes": 868,
+        "miles": 946.2
+      },
+      "CD": {
+        "minutes": 516,
+        "miles": 568.2
+      },
+      "PAY": {
+        "minutes": 876,
+        "miles": 996.4
+      },
+      "OP": {
+        "minutes": 920,
+        "miles": 1029.3
+      },
+      "ELP": {
+        "minutes": 620,
+        "miles": 687.9
+      },
+      "FE": {
+        "minutes": 378,
+        "miles": 345.6
+      },
+      "KD": {
+        "minutes": 591,
+        "miles": 640.5
+      },
+      "PMTC": {
+        "minutes": 918,
+        "miles": 1038.2
+      }
+    },
+    "ELP": {
+      "ELP": {
+        "minutes": 0,
+        "miles": null
+      },
+      "TP": {
+        "minutes": 191,
+        "miles": 210.7
+      },
+      "CD": {
+        "minutes": 117,
+        "miles": 127.0
+      },
+      "HOO": {
+        "minutes": 168,
+        "miles": 190.5
+      },
+      "KEE": {
+        "minutes": 178,
+        "miles": 190.9
+      },
+      "FG": {
+        "minutes": 588,
+        "miles": 677.3
+      },
+      "GP": {
+        "minutes": 909,
+        "miles": 1041.6
+      },
+      "PEN": {
+        "minutes": 640,
+        "miles": 705.0
+      },
+      "FL": {
+        "minutes": 647,
+        "miles": 731.6
+      },
+      "BEL": {
+        "minutes": 814,
+        "miles": 894.3
+      },
+      "OP": {
+        "minutes": 433,
+        "miles": 488.0
+      },
+      "TAM": {
+        "minutes": 757,
+        "miles": 852.3
+      },
+      "PRX": {
+        "minutes": 719,
+        "miles": 799.3
+      },
+      "FH": {
+        "minutes": 708,
+        "miles": 784.5
+      },
+      "LRL": {
+        "minutes": 653,
+        "miles": 727.4
+      },
+      "DEL": {
+        "minutes": 713,
+        "miles": 795.4
+      },
+      "WO": {
+        "minutes": 603,
+        "miles": 676.5
+      },
+      "CNL": {
+        "minutes": 634,
+        "miles": 708.2
+      },
+      "PID": {
+        "minutes": 496,
+        "miles": 561.6
+      },
+      "CT": {
+        "minutes": 617,
+        "miles": 685.9
+      },
+      "SAR": {
+        "minutes": 834,
+        "miles": 932.8
+      },
+      "MTH": {
+        "minutes": 780,
+        "miles": 862.3
+      },
+      "PAY": {
+        "minutes": 834,
+        "miles": 945.7
+      },
+      "KD": {
+        "minutes": 115,
+        "miles": 128.4
+      },
+      "FE": {
+        "minutes": 587,
+        "miles": 659.5
+      },
+      "PMTC": {
+        "minutes": 872,
+        "miles": 1002.3
+      }
+    },
+    "HOO": {
+      "CD": {
+        "minutes": 114,
+        "miles": 113.2
+      },
+      "HOO": {
+        "minutes": 0,
+        "miles": null
+      },
+      "CT": {
+        "minutes": 501,
+        "miles": 540.2
+      },
+      "KEE": {
+        "minutes": 159,
+        "miles": 171.3
+      },
+      "FL": {
+        "minutes": 522,
+        "miles": 589.0
+      },
+      "TP": {
+        "minutes": 92,
+        "miles": 94.1
+      },
+      "CNL": {
+        "minutes": 580,
+        "miles": 638.7
+      },
+      "PRX": {
+        "minutes": 595,
+        "miles": 656.6
+      },
+      "WO": {
+        "minutes": 471,
+        "miles": 519.5
+      },
+      "PID": {
+        "minutes": 371,
+        "miles": 418.9
+      },
+      "LRL": {
+        "minutes": 538,
+        "miles": 581.6
+      },
+      "DEL": {
+        "minutes": 597,
+        "miles": 649.6
+      },
+      "BEL": {
+        "minutes": 690,
+        "miles": 751.7
+      },
+      "MTH": {
+        "minutes": 655,
+        "miles": 719.7
+      },
+      "OP": {
+        "minutes": 585,
+        "miles": 660.8
+      },
+      "ELP": {
+        "minutes": 169,
+        "miles": 191.4
+      },
+      "PEN": {
+        "minutes": 516,
+        "miles": 562.4
+      },
+      "FH": {
+        "minutes": 589,
+        "miles": 621.6
+      },
+      "FG": {
+        "minutes": 714,
+        "miles": 812.8
+      },
+      "SAR": {
+        "minutes": 710,
+        "miles": 790.2
+      },
+      "TAM": {
+        "minutes": 883,
+        "miles": 987.8
+      },
+      "PAY": {
+        "minutes": 960,
+        "miles": 1081.2
+      },
+      "GP": {
+        "minutes": 1035,
+        "miles": 1177.1
+      },
+      "KD": {
+        "minutes": 224,
+        "miles": 243.9
+      },
+      "FE": {
+        "minutes": 463,
+        "miles": 516.9
+      },
+      "PMTC": {
+        "minutes": 998,
+        "miles": 1137.8
+      }
+    },
+    "FL": {
+      "FL": {
+        "minutes": 0,
+        "miles": null
+      },
+      "WO": {
+        "minutes": 172,
+        "miles": 178.7
+      },
+      "SAR": {
+        "minutes": 196,
+        "miles": 203.5
+      },
+      "PID": {
+        "minutes": 159,
+        "miles": 171.2
+      },
+      "PEN": {
+        "minutes": 256,
+        "miles": 248.9
+      },
+      "KEE": {
+        "minutes": 534,
+        "miles": 598.6
+      },
+      "CT": {
+        "minutes": 344,
+        "miles": 342.6
+      },
+      "BEL": {
+        "minutes": 323,
+        "miles": 334.2
+      },
+      "DEL": {
+        "minutes": 321,
+        "miles": 346.4
+      },
+      "TP": {
+        "minutes": 469,
+        "miles": 523.7
+      },
+      "MTH": {
+        "minutes": 324,
+        "miles": 346.5
+      },
+      "HOO": {
+        "minutes": 523,
+        "miles": 574.7
+      },
+      "CNL": {
+        "minutes": 477,
+        "miles": 481.5
+      },
+      "FG": {
+        "minutes": 1149,
+        "miles": 1314.8
+      },
+      "CD": {
+        "minutes": 549,
+        "miles": 615.1
+      },
+      "LRL": {
+        "minutes": 347,
+        "miles": 336.3
+      },
+      "ELP": {
+        "minutes": 650,
+        "miles": 732.2
+      },
+      "TAM": {
+        "minutes": 1167,
+        "miles": 1260.2
+      },
+      "GP": {
+        "minutes": 1253,
+        "miles": 1395.3
+      },
+      "PRX": {
+        "minutes": 294,
+        "miles": 321.5
+      },
+      "FH": {
+        "minutes": 337,
+        "miles": 360.9
+      },
+      "OP": {
+        "minutes": 1049,
+        "miles": 1184.4
+      },
+      "PAY": {
+        "minutes": 1176,
+        "miles": 1310.3
+      },
+      "FE": {
+        "minutes": 92,
+        "miles": 90.7
+      },
+      "KD": {
+        "minutes": 660,
+        "miles": 745.8
+      },
+      "PMTC": {
+        "minutes": 1218,
+        "miles": 1352.2
+      }
+    },
+    "PEN": {
+      "CT": {
+        "minutes": 120,
+        "miles": 123.3
+      },
+      "PEN": {
+        "minutes": 0,
+        "miles": null
+      },
+      "MTH": {
+        "minutes": 160,
+        "miles": 166.6
+      },
+      "CNL": {
+        "minutes": 250,
+        "miles": 257.7
+      },
+      "PRX": {
+        "minutes": 113,
+        "miles": 109.8
+      },
+      "WO": {
+        "minutes": 392,
+        "miles": 399.7
+      },
+      "KEE": {
+        "minutes": 506,
+        "miles": 557.1
+      },
+      "LRL": {
+        "minutes": 119,
+        "miles": 117.5
+      },
+      "FL": {
+        "minutes": 254,
+        "miles": 254.7
+      },
+      "BEL": {
+        "minutes": 188,
+        "miles": 182.7
+      },
+      "PID": {
+        "minutes": 291,
+        "miles": 304.1
+      },
+      "SAR": {
+        "minutes": 285,
+        "miles": 313.7
+      },
+      "DEL": {
+        "minutes": 123,
+        "miles": 82.4
+      },
+      "FH": {
+        "minutes": 109,
+        "miles": 76.0
+      },
+      "HOO": {
+        "minutes": 514,
+        "miles": 561.1
+      },
+      "PAY": {
+        "minutes": 949,
+        "miles": 1086.6
+      },
+      "OP": {
+        "minutes": 1004,
+        "miles": 1132.9
+      },
+      "CD": {
+        "minutes": 539,
+        "miles": 588.0
+      },
+      "FG": {
+        "minutes": 1010,
+        "miles": 1149.5
+      },
+      "GP": {
+        "minutes": 1026,
+        "miles": 1171.6
+      },
+      "TAM": {
+        "minutes": 940,
+        "miles": 1036.4
+      },
+      "TP": {
+        "minutes": 459,
+        "miles": 496.6
+      },
+      "ELP": {
+        "minutes": 640,
+        "miles": 705.1
+      },
+      "FE": {
+        "minutes": 308,
+        "miles": 306.0
+      },
+      "KD": {
+        "minutes": 650,
+        "miles": 718.7
+      },
+      "PMTC": {
+        "minutes": 991,
+        "miles": 1128.5
+      }
+    },
+    "PID": {
+      "PID": {
+        "minutes": 0,
+        "miles": null
+      },
+      "FL": {
+        "minutes": 157,
+        "miles": 171.3
+      },
+      "LRL": {
+        "minutes": 338,
+        "miles": 365.7
+      },
+      "WO": {
+        "minutes": 181,
+        "miles": 192.9
+      },
+      "CT": {
+        "minutes": 302,
+        "miles": 324.2
+      },
+      "PEN": {
+        "minutes": 295,
+        "miles": 306.0
+      },
+      "DEL": {
+        "minutes": 394,
+        "miles": 377.5
+      },
+      "PRX": {
+        "minutes": 381,
+        "miles": 419.8
+      },
+      "TP": {
+        "minutes": 317,
+        "miles": 354.0
+      },
+      "HOO": {
+        "minutes": 371,
+        "miles": 405.0
+      },
+      "KEE": {
+        "minutes": 382,
+        "miles": 428.9
+      },
+      "MTH": {
+        "minutes": 425,
+        "miles": 462.6
+      },
+      "SAR": {
+        "minutes": 345,
+        "miles": 372.5
+      },
+      "BEL": {
+        "minutes": 424,
+        "miles": 450.3
+      },
+      "CD": {
+        "minutes": 397,
+        "miles": 445.4
+      },
+      "CNL": {
+        "minutes": 446,
+        "miles": 483.6
+      },
+      "GP": {
+        "minutes": 1138,
+        "miles": 1287.3
+      },
+      "FG": {
+        "minutes": 997,
+        "miles": 1145.1
+      },
+      "OP": {
+        "minutes": 897,
+        "miles": 1014.6
+      },
+      "TAM": {
+        "minutes": 1052,
+        "miles": 1152.1
+      },
+      "PAY": {
+        "minutes": 1060,
+        "miles": 1202.3
+      },
+      "ELP": {
+        "minutes": 498,
+        "miles": 562.4
+      },
+      "FH": {
+        "minutes": 379,
+        "miles": 371.1
+      },
+      "FE": {
+        "minutes": 97,
+        "miles": 99.2
+      },
+      "KD": {
+        "minutes": 508,
+        "miles": 576.1
+      },
+      "PMTC": {
+        "minutes": 1102,
+        "miles": 1244.2
+      }
+    },
+    "TAM": {
+      "TAM": {
+        "minutes": 0,
+        "miles": null
+      },
+      "GP": {
+        "minutes": 254,
+        "miles": 277.2
+      },
+      "PID": {
+        "minutes": 1055,
+        "miles": 1150.5
+      },
+      "FG": {
+        "minutes": 569,
+        "miles": 623.7
+      },
+      "PAY": {
+        "minutes": 193,
+        "miles": 174.7
+      },
+      "DEL": {
+        "minutes": 917,
+        "miles": 1013.5
+      },
+      "LRL": {
+        "minutes": 842,
+        "miles": 931.9
+      },
+      "TP": {
+        "minutes": 804,
+        "miles": 914.7
+      },
+      "HOO": {
+        "minutes": 883,
+        "miles": 992.1
+      },
+      "KEE": {
+        "minutes": 756,
+        "miles": 853.7
+      },
+      "SAR": {
+        "minutes": 1181,
+        "miles": 1308.0
+      },
+      "WO": {
+        "minutes": 1231,
+        "miles": 1342.2
+      },
+      "CT": {
+        "minutes": 866,
+        "miles": 957.9
+      },
+      "MTH": {
+        "minutes": 1018,
+        "miles": 1122.4
+      },
+      "PEN": {
+        "minutes": 938,
+        "miles": 1038.7
+      },
+      "ELP": {
+        "minutes": 758,
+        "miles": 856.9
+      },
+      "OP": {
+        "minutes": 913,
+        "miles": 973.2
+      },
+      "CNL": {
+        "minutes": 726,
+        "miles": 816.6
+      },
+      "PRX": {
+        "minutes": 970,
+        "miles": 1065.1
+      },
+      "BEL": {
+        "minutes": 1052,
+        "miles": 1154.4
+      },
+      "FH": {
+        "minutes": 912,
+        "miles": 1002.6
+      },
+      "CD": {
+        "minutes": 780,
+        "miles": 882.1
+      },
+      "FL": {
+        "minutes": 1164,
+        "miles": 1263.7
+      },
+      "PMTC": {
+        "minutes": 235,
+        "miles": 232.6
+      },
+      "FE": {
+        "minutes": 1147,
+        "miles": 1248.5
+      },
+      "KD": {
+        "minutes": 666,
+        "miles": 749.1
+      }
+    },
+    "FE": {
+      "PID": {
+        "minutes": 98,
+        "miles": 99.3
+      },
+      "FL": {
+        "minutes": 91,
+        "miles": 91.2
+      },
+      "WO": {
+        "minutes": 89,
+        "miles": 94.5
+      },
+      "SAR": {
+        "minutes": 279,
+        "miles": 292.4
+      },
+      "DEL": {
+        "minutes": 399,
+        "miles": 409.5
+      },
+      "MTH": {
+        "minutes": 402,
+        "miles": 409.7
+      },
+      "CT": {
+        "minutes": 377,
+        "miles": 345.2
+      },
+      "TP": {
+        "minutes": 408,
+        "miles": 451.9
+      },
+      "PEN": {
+        "minutes": 309,
+        "miles": 299.9
+      },
+      "PRX": {
+        "minutes": 373,
+        "miles": 384.6
+      },
+      "OP": {
+        "minutes": 988,
+        "miles": 1112.5
+      },
+      "HOO": {
+        "minutes": 462,
+        "miles": 502.9
+      },
+      "CNL": {
+        "minutes": 522,
+        "miles": 504.6
+      },
+      "LRL": {
+        "minutes": 400,
+        "miles": 387.3
+      },
+      "KEE": {
+        "minutes": 473,
+        "miles": 526.8
+      },
+      "BEL": {
+        "minutes": 402,
+        "miles": 397.4
+      },
+      "CD": {
+        "minutes": 488,
+        "miles": 543.3
+      },
+      "ELP": {
+        "minutes": 589,
+        "miles": 660.3
+      },
+      "TAM": {
+        "minutes": 1143,
+        "miles": 1250.0
+      },
+      "FH": {
+        "minutes": 394,
+        "miles": 365.1
+      },
+      "FG": {
+        "minutes": 1088,
+        "miles": 1243.0
+      },
+      "GP": {
+        "minutes": 1229,
+        "miles": 1385.2
+      },
+      "PAY": {
+        "minutes": 1151,
+        "miles": 1300.2
+      },
+      "FE": {
+        "minutes": 0,
+        "miles": null
+      },
+      "KD": {
+        "minutes": 599,
+        "miles": 674.0
+      },
+      "PMTC": {
+        "minutes": 1193,
+        "miles": 1342.1
+      }
+    },
+    "KD": {
+      "KEE": {
+        "minutes": 148,
+        "miles": 168.5
+      },
+      "CD": {
+        "minutes": 120,
+        "miles": 133.7
+      },
+      "TP": {
+        "minutes": 201,
+        "miles": 223.7
+      },
+      "HOO": {
+        "minutes": 224,
+        "miles": 243.7
+      },
+      "MTH": {
+        "minutes": 789,
+        "miles": 875.3
+      },
+      "OP": {
+        "minutes": 395,
+        "miles": 439.8
+      },
+      "FG": {
+        "minutes": 496,
+        "miles": 570.2
+      },
+      "CNL": {
+        "minutes": 592,
+        "miles": 652.0
+      },
+      "DEL": {
+        "minutes": 699,
+        "miles": 777.8
+      },
+      "PEN": {
+        "minutes": 650,
+        "miles": 718.0
+      },
+      "FL": {
+        "minutes": 656,
+        "miles": 744.6
+      },
+      "CT": {
+        "minutes": 591,
+        "miles": 639.3
+      },
+      "PID": {
+        "minutes": 505,
+        "miles": 574.5
+      },
+      "LRL": {
+        "minutes": 640,
+        "miles": 709.7
+      },
+      "BEL": {
+        "minutes": 824,
+        "miles": 907.3
+      },
+      "TAM": {
+        "minutes": 665,
+        "miles": 745.2
+      },
+      "GP": {
+        "minutes": 818,
+        "miles": 934.5
+      },
+      "PRX": {
+        "minutes": 729,
+        "miles": 812.2
+      },
+      "WO": {
+        "minutes": 639,
+        "miles": 714.4
+      },
+      "SAR": {
+        "minutes": 844,
+        "miles": 945.8
+      },
+      "ELP": {
+        "minutes": 117,
+        "miles": 129.4
+      },
+      "FH": {
+        "minutes": 694,
+        "miles": 766.8
+      },
+      "PAY": {
+        "minutes": 742,
+        "miles": 838.5
+      },
+      "KD": {
+        "minutes": 0,
+        "miles": null
+      },
+      "FE": {
+        "minutes": 597,
+        "miles": 672.5
+      },
+      "PMTC": {
+        "minutes": 780,
+        "miles": 895.1
+      }
+    },
+    "PMTC": {
+      "GP": {
+        "minutes": 56,
+        "miles": 47.5
+      },
+      "TAM": {
+        "minutes": 238,
+        "miles": 233.4
+      },
+      "FG": {
+        "minutes": 691,
+        "miles": 809.9
+      },
+      "CT": {
+        "minutes": 913,
+        "miles": 1047.3
+      },
+      "BEL": {
+        "minutes": 1100,
+        "miles": 1243.9
+      },
+      "WO": {
+        "minutes": 1278,
+        "miles": 1431.6
+      },
+      "HOO": {
+        "minutes": 996,
+        "miles": 1139.1
+      },
+      "KEE": {
+        "minutes": 869,
+        "miles": 1000.7
+      },
+      "PAY": {
+        "minutes": 69,
+        "miles": 66.5
+      },
+      "CNL": {
+        "minutes": 774,
+        "miles": 906.1
+      },
+      "DEL": {
+        "minutes": 964,
+        "miles": 1103.0
+      },
+      "PID": {
+        "minutes": 1103,
+        "miles": 1240.0
+      },
+      "MTH": {
+        "minutes": 1065,
+        "miles": 1211.9
+      },
+      "TP": {
+        "minutes": 917,
+        "miles": 1061.7
+      },
+      "PRX": {
+        "minutes": 1018,
+        "miles": 1154.6
+      },
+      "LRL": {
+        "minutes": 890,
+        "miles": 1021.4
+      },
+      "FH": {
+        "minutes": 959,
+        "miles": 1092.1
+      },
+      "PEN": {
+        "minutes": 986,
+        "miles": 1128.2
+      },
+      "FL": {
+        "minutes": 1212,
+        "miles": 1353.2
+      },
+      "ELP": {
+        "minutes": 871,
+        "miles": 1003.9
+      },
+      "CD": {
+        "minutes": 892,
+        "miles": 1029.2
+      },
+      "OP": {
+        "minutes": 1028,
+        "miles": 1189.8
+      },
+      "SAR": {
+        "minutes": 1228,
+        "miles": 1397.4
+      },
+      "PMTC": {
+        "minutes": 0,
+        "miles": null
+      },
+      "KD": {
+        "minutes": 779,
+        "miles": 896.1
+      },
+      "FE": {
+        "minutes": 1194,
+        "miles": 1338.0
+      }
+    }
+  }
+}
