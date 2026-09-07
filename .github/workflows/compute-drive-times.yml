@@ -1,0 +1,36 @@
+name: Compute drive times
+
+on:
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+  schedule:
+    - cron: '0 8 1 * *'   # 8am UTC on the 1st of each month - drive times between fixed tracks rarely change
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run compute_drive_times.py
+        env:
+          GOOGLE_ROUTES_API_KEY: ${{ secrets.GOOGLE_ROUTES_API_KEY }}
+        run: python compute_drive_times.py
+
+      - name: Commit drive_times.json if it changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add drive_times.json
+          git diff --cached --quiet && echo "No changes to commit." || git commit -m "Update drive_times.json"
+          git push
