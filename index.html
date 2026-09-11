@@ -302,6 +302,9 @@
     <button class="btn ghost" id="todayBtn">This Week</button>
   </div>
   <div class="spacer"></div>
+  <span class="status-note" id="authUserBadge" style="display:none;margin-right:2px;"></span>
+  <button class="btn ghost" id="signInBtn">Sign in with Microsoft</button>
+  <button class="btn ghost" id="signOutBtn" style="display:none;">Sign out</button>
   <button class="btn" id="exportBtn">Export JSON</button>
   <button class="btn" id="importBtn">Import JSON</button>
   <input type="file" id="importFile" accept=".json" style="display:none;">
@@ -476,6 +479,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.30.0/lib/msal-browser.min.js"></script>
 <script>
 const DEFAULT_DRIVERS = [
   {id:'d1', name1:'PAUL Z.', name2:'JASEN', truck:'657', trailer:'185A+', location:'KY'},
@@ -535,7 +539,9 @@ function saveAll(){
   localStorage.setItem(LS_DRIVERS, JSON.stringify(drivers));
   localStorage.setItem(LS_JOBS, JSON.stringify(jobs));
   localStorage.setItem(LS_WEEKSTART, weekStart.toISOString());
-  document.getElementById('statusNote').textContent = 'Saved ' + new Date().toLocaleTimeString();
+  if(!syncEnabled){
+    document.getElementById('statusNote').textContent = 'Saved locally ' + new Date().toLocaleTimeString();
+  }
 }
 
 function fmtDate(d){
@@ -1079,6 +1085,7 @@ function attachDropZone(td){
     job.order = siblingMax + 1;
     saveAll();
     render();
+    syncJobsUpsert([job]);
   });
 }
 
@@ -1298,6 +1305,7 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
     notes: document.getElementById('jobNotes').value.trim(),
   };
   const selectedDriverId = document.getElementById('jobAssignDriver').value || null;
+  let savedJobs = [];
 
   if(editingJobId){
     const job = jobs.find(j=>j.id===editingJobId);
@@ -1311,6 +1319,7 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
     }
     Object.assign(job, data);
     job.assignedDriverId = selectedDriverId;
+    savedJobs = [job];
   } else {
     const startDate = document.getElementById('jobStartDate').value || pendingDate;
     const endDate = document.getElementById('jobEndDate').value;
@@ -1341,19 +1350,24 @@ document.getElementById('jobSaveBtn').addEventListener('click', ()=>{
 
     datesToCreate.forEach(dStr=>{
       const maxOrder = jobs.filter(j=>j.date===dStr && j.assignedDriverId===selectedDriverId).reduce((m,j)=>Math.max(m,j.order||0),0);
-      jobs.push({id:'j'+(jobIdCounter++), date:dStr, assignedDriverId:selectedDriverId, order:maxOrder+1, ...data});
+      const newJob = {id:'j'+(jobIdCounter++), date:dStr, assignedDriverId:selectedDriverId, order:maxOrder+1, ...data};
+      jobs.push(newJob);
+      savedJobs.push(newJob);
     });
   }
   saveAll();
   closeJobModal();
   render();
+  syncJobsUpsert(savedJobs);
 });
 
 document.getElementById('jobDeleteBtn').addEventListener('click', ()=>{
+  const deletedJob = jobs.find(j=>j.id===editingJobId);
   jobs = jobs.filter(j=>j.id!==editingJobId);
   saveAll();
   closeJobModal();
   render();
+  if(deletedJob) syncJobDelete(deletedJob);
 });
 
 let editingDriverId = null;
@@ -1403,24 +1417,32 @@ document.getElementById('drvSaveBtn').addEventListener('click', ()=>{
     trailer: document.getElementById('drvTrailer').value.trim(),
     location: document.getElementById('drvLocation').value,
   };
+  let savedDriver;
   if(editingDriverId){
     const drv = drivers.find(d=>d.id===editingDriverId);
     Object.assign(drv, data);
+    savedDriver = drv;
   } else {
-    drivers.push({id:'d'+Date.now(), ...data});
+    savedDriver = {id:'d'+Date.now(), ...data};
+    drivers.push(savedDriver);
   }
   saveAll();
   closeDriverModal();
   render();
+  syncDriverUpsert(savedDriver);
 });
 
 document.getElementById('drvDeleteBtn').addEventListener('click', ()=>{
   showConfirm('Remove this driver/team? Any jobs currently assigned to them will become unassigned.', ()=>{
-    jobs.forEach(j=>{ if(j.assignedDriverId===editingDriverId) j.assignedDriverId=null; });
+    const removedDriver = drivers.find(d=>d.id===editingDriverId);
+    const affectedJobs = jobs.filter(j=>j.assignedDriverId===editingDriverId);
+    affectedJobs.forEach(j=>{ j.assignedDriverId=null; });
     drivers = drivers.filter(d=>d.id!==editingDriverId);
     saveAll();
     closeDriverModal();
     render();
+    if(removedDriver) syncDriverDelete(removedDriver);
+    syncJobsUpsert(affectedJobs);
   });
 });
 
@@ -1460,6 +1482,441 @@ document.getElementById('importFile').addEventListener('change', (e)=>{
 render();
 populateLocationSelects(); // ensures "Other" is selectable immediately, even before real data loads
 loadDriveTimes();
+
+/* ============================================================
+   MICROSOFT 365 SIGN-IN + SHAREPOINT SYNC
+   ------------------------------------------------------------
+   Multi-user backing store. Local browser storage above remains
+   a fast cache / offline fallback - the board always renders from
+   `drivers`/`jobs` regardless of sign-in state. Once signed in,
+   those two arrays get replaced by what's on SharePoint, and every
+   add/edit/delete/drag-drop also pushes to SharePoint. Two
+   permission tiers (view vs. edit) are enforced by SharePoint's own
+   Visitor/Member site roles, not by this app - a write that comes
+   back 403 flips the app into view-only mode.
+
+   NOTE: Import JSON stays local-only (does not push to SharePoint)
+   to avoid an accidental bulk overwrite of the shared board from a
+   backup file. Use it for restoring a personal backup, not for
+   pushing changes to the team.
+   ============================================================ */
+
+const MSAL_CONFIG = {
+  auth: {
+    clientId: "3530a45a-659e-4d10-95fd-6f32b857e702",
+    authority: "https://login.microsoftonline.com/428e82a0-5a1b-41e6-a24c-ca8ea70db05a",
+    redirectUri: "https://canumanu.github.io/SALLEE-DISPATCH-BOARD/",
+    postLogoutRedirectUri: "https://canumanu.github.io/SALLEE-DISPATCH-BOARD/",
+  },
+  cache: {
+    cacheLocation: "sessionStorage",
+    storeAuthStateInCookie: false,
+  }
+};
+const GRAPH_SCOPES = ["Sites.ReadWrite.All"];
+const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
+const SHAREPOINT_HOSTNAME = "salleehorsevans.sharepoint.com";
+const SHAREPOINT_SITE_PATH = "/sites/SALLEEDISPATCHBOARD";
+const DRIVERS_LIST_NAME = "DispatchDrivers";
+const JOBS_LIST_NAME = "DispatchJobs";
+const DRIVERS_COLUMNS = [
+  {name:'LocalId', text:{}},
+  {name:'Name1', text:{}},
+  {name:'Name2', text:{}},
+  {name:'Truck', text:{}},
+  {name:'Trailer', text:{}},
+  {name:'Location', text:{}}
+];
+const JOBS_COLUMNS = [
+  {name:'LocalId', text:{}},
+  {name:'JobDate', text:{}},
+  {name:'AssignedDriverId', text:{}},
+  {name:'JobOrder', number:{decimalPlaces:'none'}},
+  {name:'JobType', text:{}},
+  {name:'MaintTime', text:{}},
+  {name:'Technician', text:{}},
+  {name:'Origin', text:{}},
+  {name:'OriginFarm', text:{}},
+  {name:'Destination', text:{}},
+  {name:'DestinationFarm', text:{}},
+  {name:'AdditionalStops', text:{}},
+  {name:'LeaveYardTime', text:{}},
+  {name:'LoadTime', text:{}},
+  {name:'LoadType', text:{}},
+  {name:'LoadBoardRef', text:{}},
+  {name:'Notes', text:{allowMultipleLines:true}}
+];
+
+let msalInstance = null;
+let currentAccount = null;
+let syncEnabled = false;
+let isViewOnly = false;
+let siteId = null;
+let driversListId = null;
+let jobsListId = null;
+let pollTimer = null;
+
+function updateSyncStatus(text, isError){
+  const el = document.getElementById('statusNote');
+  el.textContent = text;
+  el.style.color = isError ? '#ffb4a8' : '';
+}
+
+function updateAuthUI(signedIn){
+  const signInBtn = document.getElementById('signInBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
+  const badge = document.getElementById('authUserBadge');
+  if(signedIn && currentAccount){
+    signInBtn.style.display = 'none';
+    signOutBtn.style.display = '';
+    badge.style.display = '';
+    badge.textContent = currentAccount.name || currentAccount.username || 'Signed in';
+  } else {
+    signInBtn.style.display = '';
+    signOutBtn.style.display = 'none';
+    badge.style.display = 'none';
+  }
+}
+
+async function initAuth(){
+  if(typeof msal === 'undefined'){
+    updateSyncStatus('Sign-in unavailable (auth library failed to load) — working locally', true);
+    return;
+  }
+  try{
+    msalInstance = new msal.PublicClientApplication(MSAL_CONFIG);
+    await msalInstance.initialize();
+    const response = await msalInstance.handleRedirectPromise();
+    if(response && response.account){
+      currentAccount = response.account;
+    } else {
+      const accounts = msalInstance.getAllAccounts();
+      if(accounts.length > 0) currentAccount = accounts[0];
+    }
+    if(currentAccount){
+      msalInstance.setActiveAccount(currentAccount);
+      updateAuthUI(true);
+      await startSyncedSession();
+    } else {
+      updateAuthUI(false);
+    }
+  }catch(err){
+    console.error('Auth init failed', err);
+    updateSyncStatus('Sign-in error — working locally', true);
+  }
+}
+
+function signIn(){
+  if(!msalInstance){
+    showToast('Sign-in is unavailable right now (auth library failed to load). Try refreshing the page.');
+    return;
+  }
+  msalInstance.loginRedirect({scopes: GRAPH_SCOPES});
+}
+function signOut(){
+  if(!msalInstance) return;
+  if(pollTimer) clearInterval(pollTimer);
+  msalInstance.logoutRedirect({account: currentAccount});
+}
+document.getElementById('signInBtn').addEventListener('click', signIn);
+document.getElementById('signOutBtn').addEventListener('click', signOut);
+
+async function getAccessToken(){
+  const account = currentAccount || (msalInstance && msalInstance.getActiveAccount());
+  if(!msalInstance || !account) throw new Error('Not signed in');
+  try{
+    const result = await msalInstance.acquireTokenSilent({scopes: GRAPH_SCOPES, account});
+    return result.accessToken;
+  }catch(err){
+    if(err instanceof msal.InteractionRequiredAuthError){
+      await msalInstance.acquireTokenRedirect({scopes: GRAPH_SCOPES, account});
+      return null; // navigates away; execution stops here
+    }
+    throw err;
+  }
+}
+
+async function graphFetch(pathOrUrl, options){
+  const token = await getAccessToken();
+  if(!token) throw new Error('No access token');
+  const url = pathOrUrl.startsWith('http') ? pathOrUrl : GRAPH_BASE + pathOrUrl;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      ...((options && options.headers) || {})
+    }
+  });
+  if(!res.ok){
+    let bodyText = '';
+    try{ bodyText = await res.text(); }catch(e){}
+    const err = new Error(`Graph API ${res.status}: ${bodyText}`);
+    err.status = res.status;
+    throw err;
+  }
+  if(res.status === 204) return null;
+  return res.json();
+}
+
+async function resolveSite(){
+  if(siteId) return siteId;
+  const cached = sessionStorage.getItem('sallee_sp_site_id');
+  if(cached){ siteId = cached; return siteId; }
+  const site = await graphFetch(`/sites/${SHAREPOINT_HOSTNAME}:${SHAREPOINT_SITE_PATH}`);
+  siteId = site.id;
+  sessionStorage.setItem('sallee_sp_site_id', siteId);
+  return siteId;
+}
+
+async function findOrCreateList(name, columns){
+  const sid = await resolveSite();
+  const cacheKey = 'sallee_sp_list_' + name;
+  const cached = sessionStorage.getItem(cacheKey);
+  if(cached) return cached;
+  const existing = await graphFetch(`/sites/${sid}/lists?$filter=displayName eq '${name}'`);
+  if(existing.value && existing.value.length){
+    sessionStorage.setItem(cacheKey, existing.value[0].id);
+    return existing.value[0].id;
+  }
+  const created = await graphFetch(`/sites/${sid}/lists`, {
+    method:'POST',
+    body: JSON.stringify({
+      displayName: name,
+      columns: columns,
+      list: {template:'genericList'}
+    })
+  });
+  sessionStorage.setItem(cacheKey, created.id);
+  return created.id;
+}
+
+async function spListItems(listId){
+  const sid = await resolveSite();
+  const results = [];
+  let url = `/sites/${sid}/lists/${listId}/items?expand=fields&$top=200`;
+  while(url){
+    const page = await graphFetch(url);
+    results.push(...(page.value||[]));
+    url = page['@odata.nextLink'] || null;
+  }
+  return results;
+}
+async function spCreateItem(listId, fields){
+  const sid = await resolveSite();
+  return graphFetch(`/sites/${sid}/lists/${listId}/items`, {
+    method:'POST',
+    body: JSON.stringify({fields})
+  });
+}
+async function spUpdateItem(listId, itemId, fields){
+  const sid = await resolveSite();
+  return graphFetch(`/sites/${sid}/lists/${listId}/items/${itemId}/fields`, {
+    method:'PATCH',
+    body: JSON.stringify(fields)
+  });
+}
+async function spDeleteItem(listId, itemId){
+  const sid = await resolveSite();
+  return graphFetch(`/sites/${sid}/lists/${listId}/items/${itemId}`, {method:'DELETE'});
+}
+
+function driverToFields(drv){
+  return {
+    Title: drv.name1 || drv.id,
+    LocalId: drv.id,
+    Name1: drv.name1||'',
+    Name2: drv.name2||'',
+    Truck: drv.truck||'',
+    Trailer: drv.trailer||'',
+    Location: drv.location||''
+  };
+}
+function fieldsToDriver(item){
+  const f = item.fields || {};
+  return {
+    id: f.LocalId,
+    name1: f.Name1||'',
+    name2: f.Name2||'',
+    truck: f.Truck||'',
+    trailer: f.Trailer||'',
+    location: f.Location||'',
+    _spItemId: item.id
+  };
+}
+function jobToFields(job){
+  return {
+    Title: `${job.origin||'?'} -> ${job.destination||'?'}`.slice(0,255),
+    LocalId: job.id,
+    JobDate: job.date||'',
+    AssignedDriverId: job.assignedDriverId||'',
+    JobOrder: job.order||0,
+    JobType: job.type||'normal',
+    MaintTime: job.maintTime||'',
+    Technician: job.technician||'',
+    Origin: job.origin||'',
+    OriginFarm: job.originFarm||'',
+    Destination: job.destination||'',
+    DestinationFarm: job.destinationFarm||'',
+    AdditionalStops: job.additionalStops||'',
+    LeaveYardTime: job.leaveYardTime||'',
+    LoadTime: job.time||'',
+    LoadType: job.loadType||'',
+    LoadBoardRef: job.loadBoardRef||'',
+    Notes: job.notes||''
+  };
+}
+function fieldsToJob(item){
+  const f = item.fields || {};
+  return {
+    id: f.LocalId,
+    date: f.JobDate||'',
+    assignedDriverId: f.AssignedDriverId||null,
+    order: Number(f.JobOrder)||0,
+    type: f.JobType||'normal',
+    maintTime: f.MaintTime||'',
+    technician: f.Technician||'',
+    origin: f.Origin||'',
+    originFarm: f.OriginFarm||'',
+    destination: f.Destination||'',
+    destinationFarm: f.DestinationFarm||'',
+    additionalStops: f.AdditionalStops||'',
+    leaveYardTime: f.LeaveYardTime||'',
+    time: f.LoadTime||'',
+    loadType: f.LoadType||'',
+    loadBoardRef: f.LoadBoardRef||'',
+    notes: f.Notes||'',
+    _spItemId: item.id
+  };
+}
+
+async function seedListToSharePoint(listId, localArray, mapFn){
+  for(const item of localArray){
+    try{
+      const created = await spCreateItem(listId, mapFn(item));
+      item._spItemId = created.id;
+    }catch(e){ console.error('Seed failed for', item.id, e); }
+  }
+}
+
+async function pullFromSharePoint(){
+  const [driverItems, jobItems] = await Promise.all([
+    spListItems(driversListId),
+    spListItems(jobsListId)
+  ]);
+
+  if(driverItems.length){
+    drivers = driverItems.map(fieldsToDriver).filter(d=>d.id);
+  } else if(drivers.length){
+    await seedListToSharePoint(driversListId, drivers, driverToFields);
+  }
+
+  if(jobItems.length){
+    jobs = jobItems.map(fieldsToJob).filter(j=>j.id);
+  } else if(jobs.length){
+    await seedListToSharePoint(jobsListId, jobs, jobToFields);
+  }
+
+  jobIdCounter = jobs.reduce((m,j)=>Math.max(m, parseInt((j.id||'j0').replace('j',''))||0), 0) + 1;
+  saveAll();
+  render();
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async ()=>{
+    const anyModalOpen = document.getElementById('jobModalOverlay').classList.contains('open')
+      || document.getElementById('driverModalOverlay').classList.contains('open');
+    if(anyModalOpen) return;
+    try{
+      await pullFromSharePoint();
+      updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+    }catch(err){
+      console.warn('Background sync failed', err);
+    }
+  }, 45000);
+}
+
+async function startSyncedSession(){
+  updateSyncStatus('Connecting to SharePoint…');
+  try{
+    driversListId = await findOrCreateList(DRIVERS_LIST_NAME, DRIVERS_COLUMNS);
+    jobsListId = await findOrCreateList(JOBS_LIST_NAME, JOBS_COLUMNS);
+    await pullFromSharePoint();
+    syncEnabled = true;
+    isViewOnly = false;
+    updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+    startPolling();
+  }catch(err){
+    console.error('SharePoint sync failed', err);
+    updateSyncStatus('Could not connect to SharePoint — showing locally saved data', true);
+  }
+}
+
+function handleSyncError(err, actionDesc){
+  console.error('Sync error:', err);
+  if(err && err.status === 403){
+    isViewOnly = true;
+    updateSyncStatus('View-only access — changes are not saved to SharePoint', true);
+    showToast("You have view-only access to this board, so this change wasn't saved to SharePoint (it's kept only on this device). Ask your dispatch admin for edit access if you need to make changes.");
+  } else {
+    updateSyncStatus('Sync error — change saved locally only', true);
+    showToast(`Couldn't ${actionDesc} to SharePoint (offline or connection issue). It's saved on this device and will sync once reconnected.`);
+  }
+}
+
+async function syncJobsUpsert(jobList){
+  if(!syncEnabled) return;
+  for(const job of jobList){
+    try{
+      if(job._spItemId){
+        await spUpdateItem(jobsListId, job._spItemId, jobToFields(job));
+      } else {
+        const created = await spCreateItem(jobsListId, jobToFields(job));
+        job._spItemId = created.id;
+        saveAll();
+      }
+      updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+    }catch(err){
+      handleSyncError(err, 'save this job');
+    }
+  }
+}
+async function syncJobDelete(job){
+  if(!syncEnabled || !job._spItemId) return;
+  try{
+    await spDeleteItem(jobsListId, job._spItemId);
+    updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+  }catch(err){
+    handleSyncError(err, 'delete this job');
+  }
+}
+async function syncDriverUpsert(drv){
+  if(!syncEnabled) return;
+  try{
+    if(drv._spItemId){
+      await spUpdateItem(driversListId, drv._spItemId, driverToFields(drv));
+    } else {
+      const created = await spCreateItem(driversListId, driverToFields(drv));
+      drv._spItemId = created.id;
+      saveAll();
+    }
+    updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+  }catch(err){
+    handleSyncError(err, 'save this driver');
+  }
+}
+async function syncDriverDelete(drv){
+  if(!syncEnabled || !drv._spItemId) return;
+  try{
+    await spDeleteItem(driversListId, drv._spItemId);
+    updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
+  }catch(err){
+    handleSyncError(err, 'remove this driver');
+  }
+}
+
+initAuth();
 </script>
 </body>
 </html>
