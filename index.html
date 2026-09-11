@@ -1517,23 +1517,29 @@ const GRAPH_SCOPES = ["Sites.ReadWrite.All"];
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 const SHAREPOINT_HOSTNAME = "salleehorsevans.sharepoint.com";
 const SHAREPOINT_SITE_PATH = "/sites/SALLEEDISPATCHBOARD";
-const DRIVERS_LIST_NAME = "DispatchDrivers";
-const JOBS_LIST_NAME = "DispatchJobs";
+// Points at the "Drivers" / "Jobs" lists that already exist on the site
+// (set up before this integration was wired in) rather than creating new
+// ones - list/column creation via Graph is blocked on this tenant, and
+// these lists already carry the right shape of data.
+const DRIVERS_LIST_NAME = "Drivers";
+const JOBS_LIST_NAME = "Jobs";
+// Column definitions below are used only as a fallback if a list is ever
+// missing entirely (e.g. a fresh site) - matches the real column names
+// found on the existing "Drivers"/"Jobs" lists. No separate LocalId field:
+// SharePoint's own item id is the identity, and Jobs.DriverId stores the
+// linked driver's item id directly.
 const DRIVERS_COLUMNS = [
-  {name:'LocalId', text:{}},
-  {name:'Name1', text:{}},
   {name:'Name2', text:{}},
   {name:'Truck', text:{}},
   {name:'Trailer', text:{}},
   {name:'Location', text:{}}
 ];
 const JOBS_COLUMNS = [
-  {name:'LocalId', text:{}},
   {name:'JobDate', text:{}},
-  {name:'AssignedDriverId', text:{}},
-  {name:'JobOrder', number:{decimalPlaces:'none'}},
+  {name:'DriverId', text:{}},
+  {name:'SortOrder', number:{decimalPlaces:'none'}},
   {name:'JobType', text:{}},
-  {name:'MaintTime', text:{}},
+  {name:'MainTime', text:{}},
   {name:'Technician', text:{}},
   {name:'Origin', text:{}},
   {name:'OriginFarm', text:{}},
@@ -1543,7 +1549,7 @@ const JOBS_COLUMNS = [
   {name:'LeaveYardTime', text:{}},
   {name:'LoadTime', text:{}},
   {name:'LoadType', text:{}},
-  {name:'LoadBoardRef', text:{}},
+  {name:'LoadboardRef', text:{}},
   {name:'Notes', text:{allowMultipleLines:true}}
 ];
 
@@ -1735,11 +1741,15 @@ async function spDeleteItem(listId, itemId){
   return graphFetch(`/sites/${sid}/lists/${listId}/items/${itemId}`, {method:'DELETE'});
 }
 
+// NOTE: driver/job "id" is the SharePoint item id once synced (matching the
+// pre-existing "DriverId" foreign-key column on Jobs) - there's no separate
+// LocalId field on these lists. A brand-new driver/job gets a temporary
+// local id for optimistic UI until its create call comes back; see
+// syncDriverUpsert for how a driver's id gets swapped to the real one (and
+// any jobs already pointing at the temp id get repointed).
 function driverToFields(drv){
   return {
     Title: drv.name1 || drv.id,
-    LocalId: drv.id,
-    Name1: drv.name1||'',
     Name2: drv.name2||'',
     Truck: drv.truck||'',
     Trailer: drv.trailer||'',
@@ -1749,8 +1759,8 @@ function driverToFields(drv){
 function fieldsToDriver(item){
   const f = item.fields || {};
   return {
-    id: f.LocalId,
-    name1: f.Name1||'',
+    id: item.id,
+    name1: f.Title||'',
     name2: f.Name2||'',
     truck: f.Truck||'',
     trailer: f.Trailer||'',
@@ -1761,12 +1771,11 @@ function fieldsToDriver(item){
 function jobToFields(job){
   return {
     Title: `${job.origin||'?'} -> ${job.destination||'?'}`.slice(0,255),
-    LocalId: job.id,
     JobDate: job.date||'',
-    AssignedDriverId: job.assignedDriverId||'',
-    JobOrder: job.order||0,
+    DriverId: job.assignedDriverId||'',
+    SortOrder: job.order||0,
     JobType: job.type||'normal',
-    MaintTime: job.maintTime||'',
+    MainTime: job.maintTime||'',
     Technician: job.technician||'',
     Origin: job.origin||'',
     OriginFarm: job.originFarm||'',
@@ -1776,19 +1785,19 @@ function jobToFields(job){
     LeaveYardTime: job.leaveYardTime||'',
     LoadTime: job.time||'',
     LoadType: job.loadType||'',
-    LoadBoardRef: job.loadBoardRef||'',
+    LoadboardRef: job.loadBoardRef||'',
     Notes: job.notes||''
   };
 }
 function fieldsToJob(item){
   const f = item.fields || {};
   return {
-    id: f.LocalId,
+    id: item.id,
     date: f.JobDate||'',
-    assignedDriverId: f.AssignedDriverId||null,
-    order: Number(f.JobOrder)||0,
+    assignedDriverId: f.DriverId||null,
+    order: Number(f.SortOrder)||0,
     type: f.JobType||'normal',
-    maintTime: f.MaintTime||'',
+    maintTime: f.MainTime||'',
     technician: f.Technician||'',
     origin: f.Origin||'',
     originFarm: f.OriginFarm||'',
@@ -1798,19 +1807,27 @@ function fieldsToJob(item){
     leaveYardTime: f.LeaveYardTime||'',
     time: f.LoadTime||'',
     loadType: f.LoadType||'',
-    loadBoardRef: f.LoadBoardRef||'',
+    loadBoardRef: f.LoadboardRef||'',
     notes: f.Notes||'',
     _spItemId: item.id
   };
 }
 
 async function seedListToSharePoint(listId, localArray, mapFn){
+  // Returns a map of old (temporary local) id -> new SharePoint item id,
+  // and updates each item's own .id in place to match - needed because
+  // these lists use SharePoint's own item id as identity (no LocalId field).
+  const idMap = {};
   for(const item of localArray){
     try{
       const created = await spCreateItem(listId, mapFn(item));
+      const oldId = item.id;
       item._spItemId = created.id;
+      item.id = created.id;
+      idMap[oldId] = created.id;
     }catch(e){ console.error('Seed failed for', item.id, e); }
   }
+  return idMap;
 }
 
 async function pullFromSharePoint(){
@@ -1822,7 +1839,11 @@ async function pullFromSharePoint(){
   if(driverItems.length){
     drivers = driverItems.map(fieldsToDriver).filter(d=>d.id);
   } else if(drivers.length){
-    await seedListToSharePoint(driversListId, drivers, driverToFields);
+    const idMap = await seedListToSharePoint(driversListId, drivers, driverToFields);
+    // Repoint any jobs assigned via a driver's old temporary local id.
+    jobs.forEach(j=>{
+      if(j.assignedDriverId && idMap[j.assignedDriverId]) j.assignedDriverId = idMap[j.assignedDriverId];
+    });
   }
 
   if(jobItems.length){
@@ -1912,8 +1933,18 @@ async function syncDriverUpsert(drv){
       await spUpdateItem(driversListId, drv._spItemId, driverToFields(drv));
     } else {
       const created = await spCreateItem(driversListId, driverToFields(drv));
+      // Adopt SharePoint's item id as this driver's real id (there's no
+      // separate LocalId field) - and repoint any jobs that were assigned
+      // to this driver using its temporary local id before the create
+      // finished, so the DriverId foreign key stays correct.
+      const oldId = drv.id;
       drv._spItemId = created.id;
+      drv.id = created.id;
+      if(oldId !== drv.id){
+        jobs.forEach(j=>{ if(j.assignedDriverId===oldId) j.assignedDriverId = drv.id; });
+      }
       saveAll();
+      render();
     }
     updateSyncStatus('Synced with SharePoint · ' + new Date().toLocaleTimeString());
   }catch(err){
