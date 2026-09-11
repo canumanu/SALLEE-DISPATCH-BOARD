@@ -1674,10 +1674,16 @@ async function findOrCreateList(name, columns){
   const cacheKey = 'sallee_sp_list_' + name;
   const cached = sessionStorage.getItem(cacheKey);
   if(cached) return cached;
-  const existing = await graphFetch(`/sites/${sid}/lists?$filter=displayName eq '${name}'`);
-  if(existing.value && existing.value.length){
-    sessionStorage.setItem(cacheKey, existing.value[0].id);
-    return existing.value[0].id;
+  // NOTE: deliberately not using ?$filter=displayName eq '...' here - Graph's
+  // SharePoint-lists endpoint doesn't reliably support that filter and can
+  // return a misleading 403 instead of just failing the filter. A site has
+  // only a handful of lists, so fetching all and matching client-side is
+  // cheap and far more reliable.
+  const allLists = await graphFetch(`/sites/${sid}/lists`);
+  const existingMatch = (allLists.value || []).find(l => l.displayName === name);
+  if(existingMatch){
+    sessionStorage.setItem(cacheKey, existingMatch.id);
+    return existingMatch.id;
   }
   const created = await graphFetch(`/sites/${sid}/lists`, {
     method:'POST',
