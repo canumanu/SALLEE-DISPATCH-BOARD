@@ -1645,14 +1645,17 @@ async function graphFetch(pathOrUrl, options){
   const token = await getAccessToken();
   if(!token) throw new Error('No access token');
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : GRAPH_BASE + pathOrUrl;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json',
-      ...((options && options.headers) || {})
-    }
-  });
+  // Only send Content-Type when there's an actual JSON body (POST/PATCH).
+  // SharePoint-backed Graph endpoints (like /sites/{id}/lists) can reject a
+  // bodyless GET that carries a Content-Type header with a misleading 403
+  // accessDenied instead of a clean error - this bit us in testing.
+  const hasBody = !!(options && options.body != null);
+  const headers = {
+    'Authorization': 'Bearer ' + token,
+    ...(hasBody ? {'Content-Type': 'application/json'} : {}),
+    ...((options && options.headers) || {})
+  };
+  const res = await fetch(url, { ...options, headers });
   if(!res.ok){
     let bodyText = '';
     try{ bodyText = await res.text(); }catch(e){}
