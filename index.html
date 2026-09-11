@@ -1614,9 +1614,14 @@ function signIn(){
   msalInstance.loginRedirect({scopes: GRAPH_SCOPES});
 }
 function signOut(){
-  if(!msalInstance) return;
+  // Local-only sign-out: clears this board's session in this browser tab
+  // and reloads. Deliberately NOT using msalInstance.logoutRedirect() here -
+  // that performs a full Microsoft 365 sign-out at Azure AD (ending Outlook/
+  // Teams/etc. sessions too) and redirects to whatever page Microsoft's own
+  // post-logout flow decides on, which is outside this app's control.
   if(pollTimer) clearInterval(pollTimer);
-  msalInstance.logoutRedirect({account: currentAccount});
+  try{ sessionStorage.clear(); }catch(e){}
+  location.reload();
 }
 document.getElementById('signInBtn').addEventListener('click', signIn);
 document.getElementById('signOutBtn').addEventListener('click', signOut);
