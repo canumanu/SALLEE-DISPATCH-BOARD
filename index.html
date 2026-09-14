@@ -1768,11 +1768,22 @@ function fieldsToDriver(item){
     _spItemId: item.id
   };
 }
+// Human-readable "Name (Truck ####)" label for a driver id - used only to
+// populate a read-only DriverName field on the Jobs list, so the raw
+// SharePoint list is understandable to someone browsing it directly
+// (DriverId stays the real foreign key the app itself relies on; this is
+// purely a display convenience layered on top, does not affect app behavior).
+function driverLabel(driverId){
+  const d = drivers.find(x=>x.id===driverId);
+  if(!d) return '';
+  return d.truck ? `${d.name1||'?'} (Truck ${d.truck})` : (d.name1||'');
+}
 function jobToFields(job){
   return {
     Title: `${job.origin||'?'} -> ${job.destination||'?'}`.slice(0,255),
     JobDate: job.date||'',
     DriverId: job.assignedDriverId||'',
+    DriverName: driverLabel(job.assignedDriverId),
     SortOrder: job.order||0,
     JobType: job.type||'normal',
     MainTime: job.maintTime||'',
@@ -1917,6 +1928,33 @@ async function syncJobsUpsert(jobList){
     }
   }
 }
+// ONE-TIME MIGRATION UTILITY - not called by the app itself, and does not
+// change how the board looks or behaves. Run manually from the browser
+// console (while signed in with edit access, on the live dispatch board
+// page) to backfill the read-only "DriverName" field on every already-synced
+// Jobs row, so older rows saved before that column existed get the same
+// human-readable label new saves already write. Safe to run more than once.
+// Usage: open console on the live board, signed in, then run:
+//   await backfillDriverNames()
+window.backfillDriverNames = async function(){
+  if(!syncEnabled || !jobsListId){
+    console.error('Not signed in / not synced yet - sign in first, then re-run this.');
+    return;
+  }
+  let updated = 0, skipped = 0, failed = 0;
+  for(const job of jobs){
+    if(!job._spItemId){ skipped++; continue; }
+    try{
+      await spUpdateItem(jobsListId, job._spItemId, { DriverName: driverLabel(job.assignedDriverId) });
+      updated++;
+    }catch(err){
+      failed++;
+      console.error('Failed to backfill job', job.id, err);
+    }
+  }
+  console.log(`Backfill done. Updated: ${updated}, skipped (not yet synced): ${skipped}, failed: ${failed}.`);
+};
+
 async function syncJobDelete(job){
   if(!syncEnabled || !job._spItemId) return;
   try{
