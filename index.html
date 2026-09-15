@@ -415,6 +415,7 @@
     <div class="modal-actions">
       <div class="left">
         <button class="btn-delete" id="jobDeleteBtn" style="display:none;">Delete</button>
+        <button class="btn-secondary" id="jobPrintBtn" style="display:none;">Print Trip Sheet</button>
       </div>
       <div class="left">
         <button class="btn-secondary" id="jobCancelBtn">Cancel</button>
@@ -1217,6 +1218,88 @@ document.getElementById('orderDetailOverlay').addEventListener('click', (e)=>{
   }
 });
 
+// Builds a clean, printable one-page trip sheet for a single job - combines
+// the dispatch job's own fields with the linked Load Board order's data
+// (horses, in particular) when the job has one. Opens a separate print-only
+// window rather than printing the whole app page.
+async function printTripSheet(jobId){
+  const job = jobs.find(j=>j.id===jobId);
+  if(!job) return;
+  const drv = drivers.find(d=>d.id===job.assignedDriverId);
+
+  // Open the window synchronously (before any await) so browsers don't
+  // treat it as an unrequested popup - fill it in once everything's ready.
+  const win = window.open('', '_blank', 'width=800,height=900');
+  if(!win){
+    showToast("Your browser blocked the print window's popup. Allow popups for this site and try again.");
+    return;
+  }
+  win.document.write('<p style="font-family:sans-serif;padding:20px;">Preparing trip sheet…</p>');
+
+  let orderHtml = '';
+  const linkedOrderId = parseLinkedOrderId(job.loadBoardRef);
+  if(linkedOrderId){
+    try{
+      const orders = await fetchLoadBoardOrders();
+      const match = orders.find(o => String(pickField(o, ['id','Id','ID','orderId','OrderID','orderNumber'])) === String(linkedOrderId));
+      if(match){
+        const d = describeOrder(match);
+        if(d.horseLabel) orderHtml += `<div class="field"><span class="label">Horses:</span> ${escapeHtml(d.horseLabel)}</div>`;
+        orderHtml += `<div class="field"><span class="label">Load Board Order:</span> #${escapeHtml(String(linkedOrderId))}</div>`;
+      }
+    }catch(e){ /* offline or unreachable - print without the order extras */ }
+  } else if(job.loadBoardRef){
+    orderHtml += `<div class="field"><span class="label">Load Board Ref:</span> ${escapeHtml(job.loadBoardRef)}</div>`;
+  }
+
+  const dateLabel = job.date
+    ? dateFromStr(job.date).toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})
+    : '';
+  const routeLabel = `${job.origin||'?'} \u2192 ${job.destination||'?'}`;
+  const farmLine = [job.originFarm, job.destinationFarm].filter(Boolean).join(' \u2192 ');
+
+  let bodyFields = '';
+  bodyFields += `<div class="field"><span class="label">Driver / Team:</span> ${escapeHtml(drv ? [drv.name1, drv.name2].filter(Boolean).join(' / ') : 'Unassigned')}</div>`;
+  if(drv && (drv.truck||drv.trailer)) bodyFields += `<div class="field"><span class="label">Truck / Trailer:</span> ${escapeHtml([drv.truck, drv.trailer].filter(Boolean).join(' / '))}</div>`;
+  bodyFields += `<div class="field"><span class="label">Date:</span> ${escapeHtml(dateLabel)}</div>`;
+  if(job.leaveYardTime) bodyFields += `<div class="field"><span class="label">Leave Yard:</span> ${escapeHtml(formatTimeDisplay(job.leaveYardTime))}</div>`;
+  if(job.time) bodyFields += `<div class="field"><span class="label">Load Time:</span> ${escapeHtml(formatTimeDisplay(job.time))}</div>`;
+  if(job.type==='pm' || job.type==='safety_inspection'){
+    bodyFields += `<div class="field"><span class="label">Type:</span> ${escapeHtml(MAINTENANCE_LABELS[job.type]||job.type)}</div>`;
+    if(job.maintTime) bodyFields += `<div class="field"><span class="label">Maintenance Time:</span> ${escapeHtml(formatTimeDisplay(job.maintTime))}</div>`;
+    if(job.technician) bodyFields += `<div class="field"><span class="label">Technician:</span> ${escapeHtml(job.technician)}</div>`;
+  } else {
+    bodyFields += `<div class="field"><span class="label">Route:</span> ${escapeHtml(routeLabel)}</div>`;
+    if(farmLine) bodyFields += `<div class="field"><span class="label">Farms:</span> ${escapeHtml(farmLine)}</div>`;
+    if(job.additionalStops) bodyFields += `<div class="field"><span class="label">Additional Stops:</span> ${escapeHtml(job.additionalStops)}</div>`;
+    if(job.loadType) bodyFields += `<div class="field"><span class="label">Load Type:</span> ${escapeHtml(LOAD_TYPE_LABELS[job.loadType]||job.loadType)}</div>`;
+  }
+  bodyFields += orderHtml;
+  if(job.notes) bodyFields += `<div class="field notes"><span class="label">Notes:</span> ${escapeHtml(job.notes)}</div>`;
+
+  const html = `<!DOCTYPE html><html><head><title>Trip Sheet - ${escapeHtml(dateLabel)}</title><style>
+    body{font-family:Georgia,'Times New Roman',serif;color:#2a2718;max-width:640px;margin:32px auto;padding:0 16px;}
+    h1{font-size:20px;margin:0 0 2px;}
+    .subhead{font-size:13px;color:#6b6550;margin:0 0 20px;border-bottom:2px solid #2a2718;padding-bottom:12px;}
+    .field{font-size:14px;margin:10px 0;line-height:1.4;}
+    .label{font-weight:700;display:inline-block;min-width:150px;}
+    .notes{margin-top:18px;padding-top:12px;border-top:1px solid #cfc9b8;}
+    .printBtn{margin-top:28px;}
+    @media print{ .printBtn{display:none;} }
+  </style></head><body>
+    <h1>Sallee Horse Vans</h1>
+    <div class="subhead">Trip Sheet</div>
+    ${bodyFields}
+    <div class="printBtn"><button onclick="window.print()" style="font-size:14px;padding:8px 16px;">Print</button></div>
+  </body></html>`;
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+}
+
+
 let editingJobId = null;
 let pendingDate = null;
 let pendingDriverId = null;
@@ -1253,6 +1336,7 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobLoadBoardRef').value = job.loadBoardRef||'';
     document.getElementById('jobNotes').value = job.notes||'';
     delBtn.style.display='inline-block';
+    document.getElementById('jobPrintBtn').style.display='inline-block';
     pendingDate = job.date;
     pendingDriverId = job.assignedDriverId;
     document.getElementById('repeatThroughRow').style.display = 'none';
@@ -1274,6 +1358,7 @@ function openJobModal(jobId, date, driverId){
     document.getElementById('jobLoadBoardRef').value='';
     document.getElementById('jobNotes').value='';
     delBtn.style.display='none';
+    document.getElementById('jobPrintBtn').style.display='none';
     pendingDate = date;
     pendingDriverId = driverId;
     document.getElementById('repeatThroughRow').style.display = '';
@@ -1443,6 +1528,9 @@ document.getElementById('jobDeleteBtn').addEventListener('click', ()=>{
   closeJobModal();
   render();
   if(deletedJob) syncJobDelete(deletedJob);
+});
+document.getElementById('jobPrintBtn').addEventListener('click', ()=>{
+  if(editingJobId) printTripSheet(editingJobId);
 });
 
 let editingDriverId = null;
@@ -1848,7 +1936,7 @@ function fieldsToDriver(item){
 // SharePoint list is understandable to someone browsing it directly
 // (DriverId stays the real foreign key the app itself relies on; this is
 // purely a display convenience layered on top, does not affect app behavior).
-function driverLabel(driverId){
+function driverNameForSync(driverId){
   const d = drivers.find(x=>x.id===driverId);
   if(!d) return '';
   return d.truck ? `${d.name1||'?'} (Truck ${d.truck})` : (d.name1||'');
@@ -1858,7 +1946,7 @@ function jobToFields(job){
     Title: `${job.origin||'?'} -> ${job.destination||'?'}`.slice(0,255),
     JobDate: job.date||'',
     DriverId: job.assignedDriverId||'',
-    DriverName: driverLabel(job.assignedDriverId),
+    DriverName: driverNameForSync(job.assignedDriverId),
     SortOrder: job.order||0,
     JobType: job.type||'normal',
     MainTime: job.maintTime||'',
@@ -2020,7 +2108,7 @@ window.backfillDriverNames = async function(){
   for(const job of jobs){
     if(!job._spItemId){ skipped++; continue; }
     try{
-      await spUpdateItem(jobsListId, job._spItemId, { DriverName: driverLabel(job.assignedDriverId) });
+      await spUpdateItem(jobsListId, job._spItemId, { DriverName: driverNameForSync(job.assignedDriverId) });
       updated++;
     }catch(err){
       failed++;
