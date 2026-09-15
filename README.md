@@ -1,5 +1,4 @@
-[README_6.md](https://github.com/user-attachments/files/32113704/README_6.md)
-[README (3).md](https://github.com/user-attachments/files/31557920/README.3.md)
+[README_7.md](https://github.com/user-attachments/files/32252123/README_7.md)
 # Sallee Dispatch Board
 
 An interactive dispatch board for Sallee Horse Vans, replacing the manual 2-week Excel dispatch chart. Drivers/trucks run as columns across the top, dates run down the left, and jobs live in the grid where they intersect — drag a job into a different driver's column and it adopts that driver automatically.
@@ -21,7 +20,8 @@ Live board: single self-contained `index.html`, no build step — same pattern a
 - **Job types**: Normal, Spare/standby, Vacation/off, Note only, **PM**, **Safety Inspection** — the last two show an **Assigned Technician** field and render as a distinct colored banner at the top of the card (blue for PM, orange for Safety Inspection) instead of the usual route line, since they're maintenance events on this truck rather than a haul. Being just another job type, they're fully draggable between driver columns like any other entry.
 - **Load Type**: Stable Move, Special, Mix Load, Shuttle, Race and Return, Plane.
 - **Job cards**: Origin/Destination, Origin & Destination Trainer/Farm, both wrap instead of truncating so long names show in full; Notes clamp at 3 lines; smaller font sized to fit more at a glance without being unreadable.
-- **Load Board link**: optional field to paste a link or order # once a dispatch job becomes a real Load Board order, plus a "Browse" button that live-fetches the Load Board's `orders.json` (same-origin under `canumanu.github.io`) and lists matches for that date instead of typing.
+- **Load Board linking**: a "Browse" button in the job modal live-fetches the Load Board's `orders.json` (same-origin under `canumanu.github.io`) and lists matches for that job's date. Picking one **autofills** Origin/Destination/Origin Farm/Destination Farm on the job (and drops horse names into Notes if Notes is empty) — a one-time copy at selection time, not a live link back to the order. The little "🔗 Order ..." badge that then shows on the job card is clickable: it re-fetches that order fresh from the Load Board and shows its route/farms/date/horses in a popup, so anyone looking at the board can check the underlying order without leaving the page. A manually pasted link or note in that field stays a plain, non-clickable reference — only orders linked through Browse get the popup.
+- **Printable trip sheets**: a "Print Trip Sheet" button in the job modal (when editing an existing job) opens a clean, separate print page combining the job's own details (driver, truck/trailer, date, times, route, farms, load type, notes) with the linked order's horse info, when there is one — a physical handout a driver can take.
 - **Add/edit/remove driver columns** (with location) and jobs entirely from the UI.
 - **Autosaves to browser localStorage** as a fast local cache/offline fallback — Export/Import JSON buttons for backup and moving between machines (Import stays local-only; see Multi-user section below).
 - **Multi-user sign-in via Microsoft 365 (MSAL.js) + SharePoint sync** — see "Status" below.
@@ -45,8 +45,9 @@ Adding a new dropdown option (Type or Load Type) needs two matching edits in `in
 The interaction model and rules (conflict checks, turnaround logic, etc.) were proven out single-user first, per the original plan. Now wired to a shared backend:
 
 - **Sign-in**: "Sign in with Microsoft" button (top bar) uses MSAL.js against the "Sallee Dispatch Board Sign-in" Azure AD app registration (client ID `3530a45a-659e-4d10-95fd-6f32b857e702`, tenant `428e82a0-5a1b-41e6-a24c-ca8ea70db05a`). Redirect URI is this page's own GitHub Pages URL, registered as a Single-page application (SPA) platform entry.
-- **Data store**: two SharePoint lists — `DispatchDrivers` and `DispatchJobs` — on the "Sallee Dispatch Board" site (`https://salleehorsevans.sharepoint.com/sites/SALLEEDISPATCHBOARD`). The app auto-creates these lists (with the right columns) the first time anyone signs in and they don't exist yet, and seeds them from whatever's currently in the browser's local data at that moment.
-- **Permission tiers**: enforced by SharePoint's own site roles, not by the app itself — a Visitor gets read-only (writes come back `403` and the app switches into a "view-only" banner state); a Member can create/edit. Manage who's a Visitor vs. Member from the SharePoint site's own permissions page.
+- **Data store**: two SharePoint lists — `Drivers` and `Jobs` — on the "Sallee Dispatch Board" site (`https://salleehorsevans.sharepoint.com/sites/SALLEEDISPATCHBOARD`). These are pre-existing lists the app reads/writes directly; it does **not** create lists itself (list/column creation via Graph is blocked by tenant policy, even for a Site Owner — see the project's sync notes if setting this up on a new site).
+- **Permission tiers**: enforced entirely by SharePoint's own site roles, not by the app — the app itself has no separate login/role system. Currently: **Owners** have Full Control (can edit everything), **Members** and **Visitors** are both **Read-only**. A write that comes back `403` flips a signed-in user into a "view-only" banner state — they can still see the whole board, just can't save changes. Manage who's in which group from the SharePoint site's own permissions page.
+- **Readable raw lists**: since a SharePoint list is just flat rows (no native pivot/grid view), the Jobs list carries a `DriverName` text column (alongside the real `DriverId` foreign key) purely so a human browsing the list directly in SharePoint can read it, and has a saved "Chart View" grouped by date and sorted by driver — the closest native SharePoint gets to the old chart's layout. The live app's own board remains the real, primary view; this is only for the raw list.
 - **Sync model**: every add/edit/delete/drag-drop pushes straight to the relevant SharePoint list item. The board also polls SharePoint every 45s (only when no modal is open) to pick up other dispatchers' changes. `localStorage` remains a local cache/fallback — if SharePoint is unreachable, the board keeps working from whatever was last synced, and retries are implicit (the next edit attempts to sync again).
 - **Known limitation**: Import JSON stays local-only by design (doesn't bulk-push to SharePoint), to avoid an accidental mass overwrite of the shared board from a backup file.
 
@@ -72,8 +73,8 @@ A standalone Python script that calls Google's Routes API once against a fixed l
 - **Publish `drive_times.json`** somewhere the live board can fetch it (same pattern as `orders.json` on the Load Board).
 - **Extend duplicate-time conflict checking** to Leave Yard Time and Maintenance Time — currently only Load Time is checked for double-booking.
 - **Grow the farm/trainer address list** as they come up in regular dispatch use.
-- **Print / simple view**: a no-login "print a load" view, in the same spirit as the Load Board's planned standalone print view.
 - **Conflict resolution UI**: writes currently overwrite without checking SharePoint's `etag`, so two dispatchers editing the exact same job at the exact same moment would have last-write-win with no warning. Fine at current usage levels; worth revisiting if that ever causes a real collision.
+- **Live-linked Load Board orders**: currently, picking an order via Browse is a one-time copy into the job's fields. A "keep in sync" mode (job auto-updates if the order's details change later on the Load Board) was considered and intentionally deferred as unnecessary complexity for now — revisit if orders regularly change after dispatch.
 
 ## Notes
 
