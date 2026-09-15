@@ -24,6 +24,10 @@
     "name": "Belmont Park",
     "address": "2150 Hempstead Turnpike, Elmont, NY 11003"
   },
+  {"code":"KYHP",
+    "name":"Kentucky Horse Park",
+    "address": "4089 Iron Works PKwy, Lexington, KY 40511"
+  },
   {
     "code": "SAR",
     "name": "Saratoga Race Course",
