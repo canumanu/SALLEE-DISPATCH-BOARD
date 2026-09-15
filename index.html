@@ -240,6 +240,7 @@
     text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
   }
   .job-card .lb-ref:hover{background:var(--gold);}
+  .job-card .lb-ref[data-order-id]{cursor:pointer;}
   .turnaround-warning{
     margin-top:4px;font-size:9px;font-weight:700;color:#8a4b00;
     background:#fdead0;border:1px solid #f0c688;border-radius:4px;
@@ -474,6 +475,19 @@
       <div class="left">
         <button class="btn-secondary" id="confirmCancelBtn">Cancel</button>
         <button class="btn-delete" id="confirmOkBtn">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="orderDetailOverlay">
+  <div class="modal" style="max-width:380px;">
+    <h2>Load Board Order</h2>
+    <div id="orderDetailBody" style="font-size:13px;color:#3a362c;line-height:1.6;margin:0 0 4px;"></div>
+    <div class="modal-actions">
+      <div class="left"></div>
+      <div class="left">
+        <button class="btn-secondary" id="orderDetailCloseBtn">Close</button>
       </div>
     </div>
   </div>
@@ -987,8 +1001,11 @@ function buildJobCard(job){
   let lbRefHtml = '';
   if(job.loadBoardRef){
     const isUrl = /^https?:\/\//i.test(job.loadBoardRef.trim());
+    const linkedOrderId = parseLinkedOrderId(job.loadBoardRef);
     if(isUrl){
       lbRefHtml = `<a class="lb-ref" href="${escapeHtml(job.loadBoardRef.trim())}" target="_blank" rel="noopener" title="Open in Load Board">&#128279; Load Board</a>`;
+    } else if(linkedOrderId){
+      lbRefHtml = `<span class="lb-ref" data-order-id="${escapeHtml(linkedOrderId)}" title="View order details">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
     } else {
       lbRefHtml = `<span class="lb-ref" title="Load Board reference">&#128279; ${escapeHtml(job.loadBoardRef)}</span>`;
     }
@@ -1008,6 +1025,8 @@ function buildJobCard(job){
   card.innerHTML = body;
 
   card.addEventListener('click', (e)=>{
+    const orderBadge = e.target.closest('.lb-ref[data-order-id]');
+    if(orderBadge){ showOrderDetail(orderBadge.dataset.orderId); return; }
     if(e.target.closest('.lb-ref')) return;
     if(e.target.closest('.turnaround-warning')) return;
     openJobModal(job.id);
@@ -1142,6 +1161,8 @@ function pickField(obj, candidates){
 function describeOrder(order){
   const origin = pickField(order, ['origin','Origin','ORIGIN']);
   const destination = pickField(order, ['destination','Destination','DESTINATION']);
+  const originFarm = pickField(order, ['originFarm','OriginFarm','ORIGIN FARM','origin_farm']);
+  const destinationFarm = pickField(order, ['destinationFarm','DestinationFarm','DESTINATION FARM','destination_farm']);
   const date = pickField(order, ['date','Date','tripDate','TripDate','pickupDate','PickupDate']);
   const id = pickField(order, ['id','Id','ID','orderId','OrderID','orderNumber']);
   let horses = pickField(order, ['horses','Horses']);
@@ -1150,8 +1171,51 @@ function describeOrder(order){
   else if(typeof horses === 'string') horseLabel = horses;
   if(!horseLabel) horseLabel = pickField(order, ['HORSE NAME(S)','horseNames','HorseNames']);
   const label = `${origin||'?'} \u2192 ${destination||'?'}${date? ' · '+date:''}${horseLabel? ' · '+horseLabel:''}`;
-  return {id, date, origin, destination, horseLabel, label};
+  return {id, date, origin, destination, originFarm, destinationFarm, horseLabel, label};
 }
+
+// Pulls the order id back out of a loadBoardRef string that was set by the
+// Browse picker (format: "Order <id>: <label>"). Manually-typed refs (a
+// pasted link, or free text) won't match, and are left as plain non-clickable
+// text on the job card - only Browse-linked orders get the clickable badge.
+function parseLinkedOrderId(ref){
+  if(!ref) return null;
+  const m = /^Order\s+([^:]+):/.exec(ref.trim());
+  return m ? m[1].trim() : null;
+}
+
+async function showOrderDetail(orderId){
+  const body = document.getElementById('orderDetailBody');
+  body.innerHTML = 'Loading order…';
+  document.getElementById('orderDetailOverlay').classList.add('open');
+  try{
+    const orders = await fetchLoadBoardOrders();
+    const match = orders.find(o => String(pickField(o, ['id','Id','ID','orderId','OrderID','orderNumber'])) === String(orderId));
+    if(!match){
+      body.innerHTML = `This order (#${escapeHtml(orderId)}) wasn't found in the Load Board's current data — it may have been completed, canceled, or removed there.`;
+      return;
+    }
+    const d = describeOrder(match);
+    const rows = [
+      ['Route', `${d.origin||'?'} \u2192 ${d.destination||'?'}`],
+      ['Origin farm', d.originFarm],
+      ['Destination farm', d.destinationFarm],
+      ['Date', d.date],
+      ['Horses', d.horseLabel],
+    ].filter(([,v]) => v);
+    body.innerHTML = rows.map(([k,v]) => `<div><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}</div>`).join('') || 'No further details available for this order.';
+  }catch(err){
+    body.innerHTML = `Couldn't reach the Load Board data (${escapeHtml(err.message)}).`;
+  }
+}
+document.getElementById('orderDetailCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('orderDetailOverlay').classList.remove('open');
+});
+document.getElementById('orderDetailOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='orderDetailOverlay'){
+    document.getElementById('orderDetailOverlay').classList.remove('open');
+  }
+});
 
 let editingJobId = null;
 let pendingDate = null;
@@ -1260,6 +1324,17 @@ document.getElementById('lbBrowseBtn').addEventListener('click', async ()=>{
       row.addEventListener('mouseleave', ()=>row.style.background='');
       row.addEventListener('click', ()=>{
         document.getElementById('jobLoadBoardRef').value = o.id ? `Order ${o.id}: ${o.label}` : o.label;
+        // Autofill the rest of the job from the matched Load Board order -
+        // one-time copy at selection time, same as if the dispatcher had
+        // typed these in by hand. No ongoing tie to the order after this.
+        if(o.origin) setLocationField('Origin', o.origin);
+        if(o.destination) setLocationField('Destination', o.destination);
+        if(o.originFarm) document.getElementById('jobOriginFarm').value = o.originFarm;
+        if(o.destinationFarm) document.getElementById('jobDestinationFarm').value = o.destinationFarm;
+        if(o.horseLabel){
+          const notesEl = document.getElementById('jobNotes');
+          if(!notesEl.value.trim()) notesEl.value = `Horses: ${o.horseLabel}`;
+        }
         panel.style.display='none';
         panel.innerHTML='';
       });
