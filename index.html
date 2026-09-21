@@ -749,15 +749,24 @@ function resolveLocationCode(text){
   }
   return null;
 }
+// Locations without their own drive-time matrix entries get treated as
+// co-located with a nearby hub that already has one, for turnaround-time
+// purposes only — doesn't affect the dropdown label or any other field.
+const MATRIX_LOCATION_ALIAS = {
+  'KYF': 'Barn', // "Ky farm" sits one address over from the Barn/Sallee Lay Over hub
+};
 
 function lookupDriveMinutes(a, b){
   if(!a || !b || !driveTimesData) return null;
   const codeA = resolveLocationCode(a);
   const codeB = resolveLocationCode(b);
   if(!codeA || !codeB) return null;
-  const entry = driveTimesData.matrix[codeA] && driveTimesData.matrix[codeA][codeB];
+  const matrixCodeA = MATRIX_LOCATION_ALIAS[codeA] || codeA;
+  const matrixCodeB = MATRIX_LOCATION_ALIAS[codeB] || codeB;
+  const entry = driveTimesData.matrix[matrixCodeA] && driveTimesData.matrix[matrixCodeA][matrixCodeB];
   return entry ? entry.minutes : null;
 }
+
 function timeToMinutes(t){
   if(!t) return null;
   const parts = t.split(':').map(Number);
