@@ -2126,7 +2126,66 @@ window.backfillDriverNames = async function(){
   }
   console.log(`Backfill done. Updated: ${updated}, skipped (not yet synced): ${skipped}, failed: ${failed}.`);
 };
-
+// RECOVERY UTILITY - not called automatically by the app. Use this if local
+// data (drivers/jobs currently in memory - e.g. after importing a JSON
+// backup, or after working offline) needs to be pushed up to SharePoint.
+// Import JSON is deliberately local-only (see comment near the top of the
+// sign-in section), so the normal 45s poll will otherwise silently
+// overwrite unsynced local data with whatever's already on SharePoint.
+// Paced with a short delay between each item to avoid Microsoft Graph
+// rate-limiting a big burst of requests, which silently dropped data the
+// first time this was needed by hand (2026-10-13).
+// Usage: open console on the live board, signed in with edit access, then:
+//   await pushAllLocalToSharePoint()
+window.pushAllLocalToSharePoint = async function(){
+  if(!syncEnabled){
+    console.error('Not signed in / not synced yet - sign in first, then re-run this.');
+    return;
+  }
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+  if(pollTimer) clearInterval(pollTimer);
+  let driverOk=0, driverFail=0, jobOk=0, jobFail=0;
+  console.log(`Pushing ${drivers.length} drivers and ${jobs.length} jobs to SharePoint (paced)...`);
+  for(const drv of drivers){
+    try{
+      if(drv._spItemId){
+        await spUpdateItem(driversListId, drv._spItemId, driverToFields(drv));
+      } else {
+        const created = await spCreateItem(driversListId, driverToFields(drv));
+        const oldId = drv.id;
+        drv._spItemId = created.id;
+        drv.id = created.id;
+        if(oldId !== drv.id){
+          jobs.forEach(j=>{ if(j.assignedDriverId===oldId) j.assignedDriverId = drv.id; });
+        }
+        saveAll();
+      }
+      driverOk++;
+    }catch(err){
+      driverFail++;
+      console.error('FAILED driver', drv.id, drv.name1, err);
+    }
+    await sleep(200);
+  }
+  for(const job of jobs){
+    try{
+      if(job._spItemId){
+        await spUpdateItem(jobsListId, job._spItemId, jobToFields(job));
+      } else {
+        const created = await spCreateItem(jobsListId, jobToFields(job));
+        job._spItemId = created.id;
+        saveAll();
+      }
+      jobOk++;
+    }catch(err){
+      jobFail++;
+      console.error('FAILED job', job.id, job.origin, '->', job.destination, err);
+    }
+    await sleep(200);
+  }
+  console.log(`Push done. Drivers OK: ${driverOk}, FAILED: ${driverFail}. Jobs OK: ${jobOk}, FAILED: ${jobFail}.`);
+  startPolling();
+};
 async function syncJobDelete(job){
   if(!syncEnabled || !job._spItemId) return;
   try{
