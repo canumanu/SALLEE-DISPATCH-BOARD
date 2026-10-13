@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sallee Dispatch Board</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e3b2e">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dispatch">
 <style>
   :root{
     --green-dark:#0e3b2e;
@@ -290,9 +297,97 @@
   .btn-secondary:hover{background:#ddd6c0;}
   .btn-delete{background:transparent;color:var(--danger);border:1px solid var(--danger);padding:9px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;}
   .btn-delete:hover{background:var(--danger);color:#fff;}
+
+  /* ============ Intro: animated horse-van drive-in ============ */
+  #introOverlay{
+    position:fixed;inset:0;z-index:500;
+    background:linear-gradient(180deg, var(--green-dark) 0%, var(--green) 100%);
+    overflow:hidden;cursor:pointer;
+    transition:opacity .5s ease, visibility .5s ease;
+  }
+  #introOverlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  #introOverlay .introRoad{
+    position:absolute;left:0;right:0;bottom:28%;height:3px;
+    background:repeating-linear-gradient(90deg, var(--gold) 0 24px, transparent 24px 48px);
+    opacity:.55;
+  }
+  #introOverlay .introTitle{
+    position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);
+    color:var(--gold-light);text-align:center;
+    font-size:14px;letter-spacing:3px;text-transform:uppercase;font-weight:700;
+    opacity:0;animation:introTitleFade 3s ease forwards;width:90%;
+  }
+  #introOverlay .introTitle b{color:#fff;display:block;font-size:26px;letter-spacing:4px;margin-bottom:4px;}
+  @keyframes introTitleFade{
+    0%{opacity:0;transform:translate(-50%,-40%);}
+    22%{opacity:1;transform:translate(-50%,-50%);}
+    82%{opacity:1;}
+    100%{opacity:0;}
+  }
+  #introOverlay .introRig{position:absolute;bottom:28%;left:-32%;width:240px;height:102px;animation:introDriveAcross 3.2s cubic-bezier(.4,0,.2,1) forwards;}
+  @keyframes introDriveAcross{
+    0%{left:-32%;}
+    65%{left:42%;}
+    100%{left:132%;}
+  }
+  #introOverlay .introRig svg{width:100%;height:100%;display:block;}
+  #introOverlay .introRig .wheel{animation:introWheelSpin .4s linear infinite;transform-origin:center;transform-box:fill-box;}
+  @keyframes introWheelSpin{to{transform:rotate(360deg);}}
+  #introOverlay .introSkip{
+    position:absolute;bottom:22px;right:26px;
+    font-size:11.5px;color:rgba(255,255,255,.55);
+    border:1px solid rgba(255,255,255,.3);border-radius:5px;
+    padding:6px 12px;letter-spacing:.5px;background:transparent;cursor:pointer;
+  }
+  #introOverlay .introSkip:hover{color:#fff;border-color:rgba(255,255,255,.6);}
+  #introOverlay .introSound{
+    position:absolute;top:22px;right:26px;
+    font-size:11px;color:rgba(255,255,255,.65);
+    border:1px solid rgba(255,255,255,.3);border-radius:5px;
+    padding:6px 10px;letter-spacing:.3px;background:transparent;cursor:pointer;
+  }
+  #introOverlay .introSound:hover{color:#fff;border-color:rgba(255,255,255,.6);}
+  @media (max-width:520px){
+    #introOverlay .introRig{width:170px;height:72px;}
+    #introOverlay .introTitle b{font-size:20px;}
+  }
+
+  /* ============ Seasonal edge decorations ============ */
+  #seasonalLayer{position:fixed;inset:0;z-index:40;pointer-events:none;overflow:hidden;}
+  #seasonalLayer .sdeco{
+    position:absolute;top:-40px;line-height:1;will-change:transform;
+    animation-name:sdecoFall;animation-timing-function:linear;animation-iteration-count:infinite;
+  }
+  @keyframes sdecoFall{
+    0%{transform:translateY(-6vh) translateX(0) rotate(0deg);}
+    100%{transform:translateY(106vh) translateX(var(--drift,20px)) rotate(var(--spin,180deg));}
+  }
 </style>
 </head>
 <body>
+
+<div id="seasonalLayer" aria-hidden="true"></div>
+
+<div id="introOverlay">
+  <div class="introRoad"></div>
+  <div class="introTitle"><b>SALLEE</b>HORSE VANS &middot; DISPATCH BOARD</div>
+  <div class="introRig">
+    <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="28" width="160" height="58" rx="10" fill="#c8a24a"/>
+      <rect x="26" y="34" width="14" height="30" fill="#0e3b2e"/>
+      <rect x="50" y="34" width="14" height="30" fill="#0e3b2e"/>
+      <rect x="74" y="34" width="14" height="30" fill="#0e3b2e"/>
+      <rect x="98" y="34" width="14" height="30" fill="#0e3b2e"/>
+      <rect x="160" y="46" width="62" height="40" rx="8" fill="#c8a24a"/>
+      <rect x="172" y="52" width="36" height="20" rx="4" fill="#0e3b2e"/>
+      <g class="wheel"><circle cx="42" cy="90" r="16" fill="#0e3b2e"/><circle cx="42" cy="90" r="6" fill="#c8a24a"/></g>
+      <g class="wheel"><circle cx="110" cy="90" r="16" fill="#0e3b2e"/><circle cx="110" cy="90" r="6" fill="#c8a24a"/></g>
+      <g class="wheel"><circle cx="196" cy="90" r="16" fill="#0e3b2e"/><circle cx="196" cy="90" r="6" fill="#c8a24a"/></g>
+    </svg>
+  </div>
+  <button type="button" class="introSound" id="introSoundBtn">&#128266; Sound on</button>
+  <button type="button" class="introSkip" id="introSkipBtn">Skip &rarr;</button>
+</div>
 
 <div class="topbar">
   <h1>SALLEE <span>DISPATCH</span> BOARD</h1>
@@ -2126,66 +2221,7 @@ window.backfillDriverNames = async function(){
   }
   console.log(`Backfill done. Updated: ${updated}, skipped (not yet synced): ${skipped}, failed: ${failed}.`);
 };
-// RECOVERY UTILITY - not called automatically by the app. Use this if local
-// data (drivers/jobs currently in memory - e.g. after importing a JSON
-// backup, or after working offline) needs to be pushed up to SharePoint.
-// Import JSON is deliberately local-only (see comment near the top of the
-// sign-in section), so the normal 45s poll will otherwise silently
-// overwrite unsynced local data with whatever's already on SharePoint.
-// Paced with a short delay between each item to avoid Microsoft Graph
-// rate-limiting a big burst of requests, which silently dropped data the
-// first time this was needed by hand (2026-10-13).
-// Usage: open console on the live board, signed in with edit access, then:
-//   await pushAllLocalToSharePoint()
-window.pushAllLocalToSharePoint = async function(){
-  if(!syncEnabled){
-    console.error('Not signed in / not synced yet - sign in first, then re-run this.');
-    return;
-  }
-  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-  if(pollTimer) clearInterval(pollTimer);
-  let driverOk=0, driverFail=0, jobOk=0, jobFail=0;
-  console.log(`Pushing ${drivers.length} drivers and ${jobs.length} jobs to SharePoint (paced)...`);
-  for(const drv of drivers){
-    try{
-      if(drv._spItemId){
-        await spUpdateItem(driversListId, drv._spItemId, driverToFields(drv));
-      } else {
-        const created = await spCreateItem(driversListId, driverToFields(drv));
-        const oldId = drv.id;
-        drv._spItemId = created.id;
-        drv.id = created.id;
-        if(oldId !== drv.id){
-          jobs.forEach(j=>{ if(j.assignedDriverId===oldId) j.assignedDriverId = drv.id; });
-        }
-        saveAll();
-      }
-      driverOk++;
-    }catch(err){
-      driverFail++;
-      console.error('FAILED driver', drv.id, drv.name1, err);
-    }
-    await sleep(200);
-  }
-  for(const job of jobs){
-    try{
-      if(job._spItemId){
-        await spUpdateItem(jobsListId, job._spItemId, jobToFields(job));
-      } else {
-        const created = await spCreateItem(jobsListId, jobToFields(job));
-        job._spItemId = created.id;
-        saveAll();
-      }
-      jobOk++;
-    }catch(err){
-      jobFail++;
-      console.error('FAILED job', job.id, job.origin, '->', job.destination, err);
-    }
-    await sleep(200);
-  }
-  console.log(`Push done. Drivers OK: ${driverOk}, FAILED: ${driverFail}. Jobs OK: ${jobOk}, FAILED: ${jobFail}.`);
-  startPolling();
-};
+
 async function syncJobDelete(job){
   if(!syncEnabled || !job._spItemId) return;
   try{
@@ -2231,6 +2267,117 @@ async function syncDriverDelete(drv){
 }
 
 initAuth();
+
+/* ============================================================
+   PWA INSTALLABILITY + INTRO ANIMATION + SPOKEN WELCOME +
+   SEASONAL EDGE DECORATIONS
+   ------------------------------------------------------------
+   All four pieces below are purely additive UI/UX - they don't
+   touch drivers/jobs data, sync, or auth at all.
+   ============================================================ */
+
+// ---- Register the service worker (makes the board installable + usable offline) ----
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('Service worker registration failed', err));
+  });
+}
+
+// ---- Seasonal edge decorations (auto-picks a theme from today's date) ----
+function getSeasonalSet(){
+  const now = new Date();
+  const month = now.getMonth(); // 0=Jan
+  const date = now.getDate();
+  if(month===9) return {emoji:['\u{1F383}','\u{1F47B}','\u{1F987}','\u{1F342}']};          // October - Halloween
+  if(month===11 && date<=25) return {emoji:['❄️','\u{1F384}','⭐']};          // Dec 1-25 - Christmas
+  if(month===11 || month===0 || month===1) return {emoji:['❄️']};                 // Dec26-Feb - Winter
+  if(month>=2 && month<=4) return {emoji:['\u{1F338}','\u{1F337}','\u{1F98B}']};             // Mar-May - Spring
+  if(month>=5 && month<=7) return {emoji:['☀️','\u{1F33B}']};                      // Jun-Aug - Summer
+  return {emoji:['\u{1F341}','\u{1F342}','\u{1F330}']};                                      // Sep, Nov - Fall
+}
+function buildSeasonalDecorations(){
+  const layer = document.getElementById('seasonalLayer');
+  if(!layer) return;
+  layer.innerHTML = '';
+  const {emoji} = getSeasonalSet();
+  const COUNT = 16;
+  for(let i=0;i<COUNT;i++){
+    const el = document.createElement('div');
+    el.className = 'sdeco';
+    el.textContent = emoji[i % emoji.length];
+    // Keep decorations confined to the left/right edges so they never sit
+    // over the board the dispatcher is actually working in.
+    const onLeft = i % 2 === 0;
+    const edgePos = Math.random()*7; // 0-7vw from that edge
+    el.style.left = (onLeft ? edgePos : 100-edgePos).toFixed(1) + 'vw';
+    el.style.animationDuration = (9 + Math.random()*8).toFixed(1) + 's';
+    el.style.animationDelay = '-' + (Math.random()*12).toFixed(1) + 's'; // starts mid-fall, not bunched at the top
+    el.style.setProperty('--drift', ((onLeft?1:-1) * (10+Math.random()*30)).toFixed(0) + 'px');
+    el.style.setProperty('--spin', ((Math.random()>0.5?1:-1) * (180+Math.random()*180)).toFixed(0) + 'deg');
+    el.style.fontSize = (14+Math.random()*10).toFixed(0) + 'px';
+    el.style.opacity = (0.5+Math.random()*0.35).toFixed(2);
+    layer.appendChild(el);
+  }
+}
+buildSeasonalDecorations();
+
+// ---- Spoken welcome (Web Speech API) ----
+const LS_INTRO_SOUND = 'sallee_intro_sound'; // 'off' = muted, persists across visits
+function speakWelcome(){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    if(localStorage.getItem(LS_INTRO_SOUND) === 'off') return;
+    const utter = new SpeechSynthesisUtterance('Welcome to the Sallee Dispatch Board.');
+    utter.rate = 0.98;
+    utter.pitch = 1;
+    utter.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v=>/^en/i.test(v.lang) && /Google|Natural|Samantha|Microsoft/i.test(v.name)) || voices.find(v=>/^en/i.test(v.lang));
+    if(preferred) utter.voice = preferred;
+    window.speechSynthesis.cancel(); // clear anything left queued from a prior load
+    window.speechSynthesis.speak(utter);
+  }catch(err){ console.warn('Spoken welcome skipped', err); }
+}
+
+// ---- Intro: tractor-trailer drive-in, once per browser session ----
+const LS_INTRO_SHOWN_KEY = 'sallee_intro_shown'; // sessionStorage: once per tab session, not every click around the board
+function initIntro(){
+  const overlay = document.getElementById('introOverlay');
+  if(!overlay) return;
+  if(sessionStorage.getItem(LS_INTRO_SHOWN_KEY)){
+    overlay.remove();
+    return;
+  }
+  sessionStorage.setItem(LS_INTRO_SHOWN_KEY, '1');
+
+  const soundBtn = document.getElementById('introSoundBtn');
+  function refreshSoundBtn(){
+    const off = localStorage.getItem(LS_INTRO_SOUND) === 'off';
+    soundBtn.innerHTML = off ? '&#128263; Sound off' : '&#128266; Sound on';
+  }
+  refreshSoundBtn();
+  soundBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const off = localStorage.getItem(LS_INTRO_SOUND) === 'off';
+    if(off){ localStorage.removeItem(LS_INTRO_SOUND); } else { localStorage.setItem(LS_INTRO_SOUND, 'off'); try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} }
+    refreshSoundBtn();
+  });
+
+  let dismissed = false;
+  function dismiss(){
+    if(dismissed) return;
+    dismissed = true;
+    overlay.classList.add('hidden');
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    setTimeout(()=>overlay.remove(), 600);
+  }
+  overlay.addEventListener('click', dismiss);
+  document.getElementById('introSkipBtn').addEventListener('click', (e)=>{ e.stopPropagation(); dismiss(); });
+  setTimeout(dismiss, 3600); // auto-dismiss shortly after the drive-across animation finishes
+
+  speakWelcome();
+}
+initIntro();
 </script>
 </body>
 </html>
