@@ -185,8 +185,198 @@
       "code": "NEWBURGH",
       "name": "Upstate NY Quarantine"
     }
+    {"code":"FT",
+     "name":"Fasig Tipton"
+    },
   ],
-  "matrix": {
+  "matrix": 
+  {
+    "FT":{
+      "KYF": {
+        "minutes": 15,
+        "miles": 7.3
+      },
+      "TP": {
+        "minutes": 64,
+        "miles": 65.9
+      },
+      "KEE": {
+        "minutes": 24,
+        "miles": 13.2
+      },
+      "CD": {
+        "minutes": 77,
+        "miles": 76.4
+      },
+      "Ocala": {
+        "minutes": 658,
+        "miles": 751.5
+      },
+      "BEL": {
+        "minutes": 686,
+        "miles": 741.6
+      },
+      "SAR": {
+        "minutes": 708,
+        "miles": 788.0
+      },
+      "Barn": {
+        "minutes": 15,
+        "miles": 7.3
+      },
+      "KYHP": {
+        "minutes": 0,
+        "miles": null
+      },
+      "SS": {
+        "minutes": 73,
+        "miles": 73.2
+      },
+      "PRX": {
+        "minutes": 589,
+        "miles": 646.5
+      },
+      "LRL": {
+        "minutes": 492,
+        "miles": 540.8
+      },
+      "MTH": {
+        "minutes": 650,
+        "miles": 709.6
+      },
+      "ELP": {
+        "minutes": 181,
+        "miles": 196.1
+      },
+      "FH": {
+        "minutes": 546,
+        "miles": 597.9
+      },
+      "HOO": {
+        "minutes": 159,
+        "miles": 161.3
+      },
+      "DEL": {
+        "minutes": 551,
+        "miles": 608.9
+      },
+      "GP": {
+        "minutes": 908,
+        "miles": 1040.6
+      },
+      "OP": {
+        "minutes": 559,
+        "miles": 619.9
+      },
+      "FL": {
+        "minutes": 520,
+        "miles": 586.8
+      },
+      "PAY": {
+        "minutes": 830,
+        "miles": 942.8
+      },
+      "PEN": {
+        "minutes": 505,
+        "miles": 556.8
+      },
+      "CNL": {
+        "minutes": 473,
+        "miles": 521.7
+      },
+      "CT": {
+        "minutes": 455,
+        "miles": 499.4
+      },
+      "FG": {
+        "minutes": 659,
+        "miles": 750.3
+      },
+      "WO": {
+        "minutes": 501,
+        "miles": 556.6
+      },
+      "KD": {
+        "minutes": 168,
+        "miles": 181.3
+      },
+      "CVG": {
+        "minutes": 71,
+        "miles": 70.3
+      },
+      "SDF": {
+        "minutes": 73,
+        "miles": 74.6
+      },
+      "PID": {
+        "minutes": 369,
+        "miles": 416.7
+      },
+      "PRM": {
+        "minutes": 577,
+        "miles": 649.8
+      },
+      "EWR": {
+        "minutes": 636,
+        "miles": 700.0
+      },
+      "IND": {
+        "minutes": 178,
+        "miles": 194.6
+      },
+      "ARK": {
+        "minutes": 678,
+        "miles": 736.2
+      },
+      "FLL": {
+        "minutes": 898,
+        "miles": 1034.7
+      },
+      "MIA": {
+        "minutes": 917,
+        "miles": 1052.7
+      },
+      "FE": {
+        "minutes": 460,
+        "miles": 514.7
+      },
+      "PMTC": {
+        "minutes": 868,
+        "miles": 999.4
+      },
+      "TAM": {
+        "minutes": 753,
+        "miles": 849.4
+      },
+      "KIC": {
+        "minutes": 77,
+        "miles": 76.4
+      },
+      "NEWBURGH": {
+        "minutes": 669,
+        "miles": 743.4
+      },
+      "LATHROP": {
+        "minutes": 384,
+        "miles": 414.3
+      },
+      "MCO": {
+        "minutes": 728,
+        "miles": 836.2
+      },
+      "CIQ": {
+        "minutes": 381,
+        "miles": 414.3
+      },
+      "ORD": {
+        "minutes": 358,
+        "miles": 390.5
+      },
+      "AIC2": {
+        "minutes": 921,
+        "miles": 1061.5
+      }
+  {
     "CD": {
       "TP": {
         "minutes": 93,
