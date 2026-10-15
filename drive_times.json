@@ -184,8 +184,9 @@
     {
       "code": "NEWBURGH",
       "name": "Upstate NY Quarantine"
-    }
-    {"code":"FT",
+    },
+    {
+      "code":"FT",
      "name":"Fasig Tipton"
     },
   ],
