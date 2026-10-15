@@ -15,6 +15,16 @@
     "address":"2053 buck lane,Lexington, KY 40511"
   },
   {
+    "code":"FT",
+    "name":"Fasig Tipton",
+    "address":"2400 newtown pike, Lexington, KY 40511"
+  },
+  {
+    "code":"Lathrop",
+    "name":"Lathrop",
+    "address":"35w090 Lathrop ln, Dundee, IL 60118"
+  },
+  {
     "code":"KYF",
     "name":"Ky farm",
     "address":"2044 buck lane,Lexington, KY 40511"
