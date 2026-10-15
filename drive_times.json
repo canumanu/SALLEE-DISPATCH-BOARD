@@ -186,13 +186,12 @@
       "name": "Upstate NY Quarantine"
     },
     {
-      "code":"FT",
-     "name":"Fasig Tipton"
-    },
+      "code": "FT",
+      "name": "Fasig Tipton"
+    }
   ],
-  "matrix": 
-  {
-    "FT":{
+  "matrix": {
+    "FT": {
       "KYF": {
         "minutes": 15,
         "miles": 7.3
@@ -377,7 +376,7 @@
         "minutes": 921,
         "miles": 1061.5
       }
-  {
+    },
     "CD": {
       "TP": {
         "minutes": 93,
@@ -562,6 +561,10 @@
       "AIC2": {
         "minutes": 947,
         "miles": 1089.6
+      },
+      "FT": {
+        "minutes": 77,
+        "miles": 76.4
       }
     },
     "SS": {
@@ -748,6 +751,10 @@
       "AIC2": {
         "minutes": 946,
         "miles": 1087.2
+      },
+      "FT": {
+        "minutes": 73,
+        "miles": 73.2
       }
     },
     "Barn": {
@@ -934,6 +941,10 @@
       "LATHROP": {
         "minutes": 381,
         "miles": 410.8
+      },
+      "FT": {
+        "minutes": 15,
+        "miles": 7.3
       }
     },
     "KYF": {
@@ -1120,6 +1131,10 @@
       "ORD": {
         "minutes": 355,
         "miles": 387.0
+      },
+      "FT": {
+        "minutes": 15,
+        "miles": 7.3
       }
     },
     "Ocala": {
@@ -1306,6 +1321,10 @@
       "ORD": {
         "minutes": 970,
         "miles": 1101.1
+      },
+      "FT": {
+        "minutes": 658,
+        "miles": 751.5
       }
     },
     "BEL": {
@@ -1492,6 +1511,10 @@
       "MCO": {
         "minutes": 996,
         "miles": 1114.0
+      },
+      "FT": {
+        "minutes": 686,
+        "miles": 741.6
       }
     },
     "KYHP": {
@@ -1678,6 +1701,10 @@
       "AIC2": {
         "minutes": 921,
         "miles": 1061.5
+      },
+      "FT": {
+        "minutes": 0,
+        "miles": null
       }
     },
     "SAR": {
@@ -1864,6 +1891,10 @@
       "ORD": {
         "minutes": 764,
         "miles": 828.7
+      },
+      "FT": {
+        "minutes": 708,
+        "miles": 788.0
       }
     },
     "KEE": {
@@ -2050,6 +2081,10 @@
       "LATHROP": {
         "minutes": 383,
         "miles": 410.1
+      },
+      "FT": {
+        "minutes": 24,
+        "miles": 13.2
       }
     },
     "TP": {
@@ -2236,6 +2271,10 @@
       "NEWBURGH": {
         "minutes": 616,
         "miles": 680.2
+      },
+      "FT": {
+        "minutes": 64,
+        "miles": 65.9
       }
     },
     "LRL": {
@@ -2422,6 +2461,10 @@
       "LATHROP": {
         "minutes": 687,
         "miles": 743.7
+      },
+      "FT": {
+        "minutes": 492,
+        "miles": 540.8
       }
     },
     "MTH": {
@@ -2608,6 +2651,10 @@
       "LATHROP": {
         "minutes": 801,
         "miles": 865.7
+      },
+      "FT": {
+        "minutes": 650,
+        "miles": 709.6
       }
     },
     "PRX": {
@@ -2794,6 +2841,10 @@
       "MCO": {
         "minutes": 909,
         "miles": 1023.9
+      },
+      "FT": {
+        "minutes": 589,
+        "miles": 646.5
       }
     },
     "DEL": {
@@ -2980,6 +3031,10 @@
       "MCO": {
         "minutes": 856,
         "miles": 972.4
+      },
+      "FT": {
+        "minutes": 551,
+        "miles": 608.9
       }
     },
     "FH": {
@@ -3166,6 +3221,10 @@
       "CIQ": {
         "minutes": 732,
         "miles": 774.9
+      },
+      "FT": {
+        "minutes": 546,
+        "miles": 597.9
       }
     },
     "CNL": {
@@ -3352,6 +3411,10 @@
       "MCO": {
         "minutes": 661,
         "miles": 772.2
+      },
+      "FT": {
+        "minutes": 473,
+        "miles": 521.7
       }
     },
     "GP": {
@@ -3538,6 +3601,10 @@
       "LATHROP": {
         "minutes": 1263,
         "miles": 1430.0
+      },
+      "FT": {
+        "minutes": 908,
+        "miles": 1040.6
       }
     },
     "FG": {
@@ -3724,6 +3791,10 @@
       "NEWBURGH": {
         "minutes": 1190,
         "miles": 1342.4
+      },
+      "FT": {
+        "minutes": 659,
+        "miles": 750.3
       }
     },
     "PAY": {
@@ -3910,6 +3981,10 @@
       "AIC2": {
         "minutes": 118,
         "miles": 128.8
+      },
+      "FT": {
+        "minutes": 830,
+        "miles": 942.8
       }
     },
     "WO": {
@@ -4096,6 +4171,10 @@
       "CIQ": {
         "minutes": 504,
         "miles": 560.4
+      },
+      "FT": {
+        "minutes": 501,
+        "miles": 556.6
       }
     },
     "OP": {
@@ -4282,6 +4361,10 @@
       "ORD": {
         "minutes": 639,
         "miles": 699.1
+      },
+      "FT": {
+        "minutes": 559,
+        "miles": 619.9
       }
     },
     "CT": {
@@ -4468,6 +4551,10 @@
       "AIC2": {
         "minutes": 973,
         "miles": 1100.3
+      },
+      "FT": {
+        "minutes": 455,
+        "miles": 499.4
       }
     },
     "ELP": {
@@ -4654,6 +4741,10 @@
       "AIC2": {
         "minutes": 926,
         "miles": 1064.4
+      },
+      "FT": {
+        "minutes": 181,
+        "miles": 196.1
       }
     },
     "HOO": {
@@ -4840,6 +4931,10 @@
       "AIC2": {
         "minutes": 1052,
         "miles": 1199.9
+      },
+      "FT": {
+        "minutes": 159,
+        "miles": 161.3
       }
     },
     "FL": {
@@ -5026,6 +5121,10 @@
       "LATHROP": {
         "minutes": 602,
         "miles": 655.8
+      },
+      "FT": {
+        "minutes": 520,
+        "miles": 586.8
       }
     },
     "PEN": {
@@ -5212,6 +5311,10 @@
       "MCO": {
         "minutes": 876,
         "miles": 993.6
+      },
+      "FT": {
+        "minutes": 505,
+        "miles": 556.8
       }
     },
     "PID": {
@@ -5398,6 +5501,10 @@
       "ORD": {
         "minutes": 424,
         "miles": 459.0
+      },
+      "FT": {
+        "minutes": 369,
+        "miles": 416.7
       }
     },
     "PRM": {
@@ -5584,6 +5691,10 @@
       "MCO": {
         "minutes": 1193,
         "miles": 1344.8
+      },
+      "FT": {
+        "minutes": 577,
+        "miles": 649.8
       }
     },
     "TAM": {
@@ -5770,6 +5881,10 @@
       "NEWBURGH": {
         "minutes": 1095,
         "miles": 1196.2
+      },
+      "FT": {
+        "minutes": 753,
+        "miles": 849.4
       }
     },
     "FE": {
@@ -5956,6 +6071,10 @@
       "AIC2": {
         "minutes": 1248,
         "miles": 1400.6
+      },
+      "FT": {
+        "minutes": 460,
+        "miles": 514.7
       }
     },
     "KD": {
@@ -6142,6 +6261,10 @@
       "CIQ": {
         "minutes": 430,
         "miles": 477.3
+      },
+      "FT": {
+        "minutes": 168,
+        "miles": 181.3
       }
     },
     "PMTC": {
@@ -6328,6 +6451,10 @@
       "ORD": {
         "minutes": 1197,
         "miles": 1363.3
+      },
+      "FT": {
+        "minutes": 868,
+        "miles": 999.4
       }
     },
     "CVG": {
@@ -6514,6 +6641,10 @@
       "NEWBURGH": {
         "minutes": 614,
         "miles": 681.6
+      },
+      "FT": {
+        "minutes": 71,
+        "miles": 70.3
       }
     },
     "IND": {
@@ -6700,6 +6831,10 @@
       "NEWBURGH": {
         "minutes": 681,
         "miles": 749.9
+      },
+      "FT": {
+        "minutes": 178,
+        "miles": 194.6
       }
     },
     "EWR": {
@@ -6886,6 +7021,10 @@
       "MCO": {
         "minutes": 953,
         "miles": 1084.1
+      },
+      "FT": {
+        "minutes": 636,
+        "miles": 700.0
       }
     },
     "MIA": {
@@ -7072,6 +7211,10 @@
       "NEWBURGH": {
         "minutes": 1192,
         "miles": 1338.8
+      },
+      "FT": {
+        "minutes": 917,
+        "miles": 1052.7
       }
     },
     "FLL": {
@@ -7258,6 +7401,10 @@
       "NEWBURGH": {
         "minutes": 1171,
         "miles": 1322.3
+      },
+      "FT": {
+        "minutes": 898,
+        "miles": 1034.7
       }
     },
     "SDF": {
@@ -7444,6 +7591,10 @@
       "ORD": {
         "minutes": 299,
         "miles": 325.4
+      },
+      "FT": {
+        "minutes": 73,
+        "miles": 74.6
       }
     },
     "ARK": {
@@ -7630,6 +7781,10 @@
       "MCO": {
         "minutes": 987,
         "miles": 1108.4
+      },
+      "FT": {
+        "minutes": 678,
+        "miles": 736.2
       }
     },
     "ORD": {
@@ -7816,6 +7971,10 @@
       "NEWBURGH": {
         "minutes": 740,
         "miles": 807.6
+      },
+      "FT": {
+        "minutes": 358,
+        "miles": 390.5
       }
     },
     "MCO": {
@@ -8002,6 +8161,10 @@
       "CIQ": {
         "minutes": 1068,
         "miles": 1210.5
+      },
+      "FT": {
+        "minutes": 728,
+        "miles": 836.2
       }
     },
     "AIC2": {
@@ -8188,6 +8351,10 @@
       "CIQ": {
         "minutes": 1275,
         "miles": 1449.3
+      },
+      "FT": {
+        "minutes": 921,
+        "miles": 1061.5
       }
     },
     "KIC": {
@@ -8374,6 +8541,10 @@
       "AIC2": {
         "minutes": 947,
         "miles": 1089.6
+      },
+      "FT": {
+        "minutes": 77,
+        "miles": 76.4
       }
     },
     "CIQ": {
@@ -8560,6 +8731,10 @@
       "MCO": {
         "minutes": 1064,
         "miles": 1207.7
+      },
+      "FT": {
+        "minutes": 381,
+        "miles": 414.3
       }
     },
     "LATHROP": {
@@ -8746,6 +8921,10 @@
       "AIC2": {
         "minutes": 1259,
         "miles": 1433.2
+      },
+      "FT": {
+        "minutes": 384,
+        "miles": 414.3
       }
     },
     "NEWBURGH": {
@@ -8932,6 +9111,10 @@
       "CIQ": {
         "minutes": 764,
         "miles": 834.5
+      },
+      "FT": {
+        "minutes": 669,
+        "miles": 743.4
       }
     }
   }
